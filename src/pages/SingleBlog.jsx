@@ -239,7 +239,7 @@ const SingleBlog = () => {
             marginBottom: '20px'
           }}></div>
           <p style={{ fontSize: '1.2rem', color: '#2B463C' }}>
-            Loading SAT preparation article from {environment}...
+            Loading...
           </p>
         </div>
       </div>
@@ -448,7 +448,7 @@ const SingleBlog = () => {
                   onClick={handleCreateRoadmap}
                   style={{ width: '100%' }}
                 >
-                  <FaRoad style={{ fontSize: '1rem' }} /> Create Roadmap
+                   Create Roadmap
                 </button>
               </div>
             </div>
@@ -504,10 +504,11 @@ const SingleBlog = () => {
               <div className="article-meta sat-article-meta">
                 <div className="meta-left">
                   <span className="author">By {blog.author}</span>
-                  <span className="date">
+                  {/* Hidden in mobile view */}
+                  <span className="date desktop-only">
                     {format(new Date(blog.publish_date || blog.created_at), 'MMMM dd, yyyy')}
                   </span>
-                  <span className="reading-time">
+                  <span className="reading-time desktop-only">
                     ⏱️ {blog.reading_time || 5} min read
                   </span>
                 </div>
