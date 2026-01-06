@@ -4,6 +4,28 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { format } from 'date-fns';
 import './SingleBlog.css';
+import { 
+  FaPenAlt, 
+  FaChartBar, 
+  FaUniversity, 
+  FaBook, 
+  FaGamepad, 
+  FaUsers,
+  FaMap,
+  FaRoad
+} from 'react-icons/fa';
+
+// Import Material-UI icons
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MapIcon from '@mui/icons-material/Map';
+import QuizIcon from '@mui/icons-material/Quiz';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import ArticleIcon from '@mui/icons-material/Article';
+import GroupsIcon from '@mui/icons-material/Groups';
+import PersonIcon from '@mui/icons-material/Person';
+import HomeIcon from '@mui/icons-material/Home';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const SingleBlog = () => {
   const { slug } = useParams();
@@ -14,6 +36,7 @@ const SingleBlog = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [environment, setEnvironment] = useState('remote');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Define API URLs for different environments
   const API_URLS = {
@@ -52,23 +75,17 @@ const SingleBlog = () => {
         setBlog(response.data.blog);
         setRelatedPosts(response.data.relatedPosts || []);
         setTrendingPosts(response.data.trendingPosts || []);
-        
-        // Track social shares (mock)
-        trackSocialShare();
       } else {
         setError(response.data.message || 'Blog post not found');
       }
     } catch (err) {
       console.error('Error fetching blog:', err);
-      console.error('Error details:', err.response?.data);
-      console.error('Error status:', err.response?.status);
       
       if (err.response?.status === 404) {
         setError('Blog post not found. It might have been deleted or unpublished.');
       } else if (err.code === 'ERR_NETWORK') {
         setError(`Cannot connect to ${environment} Cloudflare Worker at ${API_BASE_URL}.`);
         
-        // Try switching environment automatically
         if (environment === 'remote') {
           setEnvironment('local');
           setError('Trying local environment...');
@@ -83,11 +100,6 @@ const SingleBlog = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const trackSocialShare = () => {
-    // In production, implement actual tracking
-    console.log('Blog viewed:', slug);
   };
 
   const handleSocialShare = (platform) => {
@@ -147,69 +159,88 @@ const SingleBlog = () => {
     
     return html.replace(
       /<p>/g, 
-      '<p style="margin-bottom: 1.5rem; line-height: 1.8;">'
+      '<p style="margin-bottom: 1.5rem; line-height: 1.6;">'
     );
+  };
+
+  // Handle navigation to StudyPlan
+  const handleStartMockTest = () => {
+    navigate('/study-plan');
+  };
+
+  // Handle navigation to StudyPlan (changed from /practice)
+  const handleSolveQuestions = () => {
+    navigate('/study-plan');
+  };
+
+  // Handle navigation to Roadmap
+  const handleCreateRoadmap = () => {
+    navigate('/roadmap');
   };
 
   // Render loading state
   if (loading) {
     return (
-      <div className="loading-container" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-        textAlign: 'center',
-        padding: '40px'
-      }}>
-        <div className="spinner" style={{
-          width: '50px',
-          height: '50px',
-          border: '5px solid #f3f3f3',
-          borderTop: '5px solid #667eea',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          marginBottom: '20px'
-        }}></div>
-        <p style={{ fontSize: '1.2rem', color: '#4a5568' }}>
-          Loading SAT preparation article from {environment}...
-          <br />
-          <small style={{ fontSize: '0.9rem', color: '#718096' }}>
-            Slug: {slug}
-            <br />
-            API: {API_BASE_URL}/api/blogs/{slug}
-          </small>
-        </p>
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={() => fetchBlog()}
-            style={{
-              padding: '10px 20px',
-              background: '#667eea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            Retry Loading
-          </button>
-          <select
-            value={environment}
-            onChange={(e) => setEnvironment(e.target.value)}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '6px',
-              border: '2px solid #667eea',
-              background: 'white',
-              color: '#4a5568',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="local">Local Database</option>
-            <option value="remote">Remote Database</option>
-          </select>
+      <div className="sat-app">
+        {/* Navigation */}
+        <nav className="navbar sat-navbar">
+          <div className="nav-container">
+            <div className="logo sat-logo">
+              <img src="/logo.png" alt="Logo" className="logo-img" />
+              <span className="logo-text">Mock SAT Exam</span>
+            </div>
+            
+            <div className="nav-links sat-nav-links">
+              <Link to="/courses" className="nav-link sat-nav-link courses-link">
+                Courses
+              </Link>
+              <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
+                RoadMap
+              </Link>
+              <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+                Mocks
+              </Link>
+              <Link to="/game" className="nav-link sat-nav-link game-link">
+                Game
+              </Link>
+              <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
+                Blogs
+              </Link>
+              <Link to="/community" className="nav-link sat-nav-link community-link">
+                Community
+              </Link>
+              <button className="signin-btn sat-signin-btn">
+                Account
+              </button>
+            </div>
+            
+            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              ☰
+            </button>
+          </div>
+        </nav>
+
+        <div className="loading-container" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          textAlign: 'center',
+          padding: '40px'
+        }}>
+          <div className="spinner" style={{
+            width: '50px',
+            height: '50px',
+            border: '5px solid #f3f3f3',
+            borderTop: '5px solid #4A7C59',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginBottom: '20px'
+          }}></div>
+          <p style={{ fontSize: '1.2rem', color: '#2B463C' }}>
+            Loading SAT preparation article from {environment}...
+          </p>
         </div>
       </div>
     );
@@ -218,125 +249,71 @@ const SingleBlog = () => {
   // Render error state
   if (error || !blog) {
     return (
-      <div className="error-container" style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '60px 20px',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ color: '#e53e3e', marginBottom: '20px' }}>Article Not Found</h2>
-        <p style={{ color: '#718096', fontSize: '1.1rem', marginBottom: '30px' }}>
-          {error || "The SAT preparation article you're looking for doesn't exist."}
-        </p>
-        
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '40px' }}>
-          <Link 
-            to="/blogs" 
-            style={{
-              display: 'inline-block',
-              padding: '12px 30px',
-              background: '#667eea',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontWeight: '600',
-              transition: 'all 0.3s'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#5a67d8'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#667eea'}
-          >
-            ← Browse All SAT Articles
-          </Link>
-          <Link 
-            to="/admin/create-blog" 
-            style={{
-              display: 'inline-block',
-              padding: '12px 30px',
-              background: '#38a169',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontWeight: '600',
-              transition: 'all 0.3s'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#2f855a'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#38a169'}
-          >
-            ✍️ Create New Blog
-          </Link>
-        </div>
-        
-        <div style={{ 
-          marginTop: '40px', 
-          background: '#f7fafc', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          textAlign: 'left',
-          border: '1px solid #e2e8f0'
-        }}>
-          <h4 style={{ color: '#4a5568', marginBottom: '10px' }}>Debug Information:</h4>
-          <div style={{ fontSize: '0.9rem', color: '#718096' }}>
-            <p style={{ marginBottom: '5px' }}>
-              <strong>Slug:</strong> {slug}
-            </p>
-            <p style={{ marginBottom: '5px' }}>
-              <strong>Environment:</strong> {environment}
-            </p>
-            <p style={{ marginBottom: '5px' }}>
-              <strong>API URL:</strong> {API_BASE_URL}/api/blogs/{slug}
-            </p>
-            <p style={{ marginBottom: '15px' }}>
-              <strong>Time:</strong> {new Date().toLocaleString()}
-            </p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button 
-                onClick={() => {
-                  window.open(`${API_BASE_URL}/api/blogs/${slug}`, '_blank');
-                }}
-                style={{
-                  padding: '8px 16px',
-                  background: '#ed8936',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
-                }}
-              >
-                Test API Endpoint
-              </button>
-              <button 
-                onClick={() => {
-                  window.open(`${API_BASE_URL}/api/blogs`, '_blank');
-                }}
-                style={{
-                  padding: '8px 16px',
-                  background: '#4299e1',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
-                }}
-              >
-                List All Blogs
-              </button>
-              <select
-                value={environment}
-                onChange={(e) => setEnvironment(e.target.value)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  border: '2px solid #667eea',
-                  background: 'white',
-                  color: '#4a5568',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="local">Switch to Local</option>
-                <option value="remote">Switch to Remote</option>
-              </select>
+      <div className="sat-app">
+        {/* Navigation */}
+        <nav className="navbar sat-navbar">
+          <div className="nav-container">
+            <div className="logo sat-logo">
+              <img src="/logo.png" alt="Logo" className="logo-img" />
+              <span className="logo-text">Mock SAT Exam</span>
             </div>
+            
+            <div className="nav-links sat-nav-links">
+              <Link to="/courses" className="nav-link sat-nav-link courses-link">
+                Courses
+              </Link>
+              <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
+                RoadMap
+              </Link>
+              <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+                Mocks
+              </Link>
+              <Link to="/game" className="nav-link sat-nav-link game-link">
+                Game
+              </Link>
+              <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
+                Blogs
+              </Link>
+              <Link to="/community" className="nav-link sat-nav-link community-link">
+                Community
+              </Link>
+              <button className="signin-btn sat-signin-btn">
+                Account
+              </button>
+            </div>
+            
+            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              ☰
+            </button>
+          </div>
+        </nav>
+
+        <div className="error-container" style={{
+          maxWidth: '800px',
+          margin: '100px auto 0',
+          padding: '60px 20px',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ color: '#e53e3e', marginBottom: '20px' }}>Article Not Found</h2>
+          <p style={{ color: '#666666', fontSize: '1.1rem', marginBottom: '30px' }}>
+            {error || "The SAT preparation article you're looking for doesn't exist."}
+          </p>
+          
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '40px' }}>
+            <Link 
+              to="/blogs" 
+              className="sat-hero-btn primary"
+              style={{ textDecoration: 'none', display: 'inline-block' }}
+            >
+              ← Browse All SAT Articles
+            </Link>
+            <Link 
+              to="/admin/create-blog" 
+              className="sat-hero-btn-secondary"
+              style={{ textDecoration: 'none', display: 'inline-block' }}
+            >
+              ✍️ Create New Blog
+            </Link>
           </div>
         </div>
       </div>
@@ -345,7 +322,7 @@ const SingleBlog = () => {
 
   // Render blog content
   return (
-    <>
+    <div className="sat-app">
       <Helmet>
         <title>{blog.meta_title || blog.title}</title>
         <meta name="description" content={blog.meta_description} />
@@ -399,73 +376,84 @@ const SingleBlog = () => {
         </script>
       </Helmet>
 
-      <div className="single-blog-container">
-        <div style={{
-          marginBottom: '20px',
-          padding: '10px',
-          background: '#e6f7ff',
-          borderRadius: '8px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <nav className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span> / </span>
-            <Link to="/blogs">Blog</Link>
-            <span> / </span>
-            <Link to={`/blogs?category=${encodeURIComponent(blog.category)}`}>
-              {blog.category}
-            </Link>
-            <span> / </span>
-            <span className="current">
-              {blog.title.length > 50 ? blog.title.substring(0, 50) + '...' : blog.title}
-            </span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '0.9rem', color: '#4a5568' }}>
-              Source: <strong>{environment === 'remote' ? 'Cloudflare D1' : 'Local SQLite'}</strong>
-            </span>
-            <select
-              value={environment}
-              onChange={(e) => setEnvironment(e.target.value)}
-              style={{
-                padding: '5px 10px',
-                borderRadius: '4px',
-                border: '2px solid #667eea',
-                background: 'white',
-                color: '#4a5568',
-                fontSize: '0.9rem',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="local">Local</option>
-              <option value="remote">Remote</option>
-            </select>
+      {/* Navigation */}
+      <nav className="navbar sat-navbar">
+        <div className="nav-container">
+          <div className="logo sat-logo">
+            <img src="/logo.png" alt="Logo" className="logo-img" />
+            <span className="logo-text">Mock SAT Exam</span>
           </div>
+          
+          <div className="nav-links sat-nav-links">
+            <Link to="/courses" className="nav-link sat-nav-link courses-link">
+              Courses
+            </Link>
+            <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
+              RoadMap
+            </Link>
+            <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+              Mocks
+            </Link>
+            <Link to="/game" className="nav-link sat-nav-link game-link">
+              Game
+            </Link>
+            <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
+              Blogs
+            </Link>
+            <Link to="/community" className="nav-link sat-nav-link community-link">
+              Community
+            </Link>
+            <button className="signin-btn sat-signin-btn">
+              Account
+            </button>
+          </div>
+          
+          <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            ☰
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Blog Content */}
+      <div className="single-blog-container sat-page-content">
+        <div className="breadcrumb sat-breadcrumb">
+          <Link to="/">Home</Link>
+          <span> / </span>
+          <Link to="/blogs">Blog</Link>
+          <span> / </span>
+          <Link to={`/blogs?category=${encodeURIComponent(blog.category)}`}>
+            {blog.category}
+          </Link>
+          <span> / </span>
+          <span className="current">
+            {blog.title.length > 50 ? blog.title.substring(0, 50) + '...' : blog.title}
+          </span>
         </div>
 
         <div className="blog-main">
           <aside className="blog-sidebar">
-            <div className="sidebar-widget">
-              <h3>Source Environment</h3>
-              <div style={{ 
-                padding: '10px', 
-                background: environment === 'remote' ? '#e6fffa' : '#fefcbf',
-                borderRadius: '6px',
-                textAlign: 'center',
-                marginBottom: '15px'
-              }}>
-                <strong>{environment === 'remote' ? '🌐 Cloudflare D1' : '💻 Local Database'}</strong>
+            <div className="sidebar-widget sat-sidebar-widget">
+              <h3>SAT Practice</h3>
+              <div className="sat-practice-buttons">
+                <button 
+                  className="sat-solve-btn"
+                  onClick={handleSolveQuestions}
+                  style={{ width: '100%', marginBottom: '0.75rem' }}
+                >
+                  Solve Questions
+                </button>
+                {/* NEW ROADMAP BUTTON */}
+                <button 
+                  className="sat-roadmap-btn"
+                  onClick={handleCreateRoadmap}
+                  style={{ width: '100%' }}
+                >
+                  <FaRoad style={{ fontSize: '1rem' }} /> Create Roadmap
+                </button>
               </div>
-              <p style={{ fontSize: '0.9rem', color: '#718096' }}>
-                {environment === 'remote' 
-                  ? 'This article is stored in Cloudflare D1 Database via Worker.' 
-                  : 'This article is stored in your local development database.'}
-              </p>
             </div>
 
-            <div className="sidebar-widget">
+            <div className="sidebar-widget sat-sidebar-widget">
               <h3>Trending SAT Articles</h3>
               <div className="trending-list">
                 {trendingPosts.length > 0 ? (
@@ -473,7 +461,7 @@ const SingleBlog = () => {
                     <Link 
                       key={post.slug} 
                       to={`/blog/${post.slug}`}
-                      className="trending-item"
+                      className="trending-item sat-trending-item"
                     >
                       <h4>{post.title}</h4>
                       <div className="trending-meta">
@@ -483,46 +471,37 @@ const SingleBlog = () => {
                     </Link>
                   ))
                 ) : (
-                  <p style={{ color: '#718096', fontSize: '0.9rem' }}>
+                  <p className="sat-no-content">
                     No trending articles yet
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="sidebar-widget">
+            <div className="sidebar-widget sat-sidebar-widget">
               <h3>SAT Quick Tips</h3>
-              <div className="quick-tips">
-                <div className="tip">
+              <div className="quick-tips sat-quick-tips">
+                <div className="tip sat-tip">
                   <strong>Math Tip:</strong> Memorize key formulas
                 </div>
-                <div className="tip">
+                <div className="tip sat-tip">
                   <strong>Reading Tip:</strong> Skim questions first
                 </div>
-                <div className="tip">
+                <div className="tip sat-tip">
                   <strong>Writing Tip:</strong> Watch for subject-verb agreement
                 </div>
-                <div className="tip">
+                <div className="tip sat-tip">
                   <strong>General:</strong> Pace yourself - don't spend too long on one question
                 </div>
               </div>
             </div>
-
-            <div className="sidebar-widget cta-sidebar">
-              <h3>Free SAT Practice Test</h3>
-              <p>Get instant score and detailed analysis</p>
-              <button className="cta-button" onClick={() => navigate('/practice-tests')}>
-                Download Now
-              </button>
-            </div>
           </aside>
 
-          <article className="blog-content">
-            <header className="article-header">
-              <div className="category-badge">{blog.category}</div>
-              <h1 className="article-title">{blog.title}</h1>
+          <article className="blog-content sat-blog-content">
+            <header className="article-header sat-article-header">
+              <h1 className="article-title sat-article-title">{blog.title}</h1>
               
-              <div className="article-meta">
+              <div className="article-meta sat-article-meta">
                 <div className="meta-left">
                   <span className="author">By {blog.author}</span>
                   <span className="date">
@@ -536,74 +515,44 @@ const SingleBlog = () => {
                   <span className="views">👁️ {blog.views || 0} views</span>
                 </div>
               </div>
-
-              <div className="social-share">
-                <span>Share:</span>
-                <button 
-                  onClick={() => handleSocialShare('facebook')}
-                  className="social-btn facebook"
-                >
-                  Facebook
-                </button>
-                <button 
-                  onClick={() => handleSocialShare('twitter')}
-                  className="social-btn twitter"
-                >
-                  Twitter
-                </button>
-                <button 
-                  onClick={() => handleSocialShare('linkedin')}
-                  className="social-btn linkedin"
-                >
-                  LinkedIn
-                </button>
-                <button 
-                  onClick={() => handleSocialShare('whatsapp')}
-                  className="social-btn whatsapp"
-                >
-                  WhatsApp
-                </button>
-              </div>
             </header>
 
             {blog.cover_image && (
-              <div className="featured-image">
+              <div className="featured-image sat-featured-image">
                 <img 
                   src={blog.cover_image} 
                   alt={blog.title}
                   loading="lazy"
                   onError={(e) => {
                     e.target.src = 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80';
-                    e.target.style.backgroundColor = '#f7fafc';
-                    e.target.style.padding = '40px';
-                    e.target.style.textAlign = 'center';
                   }}
                 />
-                <div className="image-caption">
+                <div className="image-caption sat-image-caption">
                   SAT preparation requires consistent practice and strategy
                 </div>
               </div>
             )}
 
-            <div className="article-body">
+            <div className="article-body sat-article-body">
               <div 
-                className="html-content"
+                className="html-content sat-html-content"
                 dangerouslySetInnerHTML={{ 
                   __html: formatContent(blog.html_content) 
                 }}
               />
             </div>
 
-            <footer className="article-footer">
+            <footer className="article-footer sat-article-footer">
+              
               {blog.keywords && blog.keywords.trim() && (
-                <div className="article-tags">
+                <div className="article-tags sat-article-tags">
                   <h4>Topics:</h4>
                   {blog.keywords.split(',').map((keyword, index) => (
                     keyword.trim() && (
                       <Link 
                         key={index}
                         to={`/blogs?search=${encodeURIComponent(keyword.trim())}`}
-                        className="tag"
+                        className="tag sat-tag"
                       >
                         {keyword.trim()}
                       </Link>
@@ -612,36 +561,28 @@ const SingleBlog = () => {
                 </div>
               )}
 
-              <div className="author-bio">
+              <div className="author-bio sat-author-bio">
                 <div className="author-info">
                   <h4>About the Author</h4>
                   <p><strong>{blog.author}</strong> is an SAT preparation expert with years of experience helping students achieve their target scores.</p>
                 </div>
               </div>
 
-              <div className="article-cta">
-                <h3>Ready to Boost Your SAT Score?</h3>
-                <p>Join thousands of students who improved their scores with our proven methods.</p>
-                <button className="primary-cta" onClick={() => navigate('/study-plans')}>
-                  Get Free SAT Study Plan
-                </button>
-              </div>
-
               {relatedPosts.length > 0 && (
-                <div className="related-posts">
+                <div className="related-posts sat-related-posts">
                   <h3>Related SAT Articles</h3>
-                  <div className="related-grid">
+                  <div className="related-grid sat-related-grid">
                     {relatedPosts.map(post => (
                       <Link 
                         key={post.slug}
                         to={`/blog/${post.slug}`}
-                        className="related-card"
+                        className="related-card sat-related-card"
                       >
                         {post.cover_image && (
                           <img 
                             src={post.cover_image} 
                             alt={post.title}
-                            className="related-image"
+                            className="related-image sat-related-image"
                             onError={(e) => {
                               e.target.src = 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=400&q=80';
                             }}
@@ -654,36 +595,44 @@ const SingleBlog = () => {
                   </div>
                 </div>
               )}
-
-              <div className="comments-section">
-                <h3>Discussion & Questions</h3>
-                <p>Have questions about SAT preparation? Share your thoughts below.</p>
-                <div className="comment-form">
-                  <textarea 
-                    placeholder="Share your SAT preparation experience or ask a question..."
-                    rows="4"
-                  ></textarea>
-                  <button className="submit-comment">Post Comment</button>
-                </div>
-              </div>
             </footer>
           </article>
         </div>
+      </div>
 
-        <div className="seo-article-footer">
-          <div className="seo-content">
-            <h3>SAT Preparation Resources</h3>
-            <div className="resource-links">
-              <Link to="/blogs?category=SAT+Math">SAT Math Formulas</Link>
-              <Link to="/blogs?category=SAT+Reading">Reading Comprehension Tips</Link>
-              <Link to="/blogs?category=SAT+Writing">Grammar Rules Cheat Sheet</Link>
-              <Link to="/blogs?category=Study+Plans">8-Week Study Plan</Link>
-              <Link to="/blogs?category=Test+Strategies">Test Day Checklist</Link>
-            </div>
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="mobile-menu sat-mobile-menu">
+          <div className="mobile-menu-content">
+            <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+            <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Home
+            </Link>
+            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Courses
+            </Link>
+            <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              RoadMap
+            </Link>
+            <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Community
+            </Link>
+            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Mock Practice
+            </Link>
+            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Game
+            </Link>
+            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Blogs
+            </Link>
+            <button className="mobile-signin-btn">
+              Account
+            </button>
           </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

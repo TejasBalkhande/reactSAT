@@ -5,6 +5,23 @@ import { format } from 'date-fns';
 import { Helmet } from 'react-helmet-async';
 import './BlogsList.css';
 
+// Import Material-UI icons for navbar
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MapIcon from '@mui/icons-material/Map';
+import QuizIcon from '@mui/icons-material/Quiz';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import ArticleIcon from '@mui/icons-material/Article';
+import GroupsIcon from '@mui/icons-material/Groups';
+import PersonIcon from '@mui/icons-material/Person';
+import HomeIcon from '@mui/icons-material/Home';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SortIcon from '@mui/icons-material/Sort';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+
 const BlogsList = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
@@ -19,6 +36,10 @@ const BlogsList = () => {
     total: 0
   });
 
+  // Mobile menu state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   const page = parseInt(searchParams.get('page')) || 1;
   const category = searchParams.get('category') || '';
   const search = searchParams.get('search') || '';
@@ -31,6 +52,20 @@ const BlogsList = () => {
   };
 
   const API_BASE_URL = API_URLS[environment];
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
 
   useEffect(() => {
     fetchBlogs();
@@ -162,7 +197,7 @@ const BlogsList = () => {
   return (
     <>
       <Helmet>
-        <title>SAT Preparation Blog - Expert Tips & Strategies</title>
+        <title>SAT Blog - Expert Tips & Strategies | Mock SAT Exam</title>
         <meta 
           name="description" 
           content="Comprehensive SAT preparation blog with math tips, reading strategies, writing guides, and college admission advice from experts." 
@@ -171,440 +206,388 @@ const BlogsList = () => {
           name="keywords" 
           content="SAT blog, SAT preparation, SAT tips, SAT math, SAT reading, SAT writing, college admissions" 
         />
-        <link rel="canonical" href="https://satprep.com/blogs" />
+        <link rel="canonical" href="https://satexam.com/blogs" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Blog",
             "name": "SAT Preparation Blog",
             "description": "Expert SAT preparation tips and strategies",
-            "url": "https://satprep.com/blogs",
+            "url": "https://satexam.com/blogs",
             "publisher": {
               "@type": "Organization",
-              "name": "SAT Prep Academy"
+              "name": "Mock SAT Exam"
             }
           })}
         </script>
       </Helmet>
 
-      <div className="blogs-list-container">
-        {/* Hero Section */}
-        <div className="blogs-hero">
-          <div className="hero-content">
-            <h1>SAT Preparation Blog</h1>
-            <p className="hero-subtitle">
-              Expert tips, strategies, and resources to help you ace the SAT exam
-            </p>
+      <div className="blogs-list-container sat-app">
+        {/* Navigation - Matching App.jsx exactly */}
+        <nav className="navbar sat-navbar">
+          <div className="nav-container">
+            {/* Logo on leftmost side */}
+            <div className="logo sat-logo">
+              <img src="/logo.png" alt="Logo" className="logo-img" />
+              <span className="logo-text">Mock SAT Exam</span>
+            </div>
             
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '15px',
-              marginBottom: '20px',
-              flexWrap: 'wrap'
-            }}>
-              <div style={{
-                background: environment === 'remote' ? 'rgba(72, 187, 120, 0.3)' : 'rgba(229, 62, 62, 0.3)',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                border: `2px solid ${environment === 'remote' ? '#48bb78' : '#e53e3e'}`,
-                color: 'white',
-                fontWeight: 'bold'
-              }}>
-                📊 Source: {environment === 'remote' ? 'Cloudflare D1' : 'Local SQLite'}
-              </div>
-              <select
-                value={environment}
-                onChange={(e) => handleEnvironmentChange(e.target.value)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  background: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="local">Local Database</option>
-                <option value="remote">Remote Database</option>
-              </select>
-              <button
-                onClick={fetchBlogs}
-                style={{
-                  background: '#ed8936',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px'
-                }}
-              >
-                🔄 Refresh
+            {/* Navigation links and Account button on rightmost side */}
+            <div className="nav-links sat-nav-links">
+              <Link to="/" className="nav-link sat-nav-link blogs-link">
+                Home
+              </Link>
+              <Link to="/courses" className="nav-link sat-nav-link courses-link">
+                Courses
+              </Link>
+              <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
+                RoadMap
+              </Link>
+              <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+                Mocks
+              </Link>
+              <Link to="/game" className="nav-link sat-nav-link game-link">
+                Game
+              </Link>
+              
+              <Link to="/community" className="nav-link sat-nav-link community-link">
+                Community
+              </Link>
+              {/* UPDATED ACCOUNT BUTTON */}
+              <button className="signin-btn sat-signin-btn">
+                Account
               </button>
             </div>
-
-            {apiError && (
-              <div style={{
-                background: '#fed7d7',
-                color: '#c53030',
-                padding: '10px 20px',
-                marginBottom: '20px',
-                borderRadius: '8px',
-                maxWidth: '600px',
-                margin: '0 auto 20px'
-              }}>
-                <strong>⚠️ Connection Error:</strong> {apiError}
-              </div>
-            )}
             
-            <form onSubmit={handleSearch} className="search-form">
-              <input
-                type="search"
-                name="search"
-                placeholder="Search SAT topics, tips, strategies..."
-                defaultValue={search}
-                className="search-input"
-              />
-              <button type="submit" className="search-button">
-                Search
-              </button>
-            </form>
-
-            <div className="trending-topics">
-              <span>Trending: </span>
-              {getPopularKeywords().slice(0, 4).map(keyword => (
-                <button
-                  key={keyword}
-                  onClick={() => {
-                    const params = new URLSearchParams(searchParams);
-                    params.set('search', keyword);
-                    setSearchParams(params);
-                  }}
-                  className="trending-tag"
-                >
-                  {keyword}
-                </button>
-              ))}
-            </div>
+            {/* Mobile menu toggle */}
+            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              ☰
+            </button>
           </div>
-        </div>
+        </nav>
 
-        <div className="blogs-main">
-          {/* Sidebar */}
-          <aside className="blogs-sidebar">
-            <div className="sidebar-section">
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '15px'
-              }}>
-                <h3>Data Source</h3>
-                <span style={{
-                  fontSize: '0.8rem',
-                  background: environment === 'remote' ? '#c6f6d5' : '#fed7d7',
-                  color: environment === 'remote' ? '#22543d' : '#742a2a',
-                  padding: '3px 8px',
-                  borderRadius: '10px'
-                }}>
-                  {environment === 'remote' ? '🌐 Cloudflare' : '💻 Local'}
-                </span>
-              </div>
-              <p style={{ fontSize: '0.9rem', color: '#718096', marginBottom: '15px' }}>
-                {environment === 'remote' 
-                  ? 'All blogs are stored in Cloudflare D1 Database and served via Worker.' 
-                  : 'Using local development database for testing.'}
-              </p>
-              <button 
-                onClick={() => handleEnvironmentChange(environment === 'remote' ? 'local' : 'remote')}
-                className="quick-link"
-                style={{ width: '100%', textAlign: 'center' }}
-              >
-                Switch to {environment === 'remote' ? 'Local' : 'Remote'}
-              </button>
-            </div>
+        {/* Main Content Area */}
+        <div className="blogs-main-content">
 
-            <div className="sidebar-section">
-              <h3>Categories</h3>
-              <div className="categories-list">
-                <button
-                  onClick={() => handleCategoryClick('')}
-                  className={`category-btn ${!category ? 'active' : ''}`}
-                >
-                  All Topics
-                </button>
-                {categories.map(cat => (
-                  <button
-                    key={cat.category}
-                    onClick={() => handleCategoryClick(cat.category)}
-                    className={`category-btn ${category === cat.category ? 'active' : ''}`}
-                  >
-                    <span>{cat.category}</span>
-                    <span className="category-count">{cat.count}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="sidebar-section">
-              <h3>Sort By</h3>
-              <div className="sort-options">
-                <button
-                  onClick={() => handleSortChange('newest')}
-                  className={`sort-btn ${sort === 'newest' ? 'active' : ''}`}
-                >
-                  Newest First
-                </button>
-                <button
-                  onClick={() => handleSortChange('popular')}
-                  className={`sort-btn ${sort === 'popular' ? 'active' : ''}`}
-                >
-                  Most Popular
-                </button>
-                <button
-                  onClick={() => handleSortChange('trending')}
-                  className={`sort-btn ${sort === 'trending' ? 'active' : ''}`}
-                >
-                  Trending
-                </button>
-              </div>
-            </div>
-
-            <div className="sidebar-section">
-              <h3>Quick Links</h3>
-              <div className="quick-links">
-                <button onClick={handleCreateBlog} className="quick-link">
-                  ✍️ Write a Blog
-                </button>
-                <a 
-                  href="/sitemap.xml" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="quick-link"
-                >
-                  🗺️ Sitemap
-                </a>
-                <button onClick={() => navigate('/')} className="quick-link">
-                  🏠 Home
-                </button>
-              </div>
-            </div>
-
-            <div className="sidebar-section cta-box">
-              <h3>Free SAT Guide</h3>
-              <p>Get our free comprehensive SAT preparation guide</p>
-              <button className="cta-button">
-                Download Now
-              </button>
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className="blogs-content">
-            <div style={{
-              marginBottom: '20px',
-              padding: '15px',
-              background: '#f7fafc',
-              borderRadius: '8px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <h2 style={{ margin: 0, color: '#2d3748' }}>
-                SAT Preparation Articles
-                {category && (
-                  <span style={{ color: '#667eea', marginLeft: '10px', fontSize: '1rem' }}>
-                    / {category}
-                  </span>
-                )}
-              </h2>
-              <div style={{ fontSize: '0.9rem', color: '#718096' }}>
-                Showing {blogs.length} of {pagination.total} articles
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-                <p>Loading SAT articles from {environment} database...</p>
-                <p style={{ fontSize: '0.9rem', color: '#718096' }}>
-                  API: {API_BASE_URL}/api/blogs
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="blogs-grid">
-                  {blogs.map(blog => (
-                    <article key={blog.id} className="blog-card">
-                      <div onClick={() => navigate(`/blog/${blog.slug}`)} className="blog-card-link">
-                        <div className="blog-image-container">
-                          <img 
-                            src={blog.cover_image || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=400'} 
-                            alt={blog.title}
-                            className="blog-image"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.target.src = 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=400';
-                            }}
-                          />
-                          <div className="blog-category">{blog.category}</div>
-                          <div style={{
-                            position: 'absolute',
-                            top: '15px',
-                            right: '15px',
-                            background: environment === 'remote' ? 'rgba(72, 187, 120, 0.9)' : 'rgba(229, 62, 62, 0.9)',
-                            color: 'white',
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.7rem',
-                            fontWeight: 'bold'
-                          }}>
-                            {environment === 'remote' ? '🌐' : '💻'}
-                          </div>
-                        </div>
-                        
-                        <div className="blog-content">
-                          <h2 className="blog-title">{blog.title}</h2>
-                          <p className="blog-excerpt">
-                            {blog.meta_description || blog.title.substring(0, 150) + '...'}
-                          </p>
-                          
-                          <div className="blog-meta">
-                            <div className="meta-left">
-                              <span className="author">{blog.author}</span>
-                              <span className="date">
-                                {format(new Date(blog.publish_date), 'MMM dd, yyyy')}
-                              </span>
-                            </div>
-                            <div className="meta-right">
-                              <span className="reading-time">
-                                ⏱️ {blog.reading_time || 5} min read
-                              </span>
-                              <span className="views">
-                                👁️ {blog.views || 0} views
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+          {/* Main Content Grid */}
+          <div className="blogs-content-grid">
+            {/* Sidebar - Hidden on Mobile */}
+            {!isMobile && (
+              <aside className="blogs-sidebar">
+                <div className="sidebar-section">
+                  <h3 className="sidebar-title">
+                    <FilterListIcon className="sidebar-icon" />
+                    Categories
+                  </h3>
+                  <div className="categories-list">
+                    <button
+                      onClick={() => handleCategoryClick('')}
+                      className={`category-btn ${!category ? 'active' : ''}`}
+                    >
+                      <span>All Topics</span>
+                      <span className="category-count">{pagination.total}</span>
+                    </button>
+                    {categories.map(cat => (
+                      <button
+                        key={cat.category}
+                        onClick={() => handleCategoryClick(cat.category)}
+                        className={`category-btn ${category === cat.category ? 'active' : ''}`}
+                      >
+                        <span>{cat.category}</span>
+                        <span className="category-count">{cat.count}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Pagination */}
-                {pagination.totalPages > 1 && (
-                  <div className="pagination">
+                <div className="sidebar-section">
+                  <h3 className="sidebar-title">
+                    <SortIcon className="sidebar-icon" />
+                    Sort By
+                  </h3>
+                  <div className="sort-options">
                     <button
-                      onClick={() => handlePageChange(page - 1)}
-                      disabled={page <= 1}
-                      className="pagination-btn"
+                      onClick={() => handleSortChange('newest')}
+                      className={`sort-btn ${sort === 'newest' ? 'active' : ''}`}
                     >
-                      Previous
+                      Newest First
                     </button>
-                    
-                    <div className="page-numbers">
-                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (pagination.totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (page <= 3) {
-                          pageNum = i + 1;
-                        } else if (page >= pagination.totalPages - 2) {
-                          pageNum = pagination.totalPages - 4 + i;
-                        } else {
-                          pageNum = page - 2 + i;
-                        }
-                        
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => handlePageChange(pageNum)}
-                            className={`page-btn ${page === pageNum ? 'active' : ''}`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    
                     <button
-                      onClick={() => handlePageChange(page + 1)}
-                      disabled={page >= pagination.totalPages}
-                      className="pagination-btn"
+                      onClick={() => handleSortChange('popular')}
+                      className={`sort-btn ${sort === 'popular' ? 'active' : ''}`}
                     >
-                      Next
+                      Most Popular
+                    </button>
+                    <button
+                      onClick={() => handleSortChange('trending')}
+                      className={`sort-btn ${sort === 'trending' ? 'active' : ''}`}
+                    >
+                      <TrendingUpIcon className="btn-icon" />
+                      Trending
                     </button>
                   </div>
-                )}
+                </div>
 
-                {/* No results */}
-                {blogs.length === 0 && !loading && (
-                  <div className="no-results">
-                    <h3>No articles found</h3>
-                    <p>
-                      {search || category 
-                        ? `No articles found for "${search || category}" in ${environment} database.` 
-                        : `No articles in ${environment} database.`}
-                    </p>
-                    <button onClick={() => handleCreateBlog()} className="btn-primary" style={{ marginTop: '20px' }}>
-                      ✍️ Write Your First Blog
+                <div className="sidebar-section">
+                  <h3 className="sidebar-title">Quick Actions</h3>
+                  <div className="quick-actions">
+                    <button onClick={handleCreateBlog} className="quick-action-btn primary">
+                      ✍️ Write a Blog
                     </button>
-                    {environment === 'remote' && (
-                      <button 
-                        onClick={() => handleEnvironmentChange('local')}
-                        className="btn-secondary" 
-                        style={{ marginTop: '10px', marginLeft: '10px' }}
-                      >
-                        Try Local Database
-                      </button>
-                    )}
+                    <Link to="/" className="quick-action-btn secondary">
+                      🏠 Back to Home
+                    </Link>
                   </div>
-                )}
-              </>
+                </div>
+
+                <div className="sidebar-section cta-box">
+                  <h3 className="sidebar-title">Free SAT Guide</h3>
+                  <p>Get our free comprehensive SAT preparation guide with expert strategies</p>
+                  <button className="cta-button">
+                    Download Now →
+                  </button>
+                </div>
+              </aside>
             )}
-          </main>
-        </div>
 
-        {/* SEO Footer */}
-        <footer className="seo-footer">
-          <div className="seo-content">
-            <h2>SAT Preparation Resources</h2>
-            <div className="seo-links">
-              <div className="seo-column">
-                <h3>SAT Sections</h3>
-                <ul>
-                  <li>SAT Math Practice</li>
-                  <li>SAT Reading Comprehension</li>
-                  <li>SAT Writing and Language</li>
-                  <li>SAT Essay Writing</li>
-                </ul>
+            
+
+            {/* Main Content */}
+            <main className={`blogs-content-area ${isMobile ? 'mobile-view' : ''}`}>
+              <div className="content-header">
+                <h2 className="content-title">
+                  SAT Preparation Articles
+                  {category && (
+                    <span className="category-filter">
+                      / {category}
+                    </span>
+                  )}
+                </h2>
+                <div className="content-stats">
+                  Showing {blogs.length} of {pagination.total} articles
+                </div>
               </div>
-              <div className="seo-column">
-                <h3>Study Materials</h3>
-                <ul>
-                  <li>SAT Practice Tests</li>
-                  <li>SAT Vocabulary Lists</li>
-                  <li>SAT Math Formulas</li>
-                  <li>SAT Study Plans</li>
-                </ul>
+
+              {/* NEW: Search Bar at top of articles section */}
+              <div className="content-search-container">
+                <form onSubmit={handleSearch} className="content-search-form">
+                  <div className="content-search-input-container">
+                    <input
+                      type="search"
+                      name="search"
+                      placeholder="Search articles by title, topic, or keyword..."
+                      defaultValue={search}
+                      className="content-search-input"
+                    />
+                    <button type="submit" className="content-search-button">
+                      Search Articles
+                    </button>
+                  </div>
+                </form>
               </div>
-              <div className="seo-column">
-                <h3>Test Strategies</h3>
-                <ul>
-                  <li>Time Management</li>
-                  <li>Guessing Strategies</li>
-                  <li>Stress Management</li>
-                  <li>Test Day Tips</li>
-                </ul>
+
+              {loading ? (
+                <div className="loading-state">
+                  <div className="loading-spinner"></div>
+                  <p>Loading SAT articles....</p>
+                  
+                </div>
+              ) : (
+                <>
+                  <div className={`blogs-grid ${isMobile ? 'mobile-grid' : ''}`}>
+                    {blogs.map(blog => (
+                      <article key={blog.id} className={`blog-card ${isMobile ? 'mobile-card' : ''}`}>
+                        <div onClick={() => navigate(`/blog/${blog.slug}`)} className="blog-card-link">
+                          <div className="blog-image-container">
+                            <img 
+                              src={blog.cover_image || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=400'} 
+                              alt={blog.title}
+                              className="blog-image"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.target.src = 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=400';
+                              }}
+                            />
+                            <div className="blog-category">{blog.category}</div>
+                            
+                          </div>
+                          
+                          <div className="blog-content">
+                            <h2 className="blog-title">{blog.title}</h2>
+                            <p className="blog-excerpt">
+                              {blog.meta_description || blog.title.substring(0, 120) + '...'}
+                            </p>
+                            
+                            <div className="blog-meta">
+                              <div className="meta-left">
+                                <span className="author">{blog.author}</span>
+                                <span className="date">
+                                  <CalendarTodayIcon className="meta-icon" />
+                                  {format(new Date(blog.publish_date), 'MMM dd, yyyy')}
+                                </span>
+                              </div>
+                              <div className="meta-right">
+                                <span className="reading-time">
+                                  ⏱️ {blog.reading_time || 5} min
+                                </span>
+                                <span className="views">
+                                  👁️ {blog.views || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  {pagination.totalPages > 1 && (
+                    <div className="pagination">
+                      <button
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page <= 1}
+                        className="pagination-btn prev"
+                      >
+                        Previous
+                      </button>
+                      
+                      <div className="page-numbers">
+                        {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (pagination.totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (page <= 3) {
+                            pageNum = i + 1;
+                          } else if (page >= pagination.totalPages - 2) {
+                            pageNum = pagination.totalPages - 4 + i;
+                          } else {
+                            pageNum = page - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`page-btn ${page === pageNum ? 'active' : ''}`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page >= pagination.totalPages}
+                        className="pagination-btn next"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+
+                  {/* No results */}
+                  {blogs.length === 0 && !loading && (
+                    <div className="no-results">
+                      <h3>No articles found</h3>
+                      <p>
+                        {search || category 
+                          ? `No articles found for "${search || category}" in ${environment} database.` 
+                          : `No articles in ${environment} database.`}
+                      </p>
+                      <button onClick={() => handleCreateBlog()} className="create-blog-btn">
+                        ✍️ Write Your First Blog
+                      </button>
+                      {environment === 'remote' && (
+                        <button 
+                          onClick={() => handleEnvironmentChange('local')}
+                          className="switch-db-btn"
+                        >
+                          Try Local Database
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </main>
+          </div>
+
+          {/* Footer - Matching App.jsx */}
+          <footer className="footer sat-footer">
+            <div className="footer-content">
+              <div className="footer-columns">
+                <div className="footer-column">
+                  <h3>Company</h3>
+                  <a href="#">About Us</a>
+                  <a href="#">Careers</a>
+                  <a href="#">Press</a>
+                </div>
+                
+                <div className="footer-column">
+                  <h3>Resources</h3>
+                  <a href="#">Pricing/Plans</a>
+                  <a href="#">Study Materials</a>
+                  <a href="#">FAQs</a>
+                </div>
+                
+                <div className="footer-column">
+                  <h3>Support</h3>
+                  <a href="#">Contact Us</a>
+                  <a href="#">Help Center</a>
+                  <a href="#">System Status</a>
+                </div>
+                
+                <div className="footer-column">
+                  <h3>Legal</h3>
+                  <a href="#">Privacy Policy</a>
+                  <a href="#">Terms of Service</a>
+                  <a href="#">Cookie Policy</a>
+                </div>
+              </div>
+              
+              <div className="footer-divider"></div>
+              
+              <div className="footer-bottom">
+                <p>© 2025 Mock SAT Exam. All rights reserved.</p>
               </div>
             </div>
+          </footer>
+        </div>
+
+        {/* Mobile Menu - Matching App.jsx */}
+        {isMenuOpen && (
+          <div className="mobile-menu sat-mobile-menu">
+            <div className="mobile-menu-content">
+              <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+              <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Home
+              </Link>
+              <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Courses
+              </Link>
+              <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                RoadMap
+              </Link>
+              <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Community
+              </Link>
+              <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Mock Practice
+              </Link>
+              <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Game
+              </Link>
+              <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Blogs
+              </Link>
+              <button className="mobile-signin-btn">
+                Account
+              </button>
+            </div>
           </div>
-        </footer>
+        )}
       </div>
     </>
   );

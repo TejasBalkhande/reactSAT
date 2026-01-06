@@ -241,7 +241,7 @@
   
   /* REDUCE LOGO IMAGE SIZE ON MOBILE */
   .logo-img {
-    width: 150px; /* REDUCED FROM 205px */
+    width: 25px; /* REDUCED FROM 205px */
     height: 25px; /* REDUCED FROM 35px */
     margin-left: 0; /* REMOVED LARGE LEFT MARGIN */
   }
@@ -264,7 +264,7 @@
   
   /* FURTHER REDUCE LOGO IMAGE SIZE ON SMALLER MOBILE */
   .logo-img {
-    width: 120px; /* FURTHER REDUCED */
+    width: 20px; /* FURTHER REDUCED */
     height: 20px; /* FURTHER REDUCED */
   }
   
@@ -433,7 +433,14 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+
 .sat-hero-btn.primary {
+  background: #4A7C59;
+  color: white;
+  box-shadow: 0 4px 8px rgba(74, 124, 89, 0.4);
+}
+
+.sat-hero-btn.primary1 {
   background: #4A7C59;
   color: white;
   box-shadow: 0 4px 8px rgba(74, 124, 89, 0.4);
