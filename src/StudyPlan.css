@@ -275,13 +275,14 @@ body {
   background-color: var(--secondary-green);
   color: white;
   border: none;
-  padding: 16px 32px;
+  padding: 15px 32px;
   font-size: 18px;
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 3px 6px rgba(74, 124, 89, 0.4);
+
 }
 
 .start-practice-btn:hover {
