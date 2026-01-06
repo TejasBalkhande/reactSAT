@@ -1,0 +1,10 @@
+
+# wrangler.toml
+name = "sat-blog-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sat-blog-db"
+database_id = "5473d638-1e72-4d72-878b-fae86943684f"  # Your remote DB ID

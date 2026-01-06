@@ -11,6 +11,10 @@ import {
 } from 'react-icons/fa';
 import './App.css'
 
+import { HelmetProvider } from 'react-helmet-async';
+
+
+
 // Import Material-UI icons
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MapIcon from '@mui/icons-material/Map';
@@ -34,6 +38,9 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 // Import StudyPlan component
 import StudyPlan from './StudyPlan';
 import PracticePage from './PracticePage';
+import BlogsList from './pages/BlogsList';
+import CreateBlog from './pages/CreateBlog';
+import SingleBlog from './pages/SingleBlog';
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -812,19 +819,25 @@ function HomePage() {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/study-plan" element={<StudyPlan />} />
-        <Route path="/practice" element={<PracticePage />} />
-        <Route path="/courses" element={<div className="page">Courses Page</div>} />
-        <Route path="/roadmap" element={<div className="page">RoadMap Page</div>} />
-        <Route path="/mock-practice" element={<div className="page">Mock Practice Page</div>} />
-        <Route path="/game" element={<div className="page">Game Page</div>} />
-        <Route path="/community" element={<div className="page">Community Page</div>} />
-        <Route path="/blogs" element={<div className="page">Blogs Page</div>} />
-      </Routes>
-    </Router>
+    <HelmetProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/study-plan" element={<StudyPlan />} />
+          <Route path="/practice" element={<PracticePage />} />
+          <Route path="/courses" element={<div className="page">Courses Page</div>} />
+          <Route path="/roadmap" element={<div className="page">RoadMap Page</div>} />
+          <Route path="/mock-practice" element={<div className="page">Mock Practice Page</div>} />
+          <Route path="/game" element={<div className="page">Game Page</div>} />
+          <Route path="/community" element={<div className="page">Community Page</div>} />
+          <Route path="/blogs" element={<BlogsList />} />
+          <Route path="/blog/:slug" element={<SingleBlog />} />
+          <Route path="/admin/create-blog" element={<CreateBlog />} />
+          
+        </Routes>
+      </Router>
+    </HelmetProvider>
+    
   )
 }
 
