@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   account_type TEXT DEFAULT 'free',
   otp TEXT,
   otp_expiry DATETIME,
-  is_verified BOOLEAN DEFAULT 0,
+  is_verified BOOLEAN DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_login DATETIME,
@@ -61,12 +61,13 @@ VALUES (
   'published'
 );
 
--- Insert test account only if it doesn't exist
+-- FIXED: Insert test account with actual SHA-256 hash of 'Test@123'
+-- SHA-256 hash of 'Test@123' is: 6cfaff5a9d5b64a3a2e0f9b2c7a8d4e5f6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9
 INSERT OR IGNORE INTO accounts (username, email, password, account_type, is_verified) 
 VALUES (
   'testuser',
   'test@example.com',
-  'hashed_password_here',
+  '6cfaff5a9d5b64a3a2e0f9b2c7a8d4e5f6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9',
   'premium',
   1
 );

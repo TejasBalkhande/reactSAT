@@ -2,68 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './login_screen.css';
 
-// Icon components
-const EmailIcon = () => (
-  <svg className="login-input-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-  </svg>
-);
-
-const LockIcon = () => (
-  <svg className="login-input-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-  </svg>
-);
-
-const EyeIcon = () => (
-  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-  </svg>
-);
-
-const EyeSlashIcon = () => (
-  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg className="login-tip-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-  </svg>
-);
-
-const RobotIcon = () => (
-  <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-  </svg>
-);
-
-const ChartIcon = () => (
-  <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-  </svg>
-);
-
-const MapIcon = () => (
-  <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-  </svg>
-);
-
-const BookIcon = () => (
-  <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-  </svg>
-);
-
-const ErrorIcon = () => (
-  <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-  </svg>
-);
-
 const LoginScreen = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -72,7 +10,18 @@ const LoginScreen = () => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [apiMessage, setApiMessage] = useState({ text: '', type: '' });
+
+  // Try multiple API endpoints in order
+  const API_ENDPOINTS = [
+    'https://sat-blog-worker.tejasbalkhande221.workers.dev',
+    'http://localhost:8787' // Local development
+  ];
+
+  const getApiUrl = () => {
+    return API_ENDPOINTS[0]; // Use the Cloudflare Worker URL
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,30 +29,115 @@ const LoginScreen = () => {
       ...prev,
       [name]: value
     }));
-    setError('');
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    if (apiMessage.text) {
+      setApiMessage({ text: '', type: '' });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email cannot be empty';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Enter a valid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password cannot be empty';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+    
     setLoading(true);
-    setError('');
+    setApiMessage({ text: '', type: '' });
 
-    // Simulate API call
-    setTimeout(() => {
-      if (formData.email === 'test@example.com' && formData.password === 'password') {
-        navigate('/', { state: { user: { email: formData.email } } });
+    try {
+      console.log('📤 Sending login request to:', getApiUrl());
+      console.log('📤 Login data:', { email: formData.email, password_length: formData.password.length });
+      
+      const response = await fetch(`${getApiUrl()}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+      console.log('📥 Response from Cloudflare:', data);
+      
+      if (data.success) {
+        setApiMessage({ 
+          text: '✅ Login successful! Redirecting...', 
+          type: 'success' 
+        });
+        
+        // Store token and user data in localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Auto redirect to profile after 1 second
+        setTimeout(() => {
+          navigate('/profile');
+        }, 1000);
       } else {
-        setError('Invalid email or password');
+        setApiMessage({ 
+          text: `❌ ${data.error || 'Login failed'}`, 
+          type: 'error' 
+        });
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      setApiMessage({ 
+        text: `❌ Network error: ${error.message}. Please check the API URL.`, 
+        type: 'error' 
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
-  const isSmallScreen = window.innerWidth < 900;
+  const EyeIcon = () => (
+    <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+    </svg>
+  );
+
+  const EyeSlashIcon = () => (
+    <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+    </svg>
+  );
+
+  const ErrorIcon = () => (
+    <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+  );
+
+  const SuccessIcon = () => (
+    <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+  );
 
   return (
     <div className="login-container">
-      {/* Left Panel - Login Form */}
       <div className="login-left-panel">
         <div className="login-form-container">
           <div className="login-logo-container">
@@ -116,41 +150,79 @@ const LoginScreen = () => {
           </div>
 
           <div className="login-header">
-            <h1>Welcome Back</h1>
-            <p>Continue your journey to SAT success</p>
+            <h1>Welcome Back!</h1>
+            <p>Login to continue your SAT preparation journey</p>
+            
+            <div style={{ marginBottom: '15px', fontSize: '14px', color: '#666' }}>
+              <p><strong>Test Credentials:</strong></p>
+              <p>Email: <code>test@example.com</code></p>
+              <p>Password: <code>Test@123</code></p>
+            </div>
+            
+            {apiMessage.text && (
+              <div style={{ 
+                padding: '10px', 
+                marginBottom: '15px', 
+                borderRadius: '8px',
+                backgroundColor: apiMessage.type === 'success' ? '#E6F4EA' : '#FFEBEE',
+                color: apiMessage.type === 'success' ? '#2E7D32' : '#D32F2F',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                {apiMessage.type === 'success' ? <SuccessIcon /> : <ErrorIcon />}
+                {apiMessage.text}
+              </div>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
+            {/* Email Field */}
             <div className="login-input-group">
               <label className="login-input-label">Email</label>
               <div className="login-input-with-icon">
-                <EmailIcon />
+                <div className="login-input-icon">
+                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="login-input"
-                  placeholder="Enter your email"
-                  required
+                  placeholder="test@example.com"
                   disabled={loading}
+                  autoComplete="email"
                 />
               </div>
+              {errors.email && (
+                <div className="login-error">
+                  <ErrorIcon /> {errors.email}
+                </div>
+              )}
             </div>
 
+            {/* Password Field */}
             <div className="login-input-group">
               <label className="login-input-label">Password</label>
               <div className="login-input-with-icon">
-                <LockIcon />
+                <div className="login-input-icon">
+                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   className="login-input"
-                  placeholder="Enter your password"
-                  required
+                  placeholder="Test@123"
                   disabled={loading}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -161,16 +233,11 @@ const LoginScreen = () => {
                   {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
                 </button>
               </div>
-            </div>
-
-            {error && (
-              <div className="login-error">
-                <ErrorIcon /> {error}
-              </div>
-            )}
-
-            <div className="login-forgot-password">
-              <Link to="/forgot-password">Forgot Password?</Link>
+              {errors.password && (
+                <div className="login-error">
+                  <ErrorIcon /> {errors.password}
+                </div>
+              )}
             </div>
 
             <button
@@ -189,121 +256,70 @@ const LoginScreen = () => {
             </button>
           </form>
 
+          <div className="login-divider">
+            <div className="login-divider-line"></div>
+            <span className="login-divider-text">Or</span>
+            <div className="login-divider-line"></div>
+          </div>
+
           <div className="login-signup-link">
             <p>
               Don't have an account?{' '}
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/signup">Sign up</Link>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Right Panel - Features (hidden on small screens) */}
-      {!isSmallScreen && (
-        <div className="login-right-panel">
-          <div className="login-right-content">
-            <h2 className="login-right-title">Master the SAT</h2>
-            <p className="login-right-subtitle">
-              Join thousands of students who achieved their dream scores
-            </p>
+      <div className="login-right-panel">
+        <div className="login-right-content">
+          <h2 className="login-right-title">Track Your Progress</h2>
+          <p className="login-right-subtitle">
+            Continue your journey to a higher SAT score
+          </p>
 
-            {/* SAT Tips */}
-            <div className="login-tips-container">
-              <h3 className="login-tips-title">Proven Strategies:</h3>
-              <div className="login-tip-item">
-                <CheckIcon />
-                <p className="login-tip-text">
-                  Time management is key - practice pacing for each section
-                </p>
+          <div className="login-features-grid">
+            <div className="login-feature-tile">
+              <div className="login-feature-icon">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
               </div>
-              <div className="login-tip-item">
-                <CheckIcon />
-                <p className="login-tip-text">
-                  Learn to eliminate wrong answers quickly
-                </p>
-              </div>
-              <div className="login-tip-item">
-                <CheckIcon />
-                <p className="login-tip-text">
-                  Master the evidence-based reading approach
-                </p>
-              </div>
-              <div className="login-tip-item">
-                <CheckIcon />
-                <p className="login-tip-text">
-                  Use official College Board materials for authentic practice
-                </p>
+              <div className="login-feature-content">
+                <h3>Score Analytics</h3>
+                <p>View detailed performance reports and track improvement</p>
               </div>
             </div>
 
-            {/* Features Grid */}
-            <div className="login-features-grid">
-              <div className="login-feature-tile">
-                <div className="login-feature-icon">
-                  <RobotIcon />
-                </div>
-                <div className="login-feature-content">
-                  <h3>AI Tutor for Guidance</h3>
-                  <p>Ask AI Tutor doubts about that specific question during practice session</p>
-                </div>
+            <div className="login-feature-tile">
+              <div className="login-feature-icon">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
               </div>
-              <div className="login-feature-tile">
-                <div className="login-feature-icon">
-                  <ChartIcon />
-                </div>
-                <div className="login-feature-content">
-                  <h3>Score Analytics</h3>
-                  <p>Detailed breakdown of strengths and weaknesses</p>
-                </div>
-              </div>
-              <div className="login-feature-tile">
-                <div className="login-feature-icon">
-                  <MapIcon />
-                </div>
-                <div className="login-feature-content">
-                  <h3>Personalized Roadmap</h3>
-                  <p>AI-powered study plan tailored to your goals keeping track of your weakness</p>
-                </div>
-              </div>
-              <div className="login-feature-tile">
-                <div className="login-feature-icon">
-                  <BookIcon />
-                </div>
-                <div className="login-feature-content">
-                  <h3>Question Bank</h3>
-                  <p>12,000+ practice questions with video explanations</p>
-                </div>
+              <div className="login-feature-content">
+                <h3>Practice History</h3>
+                <p>Access your completed tests and review answers</p>
               </div>
             </div>
 
-            {/* Testimonial */}
-            <div className="login-testimonial">
-              <p className="login-testimonial-text">
-                "The practice tests and analytics helped me identify my weak areas. 
-                I improved my math score by 150 points in just 2 months!"
-              </p>
-              <div className="login-testimonial-author">
-                <img 
-                  src="/assets/student2.jpg" 
-                  alt="Michael Chen" 
-                  className="login-author-avatar"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextElementSibling.style.display = 'block';
-                  }}
-                />
-                <div style={{ display: 'none' }} className="login-author-avatar-placeholder"></div>
-                <div className="login-author-info">
-                  <h4>Michael Chen</h4>
-                  <p>Scored 1520 | Admitted to MIT</p>
-                </div>
+            <div className="login-feature-tile">
+              <div className="login-feature-icon">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div className="login-feature-content">
+                <h3>Study Schedule</h3>
+                <p>Pick up where you left off with personalized study plans</p>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
+
 
 export default LoginScreen;

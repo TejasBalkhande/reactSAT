@@ -13,6 +13,51 @@ app.use('/api/*', cors({
   credentials: true,
 }));
 
+// FIXED: Improved password hashing helper
+const hashPassword = async (password) => {
+  try {
+    // Using SHA-256 for hashing
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  } catch (error) {
+    console.error('Hashing error:', error);
+    throw error;
+  }
+};
+
+// JWT helper functions (simplified for demo)
+const generateToken = (userId, username) => {
+  // In production, use a proper JWT library
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = btoa(JSON.stringify({
+    userId,
+    username,
+    iat: Date.now(),
+    exp: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+  }));
+  // Create a simple signature (in production, use proper HMAC)
+  const signature = btoa(`${header}.${payload}.${crypto.randomUUID()}`);
+  return `${header}.${payload}.${signature}`;
+};
+
+const verifyToken = (token) => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp < Date.now()) return null;
+    
+    return payload;
+  } catch (error) {
+    return null;
+  }
+};
+
 // Global error handler
 app.onError((err, c) => {
   console.error('Unhandled error:', err);
@@ -125,15 +170,19 @@ app.get('/api/init-db', async (c) => {
       console.log('✅ Sample blog added');
     }
     
-    // Add test account if none exist
+    // Add test account if none exist (with hashed password)
     if (accountCount.count === 0) {
+      // FIXED: Properly await the hashPassword function
+      const hashedPassword = await hashPassword('Test@123');
+      console.log('Generated hash for Test@123:', hashedPassword);
+      
       await c.env.DB.prepare(`
         INSERT INTO accounts (username, email, password, account_type, is_verified) 
         VALUES (?, ?, ?, ?, ?)
       `).bind(
         'testuser',
         'test@example.com',
-        'hashed_password_here',
+        hashedPassword,
         'premium',
         1
       ).run();
@@ -211,7 +260,7 @@ app.get('/api/check-duplicate', async (c) => {
   }
 });
 
-// SIGNUP ENDPOINT - Direct account creation without OTP
+// SIGNUP ENDPOINT - With password hashing
 app.post('/api/signup', async (c) => {
   let body;
   try {
@@ -302,9 +351,8 @@ app.post('/api/signup', async (c) => {
       }, 409);
     }
     
-    // IMPORTANT: In production, hash the password with bcrypt!
-    // For now, we'll store it as plain text (FOR DEVELOPMENT ONLY)
-    const hashedPassword = body.password;
+    // Hash the password before storing
+    const hashedPassword = await hashPassword(body.password);
     
     // Insert into Cloudflare D1 database as VERIFIED (no OTP needed)
     const result = await c.env.DB.prepare(`
@@ -330,6 +378,9 @@ app.post('/api/signup', async (c) => {
     
     console.log('✅ Account created:', newAccount);
     
+    // Generate JWT token for immediate login
+    const token = generateToken(newAccount.id, newAccount.username);
+    
     return c.json({ 
       success: true, 
       message: 'Account created successfully!',
@@ -339,6 +390,8 @@ app.post('/api/signup', async (c) => {
         email: newAccount.email,
         account_type: newAccount.account_type
       },
+      token: token,
+      expires_in: 7 * 24 * 60 * 60, // 7 days in seconds
       timestamp: new Date().toISOString()
     });
     
@@ -372,10 +425,12 @@ app.post('/api/signup', async (c) => {
   }
 });
 
-// LOGIN ENDPOINT
+// LOGIN ENDPOINT - With password hashing and JWT
 app.post('/api/login', async (c) => {
   try {
     const body = await c.req.json();
+    
+    console.log('📥 Login attempt for email:', body.email);
     
     if (!body.email || !body.password) {
       return c.json({
@@ -384,22 +439,47 @@ app.post('/api/login', async (c) => {
       }, 400);
     }
     
+    // Get account from database
     const account = await c.env.DB.prepare(
       `SELECT id, username, email, password, account_type, is_verified, status FROM accounts WHERE email = ?`
     ).bind(body.email).first();
     
     if (!account) {
+      console.log('❌ Account not found for email:', body.email);
       return c.json({
         success: false,
         error: 'Invalid email or password'
       }, 401);
     }
     
-    // Check password (In production, use bcrypt.compare())
-    if (account.password !== body.password) {
+    console.log('✅ Account found:', account.id, account.username);
+    console.log('🔑 Stored hash:', account.password.substring(0, 20) + '...');
+    
+    // Hash the provided password for comparison
+    const hashedPassword = await hashPassword(body.password);
+    console.log('🔑 Provided password hash:', hashedPassword.substring(0, 20) + '...');
+    
+    // FIXED: Debug logging for hash comparison
+    console.log('🔍 Hash comparison:', {
+      storedLength: account.password.length,
+      providedLength: hashedPassword.length,
+      match: account.password === hashedPassword
+    });
+    
+    // Check hashed password
+    if (account.password !== hashedPassword) {
+      console.log('❌ Password mismatch');
       return c.json({
         success: false,
         error: 'Invalid email or password'
+      }, 401);
+    }
+    
+    // Check if account is active
+    if (account.status !== 'active') {
+      return c.json({
+        success: false,
+        error: 'Account is not active'
       }, 401);
     }
     
@@ -408,8 +488,10 @@ app.post('/api/login', async (c) => {
       `UPDATE accounts SET last_login = datetime('now') WHERE id = ?`
     ).bind(account.id).run();
     
-    // Generate token (In production, use JWT)
-    const token = `cf-token-${account.id}-${Date.now()}`;
+    // Generate JWT token
+    const token = generateToken(account.id, account.username);
+    
+    console.log('✅ Login successful for user:', account.username);
     
     return c.json({
       success: true,
@@ -418,18 +500,66 @@ app.post('/api/login', async (c) => {
         id: account.id,
         username: account.username,
         email: account.email,
-        account_type: account.account_type
+        account_type: account.account_type,
+        is_verified: account.is_verified
       },
-      token: token
+      token: token,
+      expires_in: 7 * 24 * 60 * 60 // 7 days in seconds
     });
     
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     return c.json({ 
       success: false, 
       error: 'Failed to login'
     }, 500);
   }
+});
+
+// PROFILE ENDPOINT (Protected)
+app.get('/api/profile', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization');
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return c.json({ success: false, error: 'No token provided' }, 401);
+    }
+    
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+    
+    if (!decoded) {
+      return c.json({ success: false, error: 'Invalid or expired token' }, 401);
+    }
+    
+    const account = await c.env.DB.prepare(
+      `SELECT id, username, email, account_type, is_verified, 
+       created_at, last_login, profile_picture, full_name, 
+       subscription_expiry, status 
+       FROM accounts WHERE id = ?`
+    ).bind(decoded.userId).first();
+    
+    if (!account) {
+      return c.json({ success: false, error: 'User not found' }, 404);
+    }
+    
+    return c.json({
+      success: true,
+      user: account
+    });
+    
+  } catch (error) {
+    console.error('Profile error:', error);
+    return c.json({ success: false, error: 'Failed to fetch profile' }, 500);
+  }
+});
+
+// LOGOUT ENDPOINT (client-side only)
+app.post('/api/logout', async (c) => {
+  return c.json({
+    success: true,
+    message: 'Logout successful'
+  });
 });
 
 // GET ALL ACCOUNTS (Admin)

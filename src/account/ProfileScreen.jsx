@@ -1,246 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './profile_screen.css';
-
-// Icon components
-const UserIcon = () => (
-  <svg className="profile-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-  </svg>
-);
-
-const EmailIcon = () => (
-  <svg className="profile-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-  </svg>
-);
-
-const CalendarIcon = () => (
-  <svg className="profile-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg className="profile-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-  </svg>
-);
-
-const EditIcon = () => (
-  <svg className="profile-icon icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-  </svg>
-);
-
-const SaveIcon = () => (
-  <svg className="profile-icon icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-  </svg>
-);
-
-const CancelIcon = () => (
-  <svg className="profile-icon icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-  </svg>
-);
-
-const ChartIcon = () => (
-  <svg className="profile-icon icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-  </svg>
-);
-
-const TestIcon = () => (
-  <svg className="profile-icon icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-  </svg>
-);
-
-const LogoutIcon = () => (
-  <svg className="profile-icon icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-  </svg>
-);
 
 const ProfileScreen = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
-    full_name: '',
-    profile_picture: ''
-  });
   const [stats, setStats] = useState({
-    totalPracticeTests: 0,
+    practiceTests: 0,
     averageScore: 0,
-    improvement: 0,
-    streakDays: 0
+    studyHours: 0,
+    improvement: 0
   });
 
   const API_URL = 'https://sat-blog-worker.tejasbalkhande221.workers.dev';
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (!token || !storedUser) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/api/profile`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setUserData(data.user);
+          // Mock stats - in real app, fetch these from your API
+          setStats({
+            practiceTests: Math.floor(Math.random() * 20) + 5,
+            averageScore: Math.floor(Math.random() * 400) + 1000,
+            studyHours: Math.floor(Math.random() * 100) + 20,
+            improvement: Math.floor(Math.random() * 200) + 50
+          });
+        } else {
+          setError(data.error || 'Failed to load profile');
+          // Clear invalid token
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => navigate('/login'), 2000);
+        }
+      } catch (error) {
+        console.error('Profile fetch error:', error);
+        setError('Network error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    const token = localStorage.getItem('sat_token');
-    
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      
-      const response = await fetch(`${API_URL}/api/profile`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setProfile(data.profile);
-        setEditForm({
-          full_name: data.profile.full_name || '',
-          profile_picture: data.profile.profile_picture || ''
-        });
-        
-        // Fetch additional stats (mock data for now)
-        setStats({
-          totalPracticeTests: 8,
-          averageScore: 1450,
-          improvement: 125,
-          streakDays: 7
-        });
-      } else {
-        setError(data.error || 'Failed to load profile');
-        
-        // If token is invalid, redirect to login
-        if (response.status === 401) {
-          localStorage.removeItem('sat_token');
-          localStorage.removeItem('sat_user');
-          navigate('/login');
-        }
-      }
-    } catch (error) {
-      console.error('Fetch profile error:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSaveProfile = async () => {
-    const token = localStorage.getItem('sat_token');
-    
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      
-      const response = await fetch(`${API_URL}/api/profile`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(editForm)
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setProfile(data.profile);
-        setIsEditing(false);
-        alert('✅ Profile updated successfully!');
-      } else {
-        setError(data.error || 'Failed to update profile');
-      }
-    } catch (error) {
-      console.error('Update profile error:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChangePassword = () => {
-    const currentPassword = prompt('Enter your current password:');
-    if (!currentPassword) return;
-    
-    const newPassword = prompt('Enter your new password (min 6 characters):');
-    if (!newPassword || newPassword.length < 6) {
-      alert('Password must be at least 6 characters');
-      return;
-    }
-    
-    const confirmPassword = prompt('Confirm your new password:');
-    if (newPassword !== confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-    
-    changePassword(currentPassword, newPassword);
-  };
-
-  const changePassword = async (currentPassword, newPassword) => {
-    const token = localStorage.getItem('sat_token');
-    
-    try {
-      const response = await fetch(`${API_URL}/api/profile/change-password`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          current_password: currentPassword,
-          new_password: newPassword
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        alert('✅ Password changed successfully!');
-      } else {
-        alert(`❌ ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Change password error:', error);
-      alert('Failed to change password. Please try again.');
-    }
-  };
+  }, [navigate]);
 
   const handleLogout = async () => {
-    const token = localStorage.getItem('sat_token');
-    
-    if (token) {
-      try {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
         await fetch(`${API_URL}/api/logout`, {
           method: 'POST',
           headers: {
@@ -248,351 +76,288 @@ const ProfileScreen = () => {
             'Content-Type': 'application/json'
           }
         });
-      } catch (error) {
-        console.error('Logout error:', error);
       }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatSubscriptionDate = (dateString) => {
+    if (!dateString) return 'Free Account';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = date - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    // Clear local storage
-    localStorage.removeItem('sat_token');
-    localStorage.removeItem('sat_user');
-    localStorage.removeItem('sat_remember');
-    
-    // Redirect to login
-    navigate('/login');
+    if (diffDays > 0) {
+      return `Expires in ${diffDays} days`;
+    } else if (diffDays === 0) {
+      return 'Expires today';
+    } else {
+      return 'Expired';
+    }
   };
 
   if (loading) {
     return (
       <div className="profile-loading">
-        <div className="profile-loading-spinner"></div>
+        <div className="loading-spinner"></div>
         <p>Loading your profile...</p>
       </div>
     );
   }
 
-  if (error && !profile) {
+  if (error) {
     return (
       <div className="profile-error">
-        <div className="profile-error-icon">⚠️</div>
-        <h3>Unable to Load Profile</h3>
-        <p>{error}</p>
-        <button 
-          className="profile-retry-btn"
-          onClick={fetchProfile}
-        >
-          Retry
-        </button>
-        <button 
-          className="profile-login-btn"
-          onClick={() => navigate('/login')}
-        >
-          Go to Login
-        </button>
+        <div className="error-icon">⚠️</div>
+        <h3>{error}</h3>
+        <p>Redirecting to login...</p>
       </div>
     );
   }
 
   return (
     <div className="profile-container">
-      {/* Profile Header */}
+      {/* Header */}
       <div className="profile-header">
-        <div className="profile-header-content">
-          <div className="profile-avatar-container">
-            {isEditing ? (
-              <div className="profile-avatar-edit">
-                <div 
-                  className="profile-avatar-large"
-                  style={{ 
-                    backgroundImage: editForm.profile_picture ? `url(${editForm.profile_picture})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                >
-                  {!editForm.profile_picture && (profile?.username?.charAt(0) || 'U')}
-                </div>
-                <input
-                  type="text"
-                  name="profile_picture"
-                  value={editForm.profile_picture}
-                  onChange={handleEditChange}
-                  className="profile-picture-input"
-                  placeholder="Enter image URL"
-                />
-              </div>
-            ) : (
-              <div 
-                className="profile-avatar-large"
-                style={{ 
-                  backgroundImage: profile?.profile_picture ? `url(${profile.profile_picture})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                }}
-              >
-                {!profile?.profile_picture && (profile?.username?.charAt(0) || 'U')}
-              </div>
-            )}
-            
-            <div className="profile-avatar-badge">
-              {profile?.account_type === 'premium' ? '⭐ Premium' : 'Free'}
-            </div>
+        <div className="header-content">
+          <div className="header-logo">
+            <img src="/logo.png" alt="Mock SAT Exam" className="profile-logo" />
+            <h1 className="profile-title">Mock SAT Exam</h1>
           </div>
-          
-          <div className="profile-info-main">
-            {isEditing ? (
-              <input
-                type="text"
-                name="full_name"
-                value={editForm.full_name}
-                onChange={handleEditChange}
-                className="profile-name-input"
-                placeholder="Enter your full name"
-              />
-            ) : (
-              <h1 className="profile-name">
-                {profile?.full_name || profile?.username || 'User'}
-              </h1>
-            )}
-            
-            <p className="profile-username">@{profile?.username}</p>
-            <p className="profile-email">{profile?.email}</p>
-            
-            <div className="profile-meta">
-              <div className="profile-meta-item">
-                <CalendarIcon />
-                <span>Member since {profile?.member_since || 'Unknown'}</span>
-              </div>
-              <div className="profile-meta-item">
-                <ClockIcon />
-                <span>Last login: {profile?.last_login ? 
-                  new Date(profile.last_login).toLocaleDateString() : 'Never'}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="profile-actions">
-            {isEditing ? (
-              <>
-                <button 
-                  className="profile-action-btn profile-action-save"
-                  onClick={handleSaveProfile}
-                  disabled={loading}
-                >
-                  <SaveIcon /> Save
-                </button>
-                <button 
-                  className="profile-action-btn profile-action-cancel"
-                  onClick={handleEditToggle}
-                  disabled={loading}
-                >
-                  <CancelIcon /> Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <button 
-                  className="profile-action-btn profile-action-edit"
-                  onClick={handleEditToggle}
-                >
-                  <EditIcon /> Edit Profile
-                </button>
-                <button 
-                  className="profile-action-btn profile-action-logout"
-                  onClick={handleLogout}
-                >
-                  <LogoutIcon /> Logout
-                </button>
-              </>
-            )}
-          </div>
+          <button className="logout-button" onClick={handleLogout}>
+            <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Logout
+          </button>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="profile-content">
-        {/* Left Column - Stats & Quick Actions */}
+        {/* Left Column - Profile Info */}
         <div className="profile-left-column">
-          {/* Stats Cards */}
-          <div className="profile-stats-grid">
-            <div className="profile-stat-card">
-              <div className="profile-stat-icon">📊</div>
-              <div className="profile-stat-content">
-                <h3>{stats.totalPracticeTests}</h3>
-                <p>Practice Tests</p>
+          <div className="profile-card">
+            <div className="profile-header-section">
+              <div className="profile-avatar">
+                {userData?.profile_picture ? (
+                  <img src={userData.profile_picture} alt={userData.username} />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {userData?.username?.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="profile-basic-info">
+                <h2>{userData?.full_name || userData?.username}</h2>
+                <p className="profile-email">{userData?.email}</p>
+                <div className="account-badge">
+                  <span className={`badge ${userData?.account_type}`}>
+                    {userData?.account_type?.toUpperCase()}
+                  </span>
+                  <span className={`status-badge ${userData?.status}`}>
+                    {userData?.status}
+                  </span>
+                </div>
               </div>
             </div>
-            
-            <div className="profile-stat-card">
-              <div className="profile-stat-icon">🎯</div>
-              <div className="profile-stat-content">
-                <h3>{stats.averageScore}</h3>
-                <p>Average Score</p>
+
+            <div className="profile-details">
+              <div className="detail-row">
+                <span className="detail-label">Member Since</span>
+                <span className="detail-value">
+                  {formatDate(userData?.created_at)}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Last Login</span>
+                <span className="detail-value">
+                  {formatDate(userData?.last_login)}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Account Status</span>
+                <span className="detail-value">
+                  <span className={`status-indicator ${userData?.status}`}>
+                    ●
+                  </span>
+                  {userData?.status === 'active' ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Subscription</span>
+                <span className="detail-value">
+                  {formatSubscriptionDate(userData?.subscription_expiry)}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Email Verified</span>
+                <span className="detail-value">
+                  {userData?.is_verified ? '✅ Verified' : '❌ Not Verified'}
+                </span>
               </div>
             </div>
-            
-            <div className="profile-stat-card">
-              <div className="profile-stat-icon">📈</div>
-              <div className="profile-stat-content">
-                <h3>+{stats.improvement}</h3>
-                <p>Points Improved</p>
-              </div>
-            </div>
-            
-            <div className="profile-stat-card">
-              <div className="profile-stat-icon">🔥</div>
-              <div className="profile-stat-content">
-                <h3>{stats.streakDays}</h3>
-                <p>Day Streak</p>
-              </div>
+
+            <div className="profile-actions">
+              <button className="action-button primary">
+                <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit Profile
+              </button>
+              <button className="action-button secondary">
+                <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                Change Password
+              </button>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="profile-quick-actions">
-            <h3>Quick Actions</h3>
-            <button className="profile-quick-action-btn">
-              <TestIcon />
-              <span>Take Practice Test</span>
-            </button>
-            <button className="profile-quick-action-btn">
-              <ChartIcon />
-              <span>View Progress Report</span>
-            </button>
-            <button 
-              className="profile-quick-action-btn"
-              onClick={handleChangePassword}
-            >
-              <LockIcon />
-              <span>Change Password</span>
-            </button>
-            <button className="profile-quick-action-btn">
-              <UserIcon />
-              <span>Account Settings</span>
-            </button>
-          </div>
-
-          {/* Account Info */}
-          <div className="profile-account-info">
-            <h3>Account Information</h3>
-            <div className="profile-info-item">
-              <span className="profile-info-label">Account Type:</span>
-              <span className={`profile-info-value ${profile?.account_type === 'premium' ? 'premium' : 'free'}`}>
-                {profile?.account_type === 'premium' ? '⭐ Premium' : 'Free'}
-              </span>
+          <div className="study-plan-card">
+            <h3>Study Plan</h3>
+            <div className="plan-progress">
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: '65%' }}></div>
+              </div>
+              <span className="progress-text">65% Complete</span>
             </div>
-            <div className="profile-info-item">
-              <span className="profile-info-label">Account Age:</span>
-              <span className="profile-info-value">
-                {profile?.account_age_days || 0} days
-              </span>
+            <div className="plan-details">
+              <p>Next scheduled study session: Today, 6:00 PM</p>
+              <p>Focus area: Math - Algebra</p>
             </div>
-            <div className="profile-info-item">
-              <span className="profile-info-label">Status:</span>
-              <span className="profile-info-value status-active">
-                ● Active
-              </span>
-            </div>
-            <div className="profile-info-item">
-              <span className="profile-info-label">Verification:</span>
-              <span className="profile-info-value status-verified">
-                ✓ Verified
-              </span>
-            </div>
+            <button className="plan-button">
+              View Full Plan
+            </button>
           </div>
         </div>
 
-        {/* Right Column - Recent Activity & More */}
+        {/* Right Column - Stats & Activities */}
         <div className="profile-right-column">
-          {/* Recent Activity */}
-          <div className="profile-recent-activity">
-            <div className="profile-section-header">
-              <h3>Recent Activity</h3>
-              <Link to="/activity" className="profile-view-all">View All</Link>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon practice">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+              </div>
+              <h3>{stats.practiceTests}</h3>
+              <p>Practice Tests Completed</p>
             </div>
-            
-            <div className="profile-activity-list">
-              <div className="profile-activity-item">
-                <div className="profile-activity-icon">📝</div>
-                <div className="profile-activity-content">
-                  <h4>Practice Test Completed</h4>
-                  <p>Scored 1480 on SAT Practice Test #4</p>
-                  <span className="profile-activity-time">2 hours ago</span>
-                </div>
+
+            <div className="stat-card">
+              <div className="stat-icon score">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
               </div>
-              
-              <div className="profile-activity-item">
-                <div className="profile-activity-icon">📚</div>
-                <div className="profile-activity-content">
-                  <h4>Study Session</h4>
-                  <p>Completed 30 Math practice questions</p>
-                  <span className="profile-activity-time">Yesterday</span>
-                </div>
+              <h3>{stats.averageScore}</h3>
+              <p>Average SAT Score</p>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon hours">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
               </div>
-              
-              <div className="profile-activity-item">
-                <div className="profile-activity-icon">🎯</div>
-                <div className="profile-activity-content">
-                  <h4>Goal Achieved</h4>
-                  <p>Reached 90% accuracy in Reading section</p>
-                  <span className="profile-activity-time">3 days ago</span>
-                </div>
+              <h3>{stats.studyHours}</h3>
+              <p>Study Hours</p>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon improvement">
+                <svg className="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
               </div>
-              
-              <div className="profile-activity-item">
-                <div className="profile-activity-icon">🤖</div>
-                <div className="profile-activity-content">
-                  <h4>AI Tutor Session</h4>
-                  <p>Asked 5 questions about algebra concepts</p>
-                  <span className="profile-activity-time">5 days ago</span>
+              <h3>+{stats.improvement}</h3>
+              <p>Score Improvement</p>
+            </div>
+          </div>
+
+          <div className="recent-activity">
+            <h3>Recent Activity</h3>
+            <div className="activity-list">
+              <div className="activity-item">
+                <div className="activity-icon completed">
+                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
                 </div>
+                <div className="activity-content">
+                  <p>Completed Practice Test #8</p>
+                  <span className="activity-time">2 hours ago</span>
+                </div>
+                <span className="activity-score">+15 points</span>
+              </div>
+
+              <div className="activity-item">
+                <div className="activity-icon study">
+                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                </div>
+                <div className="activity-content">
+                  <p>Studied SAT Math - Geometry</p>
+                  <span className="activity-time">Yesterday</span>
+                </div>
+                <span className="activity-time">45 min</span>
+              </div>
+
+              <div className="activity-item">
+                <div className="activity-icon quiz">
+                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div className="activity-content">
+                  <p>Completed Reading Comprehension Quiz</p>
+                  <span className="activity-time">2 days ago</span>
+                </div>
+                <span className="activity-score">92%</span>
               </div>
             </div>
           </div>
 
-          {/* Study Goals */}
-          <div className="profile-study-goals">
-            <div className="profile-section-header">
-              <h3>Study Goals</h3>
-              <button className="profile-edit-goals">Edit</button>
-            </div>
-            
-            <div className="profile-goal-item">
-              <div className="profile-goal-progress">
-                <div className="profile-goal-progress-bar" style={{ width: '75%' }}></div>
-              </div>
-              <div className="profile-goal-info">
-                <h4>Complete 1000 Math Questions</h4>
-                <p>750/1000 (75%)</p>
-              </div>
-            </div>
-            
-            <div className="profile-goal-item">
-              <div className="profile-goal-progress">
-                <div className="profile-goal-progress-bar" style={{ width: '40%' }}></div>
-              </div>
-              <div className="profile-goal-info">
-                <h4>Finish 4 Full Practice Tests</h4>
-                <p>2/4 (40%)</p>
-              </div>
-            </div>
-            
-            <div className="profile-goal-item">
-              <div className="profile-goal-progress">
-                <div className="profile-goal-progress-bar" style={{ width: '90%' }}></div>
-              </div>
-              <div className="profile-goal-info">
-                <h4>Improve Reading Score by 50 points</h4>
-                <p>45/50 (90%)</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Upgrade Card */}
-          {profile?.account_type !== 'premium' && (
-            <div className="profile-upgrade-card">
-              <h3>⭐ Unlock Premium Features</h3>
-              <p>Get unlimited practice tests, advanced analytics, and priority AI tutor support.</p>
-              <button className="profile-upgrade-btn">
-                Upgrade to Premium - $19.99/month
+          <div className="quick-actions">
+            <h3>Quick Actions</h3>
+            <div className="action-buttons">
+              <button className="quick-action-button">
+                <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                New Practice Test
+              </button>
+              <button className="quick-action-button">
+                <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                View Analytics
+              </button>
+              <button className="quick-action-button">
+                <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Schedule Study
               </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
