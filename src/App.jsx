@@ -41,6 +41,11 @@ import PracticePage from './PracticePage';
 import BlogsList from './pages/BlogsList';
 import CreateBlog from './pages/CreateBlog';
 import SingleBlog from './pages/SingleBlog';
+import LoginScreen from './account/LoginScreen';
+import SignupScreen from './account/SignupScreen';
+import ProfileScreen from './account/ProfileScreen';
+import CoursesScreen from './courses/courses';
+import CoursesPlaylistScreen from './courses/courses_playlist';
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -319,9 +324,9 @@ function HomePage() {
               Community
             </Link>
             {/* UPDATED ACCOUNT BUTTON */}
-            <button className="signin-btn sat-signin-btn">
+            <Link to="/login" className="nav-link sat-nav-link community-link">
               Account
-            </button>
+            </Link>
           </div>
           
           {/* Mobile menu toggle */}
@@ -807,9 +812,9 @@ function HomePage() {
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs
             </Link>
-            <button className="mobile-signin-btn">
+            <Link to="/login" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Account
-            </button>
+            </Link>
           </div>
         </div>
       )}
@@ -825,7 +830,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/study-plan" element={<StudyPlan />} />
           <Route path="/practice" element={<PracticePage />} />
-          <Route path="/courses" element={<div className="page">Courses Page</div>} />
+          <Route path="/courses" element={<CoursesScreen/>} />
+          <Route path="/courses/:id" element={<CoursesPlaylistScreen />} />
           <Route path="/roadmap" element={<div className="page">RoadMap Page</div>} />
           <Route path="/mock-practice" element={<div className="page">Mock Practice Page</div>} />
           <Route path="/game" element={<div className="page">Game Page</div>} />
@@ -833,6 +839,10 @@ function App() {
           <Route path="/blogs" element={<BlogsList />} />
           <Route path="/blog/:slug" element={<SingleBlog />} />
           <Route path="/admin/create-blog" element={<CreateBlog />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/signup" element={<SignupScreen />} />
+          <Route path="/profile" element={<ProfileScreen />} />
+          
           
         </Routes>
       </Router>
