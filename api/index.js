@@ -954,5 +954,130 @@ app.all('*', (c) => {
   }, 404);
 });
 
+// Add this after your existing endpoints in index.js
+
+// ==================== ROADMAP ENDPOINTS ====================
+
+// GET ROADMAP BY EMAIL
+app.get('/api/roadmap', async (c) => {
+  try {
+    const email = c.req.query('email');
+    
+    if (!email) {
+      return c.json({ 
+        success: false, 
+        error: 'Email is required' 
+      }, 400);
+    }
+    
+    const roadmap = await c.env.DB.prepare(
+      `SELECT roadmap_string, current_level FROM roadmaps WHERE email = ?`
+    ).bind(email).first();
+    
+    if (!roadmap) {
+      return c.json({ 
+        success: true, 
+        exists: false,
+        message: 'No roadmap found for this user' 
+      });
+    }
+    
+    return c.json({
+      success: true,
+      exists: true,
+      roadmapString: roadmap.roadmap_string,
+      level: roadmap.current_level || 0
+    });
+    
+  } catch (error) {
+    console.error('Get roadmap error:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to get roadmap' 
+    }, 500);
+  }
+});
+
+// SAVE/UPDATE ROADMAP
+app.post('/api/roadmap', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, roadmapString, level } = body;
+    
+    if (!email || !roadmapString) {
+      return c.json({ 
+        success: false, 
+        error: 'Email and roadmapString are required' 
+      }, 400);
+    }
+    
+    // Check if roadmap exists
+    const existing = await c.env.DB.prepare(
+      `SELECT id FROM roadmaps WHERE email = ?`
+    ).bind(email).first();
+    
+    let result;
+    
+    if (existing) {
+      // Update existing roadmap
+      result = await c.env.DB.prepare(`
+        UPDATE roadmaps 
+        SET roadmap_string = ?, current_level = ?, updated_at = datetime('now')
+        WHERE email = ?
+      `).bind(roadmapString, level || 0, email).run();
+    } else {
+      // Insert new roadmap
+      result = await c.env.DB.prepare(`
+        INSERT INTO roadmaps (email, roadmap_string, current_level, created_at, updated_at)
+        VALUES (?, ?, ?, datetime('now'), datetime('now'))
+      `).bind(email, roadmapString, level || 0).run();
+    }
+    
+    return c.json({
+      success: true,
+      message: existing ? 'Roadmap updated' : 'Roadmap saved',
+      roadmapString,
+      level: level || 0
+    });
+    
+  } catch (error) {
+    console.error('Save roadmap error:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to save roadmap' 
+    }, 500);
+  }
+});
+
+// DELETE ROADMAP
+app.delete('/api/roadmap', async (c) => {
+  try {
+    const { email } = await c.req.json();
+    
+    if (!email) {
+      return c.json({ 
+        success: false, 
+        error: 'Email is required' 
+      }, 400);
+    }
+    
+    await c.env.DB.prepare(
+      `DELETE FROM roadmaps WHERE email = ?`
+    ).bind(email).run();
+    
+    return c.json({
+      success: true,
+      message: 'Roadmap deleted successfully'
+    });
+    
+  } catch (error) {
+    console.error('Delete roadmap error:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to delete roadmap' 
+    }, 500);
+  }
+});
+
 // Export the app
 export default app;
