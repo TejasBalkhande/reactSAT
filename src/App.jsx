@@ -1,6 +1,6 @@
 // App.jsx - UPDATED BLOG SLIDER WITH 3 POSTS ON SCREEN AND CENTERED MOBILE VIEW
 import { useState, useEffect, useRef } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import { 
   FaPenAlt, 
   FaChartBar, 
@@ -12,8 +12,6 @@ import {
 import './App.css'
 
 import { HelmetProvider } from 'react-helmet-async';
-
-
 
 // Import Material-UI icons
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -47,6 +45,18 @@ import ProfileScreen from './account/ProfileScreen';
 import CoursesScreen from './courses/courses';
 import CoursesPlaylistScreen from './courses/courses_playlist';
 
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  
+  if (!token || !user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [blogPosts, setBlogPosts] = useState([])
@@ -58,6 +68,10 @@ function HomePage() {
     seconds: 30,
     eventLive: false
   })
+  
+  // NEW: Track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userData, setUserData] = useState(null)
   
   // Blog Slider States - UPDATED FOR 3 POSTS
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -75,6 +89,15 @@ function HomePage() {
   const maxSlide = Math.max(0, totalSlides - slidesToShow)
 
   useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      setIsLoggedIn(true);
+      setUserData(JSON.parse(user));
+    }
+
     // Mock blog posts data
     const mockBlogPosts = [
       {
@@ -292,6 +315,15 @@ function HomePage() {
     navigate('/study-plan')
   }
 
+  // NEW: Handle Account button click
+  const handleAccountClick = () => {
+    if (isLoggedIn) {
+      navigate('/profile');
+    } else {
+      navigate('/login');
+    }
+  }
+
   return (
     <div className="app sat-app">
       {/* Navigation */}
@@ -323,10 +355,13 @@ function HomePage() {
             <Link to="/community" className="nav-link sat-nav-link community-link">
               Community
             </Link>
-            {/* UPDATED ACCOUNT BUTTON */}
-            <Link to="/login" className="nav-link sat-nav-link community-link">
-              Account
-            </Link>
+            {/* UPDATED ACCOUNT BUTTON - Shows Profile when logged in */}
+            <button 
+              onClick={handleAccountClick}
+              className="nav-link sat-nav-link community-link account-button"
+            >
+              {isLoggedIn ? 'Profile' : 'Account'}
+            </button>
           </div>
           
           {/* Mobile menu toggle */}
@@ -707,8 +742,20 @@ function HomePage() {
         <h2>Track Your Progress</h2>
         <p>Sign up to unlock personalized study plans, progress tracking, and score analytics</p>
         <div className="progress-buttons">
-          <button className="progress-btn sat-progress-btn">Create Account</button>
-          <button className="progress-btn-secondary">Already have an account? Log in</button>
+          <button 
+            className="progress-btn sat-progress-btn"
+            onClick={() => navigate(isLoggedIn ? '/profile' : '/signup')}
+          >
+            {isLoggedIn ? 'Go to Profile' : 'Create Account'}
+          </button>
+          {!isLoggedIn && (
+            <button 
+              className="progress-btn-secondary"
+              onClick={() => navigate('/login')}
+            >
+              Already have an account? Log in
+            </button>
+          )}
         </div>
       </section>
 
@@ -812,9 +859,15 @@ function HomePage() {
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs
             </Link>
-            <Link to="/login" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Account
-            </Link>
+            <button 
+              onClick={() => {
+                handleAccountClick();
+                setIsMenuOpen(false);
+              }}
+              className="mobile-menu-link"
+            >
+              {isLoggedIn ? 'Profile' : 'Account'}
+            </button>
           </div>
         </div>
       )}
@@ -841,9 +894,11 @@ function App() {
           <Route path="/admin/create-blog" element={<CreateBlog />} />
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/signup" element={<SignupScreen />} />
-          <Route path="/profile" element={<ProfileScreen />} />
-          
-          
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfileScreen />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </HelmetProvider>

@@ -24,60 +24,10 @@
 .profile-container {
   min-height: 100vh;
   background-color: var(--background-color);
+  padding-top: 57px; /* Add padding for fixed navbar */
 }
 
-/* Header */
-.profile-header {
-  background: white;
-  border-bottom: 1px solid var(--border-color);
-  padding: 20px 40px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.header-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.profile-logo {
-  height: 40px;
-  filter: brightness(0) saturate(100%) invert(21%) sepia(20%) saturate(1161%) hue-rotate(106deg) brightness(95%) contrast(89%);
-}
-
-.profile-title {
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--primary-color);
-}
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: var(--surface-color);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.logout-button:hover {
-  background: #f0f0f0;
-  transform: translateY(-1px);
-}
+/* Remove old header styles since we're using the navbar from App.css */
 
 /* Main Content */
 .profile-content {
@@ -611,4 +561,20 @@
 .icon-lg {
   width: 24px;
   height: 24px;
+}
+
+/* Add this to ensure navbar links work properly */
+.logout-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.logout-button:hover {
+  background: rgba(255, 255, 255, 0.15);
 }

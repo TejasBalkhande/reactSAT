@@ -103,6 +103,17 @@ const SignupScreen = () => {
   const [apiMessage, setApiMessage] = useState({ text: '', type: '' }); // success or error
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 900);
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      // User is already logged in, redirect to profile
+      navigate('/profile');
+    }
+  }, [navigate]);
+
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -189,22 +200,72 @@ const SignupScreen = () => {
       
       if (data.success) {
         setApiMessage({ 
-          text: '✅ Account created successfully! You can now login.', 
+          text: '✅ Account created successfully! Logging you in...', 
           type: 'success' 
         });
         
-        // Clear form
-        setFormData({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-        });
-        
-        // Auto redirect to login after 3 seconds
-        setTimeout(() => {
-          navigate('/login');
-        }, 1000);
+        // Auto-login after successful signup
+        try {
+          const loginResponse = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password
+            })
+          });
+
+          const loginData = await loginResponse.json();
+          
+          if (loginData.success) {
+            // Store token and user data in localStorage for persistent login
+            localStorage.setItem('token', loginData.token);
+            localStorage.setItem('user', JSON.stringify(loginData.user));
+            
+            // Auto redirect to profile after 1.5 seconds
+            setTimeout(() => {
+              navigate('/profile');
+            }, 1500);
+          } else {
+            setApiMessage({ 
+              text: '✅ Account created! Please login manually.', 
+              type: 'success' 
+            });
+            
+            // Clear form
+            setFormData({
+              username: '',
+              email: '',
+              password: '',
+              confirmPassword: ''
+            });
+            
+            // Redirect to login after 3 seconds
+            setTimeout(() => {
+              navigate('/login');
+            }, 3000);
+          }
+        } catch (loginError) {
+          console.error('Auto-login error:', loginError);
+          setApiMessage({ 
+            text: '✅ Account created! Please login manually.', 
+            type: 'success' 
+          });
+          
+          // Clear form
+          setFormData({
+            username: '',
+            email: '',
+            password: '',
+            confirmPassword: ''
+          });
+          
+          setTimeout(() => {
+            navigate('/login');
+          }, 3000);
+        }
       } else {
         setApiMessage({ 
           text: `❌ ${data.error}`, 
@@ -384,7 +445,6 @@ const SignupScreen = () => {
               }}>
                 {apiMessage.type === 'success' ? <SuccessIcon /> : <ErrorIcon />}
                 {apiMessage.text}
-                
               </div>
             )}
           </div>

@@ -94,6 +94,17 @@ const LoginScreen = () => {
   const [apiMessage, setApiMessage] = useState({ text: '', type: '' });
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 900);
 
+  // NEW: Check if user is already logged in on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      // User is already logged in, redirect to profile
+      navigate('/profile');
+    }
+  }, [navigate]);
+
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -177,7 +188,7 @@ const LoginScreen = () => {
           type: 'success' 
         });
         
-        // Store token and user data in localStorage
+        // Store token and user data in localStorage for persistent login
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         

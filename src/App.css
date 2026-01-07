@@ -440,6 +440,12 @@
   box-shadow: 0 4px 8px rgba(74, 124, 89, 0.4);
 }
 
+.account-button {
+  all: unset;              /* removes default button styles */
+  display: inline-block;  /* makes it behave like <a> */
+  cursor: pointer;
+}
+
 .sat-hero-btn.primary1 {
   background: #4A7C59;
   color: white;
