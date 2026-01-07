@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './signup_screen.css';
 
@@ -82,6 +82,12 @@ const ErrorIcon = () => (
   </svg>
 );
 
+const SuccessIcon = () => (
+  <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+);
+
 const SignupScreen = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -94,13 +100,8 @@ const SignupScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [apiMessage, setApiMessage] = useState('');
-  const [showOtpVerification, setShowOtpVerification] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [apiMessage, setApiMessage] = useState({ text: '', type: '' }); // success or error
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 900);
-  const [otpData, setOtpData] = useState(null);
-  const [otpTimer, setOtpTimer] = useState(120); // 2 minutes timer
-  const otpTimerRef = useRef(null);
 
   // Handle window resize
   useEffect(() => {
@@ -111,32 +112,6 @@ const SignupScreen = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // OTP timer effect
-  useEffect(() => {
-    if (showOtpVerification && otpTimer > 0) {
-      otpTimerRef.current = setTimeout(() => {
-        setOtpTimer(prev => prev - 1);
-      }, 1000);
-    } else if (otpTimer === 0 && showOtpVerification) {
-      setApiMessage('❌ OTP expired. Please try signing up again.');
-      setShowOtpVerification(false);
-      setOtpData(null);
-    }
-
-    return () => {
-      if (otpTimerRef.current) {
-        clearTimeout(otpTimerRef.current);
-      }
-    };
-  }, [showOtpVerification, otpTimer]);
-
-  // Format timer display
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
 
   // Replace with your actual Cloudflare Worker URL
   const API_URL = 'https://sat-blog-worker.tejasbalkhande221.workers.dev';
@@ -150,7 +125,9 @@ const SignupScreen = () => {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-    setApiMessage('');
+    if (apiMessage.text) {
+      setApiMessage({ text: '', type: '' });
+    }
   };
 
   const validateForm = () => {
@@ -160,6 +137,8 @@ const SignupScreen = () => {
       newErrors.username = 'Username cannot be empty';
     } else if (formData.username.length < 3) {
       newErrors.username = 'Username must be at least 3 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      newErrors.username = 'Username can only contain letters, numbers, and underscores';
     }
 
     if (!formData.email.trim()) {
@@ -182,64 +161,15 @@ const SignupScreen = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Check for duplicate username/email before signup
-  const checkDuplicates = async () => {
-    try {
-      // Check username
-      const usernameResponse = await fetch(`${API_URL}/api/check-duplicate?username=${formData.username}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const usernameData = await usernameResponse.json();
-      
-      if (usernameData.success && usernameData.username && usernameData.username.existsInVerifiedAccounts) {
-        setApiMessage('❌ Username already exists (verified account)');
-        setErrors({ username: 'Username already exists' });
-        return false;
-      }
-
-      // Check email
-      const emailResponse = await fetch(`${API_URL}/api/check-duplicate?email=${formData.email}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const emailData = await emailResponse.json();
-      
-      if (emailData.success && emailData.email && emailData.email.existsInVerifiedAccounts) {
-        setApiMessage('❌ Email already registered (verified account)');
-        setErrors({ email: 'Email already registered' });
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Duplicate check error:', error);
-      return true; // Continue with signup if check fails
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
     setLoading(true);
-    setApiMessage('');
+    setApiMessage({ text: '', type: '' });
 
     try {
-      // Check for duplicates in verified accounts
-      const isAvailable = await checkDuplicates();
-      if (!isAvailable) {
-        setLoading(false);
-        return;
-      }
-
       console.log('📤 Sending signup request to Cloudflare Worker...');
       const response = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
@@ -258,81 +188,12 @@ const SignupScreen = () => {
       console.log('📥 Response from Cloudflare:', data);
       
       if (data.success) {
-        // Store OTP data locally
-        setOtpData({
-          email: formData.email,
-          otp: data.otp,
-          userId: data.userId
+        setApiMessage({ 
+          text: '✅ Account created successfully! You can now login.', 
+          type: 'success' 
         });
         
-        setOtpTimer(120); // Reset timer to 2 minutes
-        setApiMessage(`✅ OTP generated! Please verify your email.`);
-        
-        // Show OTP for testing
-        alert(`OTP for verification: ${data.otp}\n\nPlease enter this OTP within 2 minutes to complete registration.\n\nUsername: ${formData.username}\nEmail: ${formData.email}`);
-        
-        setShowOtpVerification(true);
-        setOtp(''); // Clear any previous OTP input
-      } else {
-        setApiMessage(`❌ Error: ${data.error}`);
-        // Handle specific field errors
-        if (data.field === 'username') {
-          setErrors({ username: data.error });
-        } else if (data.field === 'email') {
-          setErrors({ email: data.error });
-        } else if (data.retry) {
-          // If it's a temporary duplicate (unverified account), suggest retrying
-          alert(`Signup failed: ${data.error}\n\nPlease wait 2 minutes for the previous signup to expire, or use different credentials.`);
-        } else {
-          alert(`Signup failed: ${data.error}\n\n${data.details || ''}`);
-        }
-      }
-    } catch (error) {
-      console.error('Signup error:', error);
-      setApiMessage(`❌ Network error: ${error.message}`);
-      alert(`Failed to connect to Cloudflare Worker. Please check:\n1. Worker is deployed\n2. Correct API_URL: ${API_URL}\n3. Database is initialized at ${API_URL}/api/init-db`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!otp || otp.length !== 4) {
-      alert('Please enter a valid 4-digit OTP');
-      return;
-    }
-
-    if (!otpData) {
-      alert('No verification session found. Please sign up again.');
-      setShowOtpVerification(false);
-      return;
-    }
-
-    setLoading(true);
-    
-    try {
-      console.log('🔐 Verifying OTP and completing account creation...');
-      const response = await fetch(`${API_URL}/api/verify-otp-complete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: otpData.email,
-          otp: otp
-        })
-      });
-
-      const data = await response.json();
-      console.log('✅ OTP verification response:', data);
-      
-      if (data.success) {
-        alert('✅ Account created and verified successfully! You can now login.');
-        
-        // Clear all state
-        setOtpData(null);
-        setOtp('');
-        setShowOtpVerification(false);
+        // Clear form
         setFormData({
           username: '',
           email: '',
@@ -340,78 +201,32 @@ const SignupScreen = () => {
           confirmPassword: ''
         });
         
-        navigate('/login');
+        // Auto redirect to login after 3 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 1000);
       } else {
-        if (data.error.includes('expired')) {
-          alert(`❌ ${data.error}\n\nPlease sign up again.`);
-          setShowOtpVerification(false);
-          setOtpData(null);
-        } else {
-          alert(`❌ Verification failed: ${data.error}`);
+        setApiMessage({ 
+          text: `❌ ${data.error}`, 
+          type: 'error' 
+        });
+        
+        // Handle specific field errors
+        if (data.field === 'username') {
+          setErrors({ username: data.error });
+        } else if (data.field === 'email') {
+          setErrors({ email: data.error });
         }
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
-      alert('Failed to verify OTP. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (!otpData) {
-      alert('No verification session found. Please sign up again.');
-      return;
-    }
-
-    setLoading(true);
-    
-    try {
-      // Resend by signing up again with same credentials
-      const response = await fetch(`${API_URL}/api/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          account_type: 'free'
-        })
+      console.error('Signup error:', error);
+      setApiMessage({ 
+        text: `❌ Network error: ${error.message}`, 
+        type: 'error' 
       });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        // Update OTP data
-        setOtpData({
-          email: formData.email,
-          otp: data.otp,
-          userId: data.userId
-        });
-        
-        setOtpTimer(120);
-        setOtp('');
-        
-        alert(`✅ New OTP generated: ${data.otp}\n\nPlease enter this OTP within 2 minutes.`);
-      } else {
-        alert(`Failed to resend OTP: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Resend OTP error:', error);
-      alert('Failed to resend OTP. Please try signing up again.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleCancelVerification = () => {
-    setShowOtpVerification(false);
-    setOtpData(null);
-    setOtp('');
-    setOtpTimer(120);
-    setApiMessage('');
   };
 
   const RightPanelContent = () => (
@@ -537,110 +352,6 @@ const SignupScreen = () => {
     </div>
   );
 
-  if (showOtpVerification) {
-    return (
-      <div className="signup-container">
-        {/* Left Panel - OTP Verification Form */}
-        <div className="signup-left-panel">
-          <div className="signup-form-container">
-            <div className="signup-logo-container">
-              <img 
-                src="/logo.png" 
-                alt="Mock SAT Exam" 
-                className="signup-logo"
-              />
-              <h1 className="signup-title">Mock SAT Exam</h1>
-            </div>
-
-            <div className="signup-header">
-              <h1>Verify Your Email</h1>
-              <p>We've sent a 4-digit OTP to {otpData?.email}</p>
-              <p style={{ color: 'green', fontSize: '14px', marginTop: '10px' }}>
-                ✅ OTP generated! Account will be created after verification.
-              </p>
-              <div style={{ 
-                marginTop: '10px', 
-                padding: '8px', 
-                backgroundColor: otpTimer > 30 ? '#E6F4EA' : '#FFEBEE',
-                borderRadius: '6px',
-                color: otpTimer > 30 ? '#2E7D32' : '#D32F2F',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}>
-                ⏰ Time remaining: {formatTime(otpTimer)}
-                {otpTimer <= 30 && ' - Hurry up!'}
-              </div>
-            </div>
-
-            <div className="signup-input-group">
-              <label className="signup-input-label">Enter 4-digit OTP</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                className="signup-input"
-                placeholder="Enter 4-digit OTP"
-                maxLength="4"
-                disabled={loading}
-                autoComplete="one-time-code"
-              />
-              <small style={{ color: '#666', display: 'block', marginTop: '5px' }}>
-                (Check the alert for the OTP sent during signup)
-              </small>
-            </div>
-
-            <button
-              onClick={handleVerifyOtp}
-              className="signup-button"
-              disabled={loading || otp.length !== 4}
-            >
-              {loading ? (
-                <span className="signup-button-loading">
-                  <span className="signup-loading-spinner"></span>
-                  Verifying & Creating Account...
-                </span>
-              ) : (
-                'Verify OTP & Create Account'
-              )}
-            </button>
-
-            <button
-              onClick={handleResendOtp}
-              className="signup-button"
-              style={{ 
-                backgroundColor: 'transparent',
-                color: 'var(--primary-color)',
-                border: '1px solid var(--primary-color)',
-                marginTop: '10px'
-              }}
-              disabled={loading}
-            >
-              {loading ? 'Sending...' : 'Resend OTP'}
-            </button>
-
-            <div className="signup-divider">
-              <div className="signup-divider-line"></div>
-              <span className="signup-divider-text">Or</span>
-              <div className="signup-divider-line"></div>
-            </div>
-
-            <button
-              onClick={handleCancelVerification}
-              className="signup-button"
-              style={{ backgroundColor: '#666' }}
-              disabled={loading}
-            >
-              Cancel & Go Back
-            </button>
-          </div>
-        </div>
-
-        {/* Right Panel - Features (hidden on small screens) */}
-        {!isSmallScreen && <RightPanelContent />}
-      </div>
-    );
-  }
-
   return (
     <div className="signup-container">
       {/* Left Panel - Signup Form */}
@@ -659,16 +370,21 @@ const SignupScreen = () => {
             <h1>Create Your Account</h1>
             <p>Join the elite of SAT achievers</p>
             
-            {apiMessage && (
+            {apiMessage.text && (
               <div style={{ 
                 padding: '10px', 
                 marginBottom: '15px', 
                 borderRadius: '8px',
-                backgroundColor: apiMessage.includes('✅') ? '#E6F4EA' : '#FFEBEE',
-                color: apiMessage.includes('✅') ? '#2E7D32' : '#D32F2F',
-                fontSize: '14px'
+                backgroundColor: apiMessage.type === 'success' ? '#E6F4EA' : '#FFEBEE',
+                color: apiMessage.type === 'success' ? '#2E7D32' : '#D32F2F',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}>
-                {apiMessage}
+                {apiMessage.type === 'success' ? <SuccessIcon /> : <ErrorIcon />}
+                {apiMessage.text}
+                
               </div>
             )}
           </div>

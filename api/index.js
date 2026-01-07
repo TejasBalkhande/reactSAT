@@ -46,7 +46,7 @@ app.get('/api/init-db', async (c) => {
     
     console.log('Existing tables:', existingTables.results);
     
-    // Create accounts table
+    // Create accounts table (keeping OTP columns for future use)
     await c.env.DB.prepare(`
       CREATE TABLE IF NOT EXISTS accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +56,7 @@ app.get('/api/init-db', async (c) => {
         account_type TEXT DEFAULT 'free',
         otp TEXT,
         otp_expiry DATETIME,
-        is_verified BOOLEAN DEFAULT 0,
+        is_verified BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME,
@@ -160,7 +160,7 @@ app.get('/api/init-db', async (c) => {
   }
 });
 
-// CHECK DUPLICATE USERNAME/EMAIL ENDPOINT (NEW)
+// CHECK DUPLICATE USERNAME/EMAIL ENDPOINT
 app.get('/api/check-duplicate', async (c) => {
   try {
     const { username, email } = c.req.query();
@@ -175,26 +175,24 @@ app.get('/api/check-duplicate', async (c) => {
     let result = {};
     
     if (username) {
-      // Check in verified accounts
-      const verifiedAccount = await c.env.DB.prepare(
-        `SELECT id FROM accounts WHERE username = ? AND is_verified = 1`
+      const existingAccount = await c.env.DB.prepare(
+        `SELECT id FROM accounts WHERE username = ?`
       ).bind(username).first();
       
       result.username = {
-        existsInVerifiedAccounts: !!verifiedAccount,
-        available: !verifiedAccount
+        exists: !!existingAccount,
+        available: !existingAccount
       };
     }
     
     if (email) {
-      // Check in verified accounts
-      const verifiedAccount = await c.env.DB.prepare(
-        `SELECT id FROM accounts WHERE email = ? AND is_verified = 1`
+      const existingAccount = await c.env.DB.prepare(
+        `SELECT id FROM accounts WHERE email = ?`
       ).bind(email).first();
       
       result.email = {
-        existsInVerifiedAccounts: !!verifiedAccount,
-        available: !verifiedAccount
+        exists: !!existingAccount,
+        available: !existingAccount
       };
     }
     
@@ -213,36 +211,7 @@ app.get('/api/check-duplicate', async (c) => {
   }
 });
 
-// GET ACCOUNT BY USERNAME OR EMAIL (for frontend duplicate check)
-app.get('/api/accounts', async (c) => {
-  try {
-    const { username, email } = c.req.query();
-    let account = null;
-    
-    if (username) {
-      account = await c.env.DB.prepare(
-        `SELECT id, username, email, is_verified FROM accounts WHERE username = ?`
-      ).bind(username).first();
-    } else if (email) {
-      account = await c.env.DB.prepare(
-        `SELECT id, username, email, is_verified FROM accounts WHERE email = ?`
-      ).bind(email).first();
-    }
-    
-    return c.json({
-      success: true,
-      account: account || null,
-      exists: !!account,
-      isVerified: account ? account.is_verified : false
-    });
-    
-  } catch (error) {
-    console.error('Get account error:', error);
-    return c.json({ success: false, error: error.message }, 500);
-  }
-});
-
-// SIGNUP ENDPOINT - Store user data in Cloudflare D1
+// SIGNUP ENDPOINT - Direct account creation without OTP
 app.post('/api/signup', async (c) => {
   let body;
   try {
@@ -270,12 +239,31 @@ app.post('/api/signup', async (c) => {
       }, 400);
     }
     
+    // Validate username format
+    if (!/^[a-zA-Z0-9_]+$/.test(body.username)) {
+      return c.json({
+        success: false,
+        error: 'Username can only contain letters, numbers, and underscores',
+        field: 'username'
+      }, 400);
+    }
+    
+    // Validate username length
+    if (body.username.length < 3) {
+      return c.json({
+        success: false,
+        error: 'Username must be at least 3 characters',
+        field: 'username'
+      }, 400);
+    }
+    
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(body.email)) {
       return c.json({
         success: false,
-        error: 'Please enter a valid email address'
+        error: 'Please enter a valid email address',
+        field: 'email'
       }, 400);
     }
     
@@ -283,87 +271,74 @@ app.post('/api/signup', async (c) => {
     if (body.password.length < 6) {
       return c.json({
         success: false,
-        error: 'Password must be at least 6 characters long'
+        error: 'Password must be at least 6 characters long',
+        field: 'password'
       }, 400);
     }
     
-    // Check if username already exists in VERIFIED accounts
-    const existingVerifiedUsername = await c.env.DB.prepare(
-      `SELECT id FROM accounts WHERE username = ? AND is_verified = 1`
+    // Check if username already exists
+    const existingUsername = await c.env.DB.prepare(
+      `SELECT id FROM accounts WHERE username = ?`
     ).bind(body.username).first();
     
-    if (existingVerifiedUsername) {
+    if (existingUsername) {
       return c.json({
         success: false,
-        error: 'Username already exists (verified account)',
+        error: 'Username already exists',
         field: 'username'
       }, 409);
     }
     
-    // Check if email already exists in VERIFIED accounts
-    const existingVerifiedEmail = await c.env.DB.prepare(
-      `SELECT id FROM accounts WHERE email = ? AND is_verified = 1`
+    // Check if email already exists
+    const existingEmail = await c.env.DB.prepare(
+      `SELECT id FROM accounts WHERE email = ?`
     ).bind(body.email).first();
     
-    if (existingVerifiedEmail) {
+    if (existingEmail) {
       return c.json({
         success: false,
-        error: 'Email already registered (verified account)',
+        error: 'Email already registered',
         field: 'email'
       }, 409);
     }
     
-    // Generate 4-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
-    
     // IMPORTANT: In production, hash the password with bcrypt!
-    const hashedPassword = body.password; // Replace with: await bcrypt.hash(body.password, 10)
+    // For now, we'll store it as plain text (FOR DEVELOPMENT ONLY)
+    const hashedPassword = body.password;
     
-    // Insert into Cloudflare D1 database as UNVERIFIED
+    // Insert into Cloudflare D1 database as VERIFIED (no OTP needed)
     const result = await c.env.DB.prepare(`
       INSERT INTO accounts (
-        username, email, password, account_type, otp, otp_expiry, 
+        username, email, password, account_type, 
         is_verified, created_at, updated_at, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), ?)
+      ) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'), ?)
     `).bind(
       body.username,
       body.email,
       hashedPassword,
       body.account_type || 'free',
-      otp,
-      otpExpiry.toISOString().replace('T', ' ').substring(0, 19),
-      0, // Not verified yet
-      'pending_verification' // Special status for unverified accounts
+      1, // Mark as verified immediately
+      'active'
     ).run();
     
-    console.log('✅ Account saved to Cloudflare D1 (unverified). Insert ID:', result.meta?.last_row_id);
+    console.log('✅ Account created in Cloudflare D1. Insert ID:', result.meta?.last_row_id);
     
     // Fetch the newly created account
     const newAccount = await c.env.DB.prepare(
       `SELECT id, username, email, account_type, created_at FROM accounts WHERE id = ?`
     ).bind(result.meta?.last_row_id).first();
     
-    console.log('✅ Unverified account saved in database:', newAccount);
-    
-    // Clean up expired unverified accounts (older than 2 minutes)
-    await c.env.DB.prepare(
-      `DELETE FROM accounts WHERE is_verified = 0 AND otp_expiry < datetime('now')`
-    ).run();
+    console.log('✅ Account created:', newAccount);
     
     return c.json({ 
       success: true, 
-      message: 'OTP generated! Please verify your email.',
+      message: 'Account created successfully!',
       user: {
         id: newAccount.id,
         username: newAccount.username,
         email: newAccount.email,
         account_type: newAccount.account_type
       },
-      userId: result.meta?.last_row_id,
-      otp: otp, // For testing only - remove in production
-      otpExpiresIn: '2 minutes',
-      database: 'Cloudflare D1 (Unverified)',
       timestamp: new Date().toISOString()
     });
     
@@ -373,31 +348,18 @@ app.post('/api/signup', async (c) => {
     
     // Handle unique constraint violations
     if (error.message && error.message.includes('UNIQUE constraint failed')) {
-      // Check if it's a duplicate of an unverified account (should be deleted by cleanup)
       if (error.message.includes('username')) {
-        // Try to clean up and retry
-        await c.env.DB.prepare(
-          `DELETE FROM accounts WHERE username = ? AND is_verified = 0 AND otp_expiry < datetime('now')`
-        ).bind(body.username).run();
-        
         return c.json({ 
           success: false, 
-          error: 'Username is in verification process. Please try again in 2 minutes or use a different username.',
-          field: 'username',
-          retry: true
+          error: 'Username already exists',
+          field: 'username'
         }, 409);
       }
       if (error.message.includes('email')) {
-        // Try to clean up and retry
-        await c.env.DB.prepare(
-          `DELETE FROM accounts WHERE email = ? AND is_verified = 0 AND otp_expiry < datetime('now')`
-        ).bind(body.email).run();
-        
         return c.json({ 
           success: false, 
-          error: 'Email is in verification process. Please try again in 2 minutes or use a different email.',
-          field: 'email',
-          retry: true
+          error: 'Email already registered',
+          field: 'email'
         }, 409);
       }
     }
@@ -406,152 +368,6 @@ app.post('/api/signup', async (c) => {
       success: false, 
       error: 'Failed to create account',
       details: error.message
-    }, 500);
-  }
-});
-
-// VERIFY OTP AND COMPLETE SIGNUP ENDPOINT
-app.post('/api/verify-otp-complete', async (c) => {
-  try {
-    const body = await c.req.json();
-    
-    if (!body.email || !body.otp) {
-      return c.json({
-        success: false,
-        error: 'Email and OTP are required'
-      }, 400);
-    }
-    
-    // Find the unverified account
-    const account = await c.env.DB.prepare(
-      `SELECT id, username, email, otp, otp_expiry FROM accounts WHERE email = ? AND is_verified = 0 AND status = 'pending_verification'`
-    ).bind(body.email).first();
-    
-    if (!account) {
-      // Check if account is already verified
-      const verifiedAccount = await c.env.DB.prepare(
-        `SELECT id FROM accounts WHERE email = ? AND is_verified = 1`
-      ).bind(body.email).first();
-      
-      if (verifiedAccount) {
-        return c.json({
-          success: false,
-          error: 'Account already verified. Please login.'
-        }, 400);
-      }
-      
-      return c.json({
-        success: false,
-        error: 'Account not found or verification expired. Please sign up again.'
-      }, 404);
-    }
-    
-    // Check OTP expiry
-    const now = new Date();
-    const otpExpiry = new Date(account.otp_expiry);
-    
-    if (now > otpExpiry) {
-      // Delete expired unverified account
-      await c.env.DB.prepare(
-        `DELETE FROM accounts WHERE id = ? AND is_verified = 0`
-      ).bind(account.id).run();
-      
-      return c.json({
-        success: false,
-        error: 'OTP has expired. Please sign up again.'
-      }, 400);
-    }
-    
-    if (account.otp !== body.otp) {
-      return c.json({
-        success: false,
-        error: 'Invalid OTP'
-      }, 400);
-    }
-    
-    // Verify the account and activate it
-    await c.env.DB.prepare(
-      `UPDATE accounts SET is_verified = 1, otp = NULL, otp_expiry = NULL, status = 'active', updated_at = datetime('now') WHERE id = ?`
-    ).bind(account.id).run();
-    
-    // Fetch the verified account
-    const verifiedAccount = await c.env.DB.prepare(
-      `SELECT id, username, email, account_type, created_at FROM accounts WHERE id = ?`
-    ).bind(account.id).first();
-    
-    return c.json({
-      success: true,
-      message: 'Account verified successfully! You can now login.',
-      user: {
-        id: verifiedAccount.id,
-        username: verifiedAccount.username,
-        email: verifiedAccount.email,
-        account_type: verifiedAccount.account_type
-      },
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    console.error('OTP verification error:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to verify OTP'
-    }, 500);
-  }
-});
-
-// VERIFY OTP ENDPOINT (for checking only)
-app.post('/api/verify-otp', async (c) => {
-  try {
-    const body = await c.req.json();
-    
-    if (!body.email || !body.otp) {
-      return c.json({
-        success: false,
-        error: 'Email and OTP are required'
-      }, 400);
-    }
-    
-    const account = await c.env.DB.prepare(
-      `SELECT id, otp, otp_expiry FROM accounts WHERE email = ? AND is_verified = 0`
-    ).bind(body.email).first();
-    
-    if (!account) {
-      return c.json({
-        success: false,
-        error: 'Account not found or already verified'
-      }, 404);
-    }
-    
-    // Check OTP expiry
-    const now = new Date();
-    const otpExpiry = new Date(account.otp_expiry);
-    
-    if (now > otpExpiry) {
-      return c.json({
-        success: false,
-        error: 'OTP has expired'
-      }, 400);
-    }
-    
-    if (account.otp !== body.otp) {
-      return c.json({
-        success: false,
-        error: 'Invalid OTP'
-      }, 400);
-    }
-    
-    return c.json({
-      success: true,
-      message: 'OTP is valid',
-      isValid: true
-    });
-    
-  } catch (error) {
-    console.error('OTP verification error:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to verify OTP'
     }, 500);
   }
 });
@@ -576,15 +392,6 @@ app.post('/api/login', async (c) => {
       return c.json({
         success: false,
         error: 'Invalid email or password'
-      }, 401);
-    }
-    
-    // Check if account is verified
-    if (!account.is_verified) {
-      return c.json({
-        success: false,
-        error: 'Please verify your email first',
-        needsVerification: true
       }, 401);
     }
     
@@ -694,19 +501,10 @@ app.get('/api/db-status', async (c) => {
     const accountsCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts").first();
     const blogsCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM blogs").first();
     
-    // Count verified vs unverified accounts
-    const verifiedCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts WHERE is_verified = 1").first();
-    const unverifiedCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts WHERE is_verified = 0").first();
-    
     // List all tables
     const allTables = await c.env.DB.prepare(
       "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
     ).all();
-    
-    // Clean up expired unverified accounts
-    const expiredDeleted = await c.env.DB.prepare(
-      `DELETE FROM accounts WHERE is_verified = 0 AND otp_expiry < datetime('now')`
-    ).run();
     
     return c.json({
       success: true,
@@ -714,9 +512,7 @@ app.get('/api/db-status', async (c) => {
       tables: {
         accounts: {
           exists: !!accountsTable,
-          count: accountsCount?.count || 0,
-          verified: verifiedCount?.count || 0,
-          unverified: unverifiedCount?.count || 0
+          count: accountsCount?.count || 0
         },
         blogs: {
           exists: !!blogsTable,
@@ -724,7 +520,6 @@ app.get('/api/db-status', async (c) => {
         }
       },
       all_tables: allTables.results,
-      expired_cleaned: expiredDeleted.meta?.changes || 0,
       status: 'Connected'
     });
   } catch (error) {
@@ -741,13 +536,6 @@ app.get('/api/test/db', async (c) => {
     
     const blogCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM blogs").first();
     const accountCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts").first();
-    const verifiedCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts WHERE is_verified = 1").first();
-    const unverifiedCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts WHERE is_verified = 0").first();
-    
-    // Clean up expired unverified accounts
-    await c.env.DB.prepare(
-      `DELETE FROM accounts WHERE is_verified = 0 AND otp_expiry < datetime('now')`
-    ).run();
     
     return c.json({
       success: true,
@@ -755,39 +543,10 @@ app.get('/api/test/db', async (c) => {
       tables: tables.results,
       blogCount: blogCount?.count || 0,
       accountCount: accountCount?.count || 0,
-      verifiedAccounts: verifiedCount?.count || 0,
-      unverifiedAccounts: unverifiedCount?.count || 0,
       status: 'Connected',
       environment: c.env.ENVIRONMENT || 'production'
     });
   } catch (error) {
-    return c.json({ success: false, error: error.message }, 500);
-  }
-});
-
-// Admin endpoint to see all blogs (including drafts)
-app.get('/api/admin/blogs', async (c) => {
-  try {
-    const { status } = c.req.query();
-    let query = "SELECT id, title, slug, category, status, author, created_at, views FROM blogs";
-    let params = [];
-    
-    if (status) {
-      query += " WHERE status = ?";
-      params.push(status);
-    }
-    
-    query += " ORDER BY created_at DESC";
-    
-    const { results } = await c.env.DB.prepare(query).bind(...params).all();
-    
-    return c.json({
-      success: true,
-      blogs: results,
-      count: results.length
-    });
-  } catch (error) {
-    console.error('Admin endpoint error:', error);
     return c.json({ success: false, error: error.message }, 500);
   }
 });
@@ -1052,38 +811,6 @@ app.delete('/api/blogs/:id', async (c) => {
     });
   } catch (error) {
     console.error('Database error:', error);
-    return c.json({ success: false, error: error.message }, 500);
-  }
-});
-
-// CLEAR UNVERIFIED ACCOUNTS (For testing only)
-app.delete('/api/clear-unverified', async (c) => {
-  try {
-    const result = await c.env.DB.prepare(`DELETE FROM accounts WHERE is_verified = 0`).run();
-    
-    return c.json({
-      success: true,
-      message: 'Unverified accounts cleared from Cloudflare D1',
-      deleted: result.meta?.changes || 0
-    });
-  } catch (error) {
-    console.error('Clear unverified error:', error);
-    return c.json({ success: false, error: error.message }, 500);
-  }
-});
-
-// CLEAR ALL DATA (For testing only)
-app.delete('/api/clear-all', async (c) => {
-  try {
-    await c.env.DB.prepare(`DELETE FROM accounts`).run();
-    await c.env.DB.prepare(`DELETE FROM blogs`).run();
-    
-    return c.json({
-      success: true,
-      message: 'All data cleared from Cloudflare D1'
-    });
-  } catch (error) {
-    console.error('Clear data error:', error);
     return c.json({ success: false, error: error.message }, 500);
   }
 });
