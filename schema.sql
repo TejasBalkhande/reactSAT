@@ -71,3 +71,16 @@ VALUES (
   'premium',
   1
 );
+
+-- Create roadmaps table
+CREATE TABLE IF NOT EXISTS roadmaps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  roadmap_string TEXT NOT NULL,
+  current_level INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create index for roadmaps
+CREATE INDEX IF NOT EXISTS idx_roadmaps_email ON roadmaps(email);
