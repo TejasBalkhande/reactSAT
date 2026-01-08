@@ -137,6 +137,21 @@ app.get('/api/init-db', async (c) => {
     `).run();
     
     console.log('✅ Blogs table created or already exists');
+
+    // CREATE ROADMAPS TABLE - ADDED THIS SECTION
+    await c.env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS roadmaps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        roadmap_string TEXT NOT NULL,
+        current_level INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(email)
+      )
+    `).run();
+
+    console.log('✅ Roadmaps table created or already exists');
     
     // Create indexes
     await c.env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_accounts_email ON accounts(email)`).run();
@@ -144,12 +159,14 @@ app.get('/api/init-db', async (c) => {
     await c.env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_blogs_slug ON blogs(slug)`).run();
     await c.env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_blogs_category ON blogs(category)`).run();
     await c.env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_blogs_status_date ON blogs(status, publish_date)`).run();
+    await c.env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_roadmaps_email ON roadmaps(email)`).run();
     
     console.log('✅ Indexes created');
     
     // Check counts
     const blogCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM blogs").first();
     const accountCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts").first();
+    const roadmapCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM roadmaps").first();
     
     // Add sample blog if none exist
     if (blogCount.count === 0) {
@@ -188,15 +205,29 @@ app.get('/api/init-db', async (c) => {
       ).run();
       console.log('✅ Test account added');
     }
+
+    // Add sample roadmap if none exist
+    if (roadmapCount.count === 0) {
+      await c.env.DB.prepare(`
+        INSERT INTO roadmaps (email, roadmap_string, current_level) 
+        VALUES (?, ?, ?)
+      `).bind(
+        'test@example.com',
+        '1-2-3-4-5-6-7-8-9-10',
+        2
+      ).run();
+      console.log('✅ Sample roadmap added for test@example.com');
+    }
     
     return c.json({
       success: true,
       message: 'Cloudflare D1 database initialized successfully',
-      tables: ['accounts', 'blogs'],
+      tables: ['accounts', 'blogs', 'roadmaps'],
       existingTables: existingTables.results.map(t => t.name),
       counts: {
         accounts: accountCount.count,
-        blogs: blogCount.count
+        blogs: blogCount.count,
+        roadmaps: roadmapCount.count
       }
     });
   } catch (error) {
@@ -626,10 +657,16 @@ app.get('/api/db-status', async (c) => {
     const blogsTable = await c.env.DB.prepare(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='blogs'"
     ).first();
+
+    // Check if roadmaps table exists
+    const roadmapsTable = await c.env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='roadmaps'"
+    ).first();
     
     // Count records
     const accountsCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts").first();
     const blogsCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM blogs").first();
+    const roadmapsCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM roadmaps").first();
     
     // List all tables
     const allTables = await c.env.DB.prepare(
@@ -647,6 +684,10 @@ app.get('/api/db-status', async (c) => {
         blogs: {
           exists: !!blogsTable,
           count: blogsCount?.count || 0
+        },
+        roadmaps: {
+          exists: !!roadmapsTable,
+          count: roadmapsCount?.count || 0
         }
       },
       all_tables: allTables.results,
@@ -666,6 +707,7 @@ app.get('/api/test/db', async (c) => {
     
     const blogCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM blogs").first();
     const accountCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM accounts").first();
+    const roadmapCount = await c.env.DB.prepare("SELECT COUNT(*) as count FROM roadmaps").first();
     
     return c.json({
       success: true,
@@ -673,6 +715,7 @@ app.get('/api/test/db', async (c) => {
       tables: tables.results,
       blogCount: blogCount?.count || 0,
       accountCount: accountCount?.count || 0,
+      roadmapCount: roadmapCount?.count || 0,
       status: 'Connected',
       environment: c.env.ENVIRONMENT || 'production'
     });
@@ -945,17 +988,6 @@ app.delete('/api/blogs/:id', async (c) => {
   }
 });
 
-// Fallback route - always return JSON
-app.all('*', (c) => {
-  return c.json({
-    success: false,
-    error: 'Route not found',
-    path: c.req.path
-  }, 404);
-});
-
-// Add this after your existing endpoints in index.js
-
 // ==================== ROADMAP ENDPOINTS ====================
 
 // GET ROADMAP BY EMAIL
@@ -970,11 +1002,16 @@ app.get('/api/roadmap', async (c) => {
       }, 400);
     }
     
+    console.log('🔍 Looking for roadmap for email:', email);
+    
     const roadmap = await c.env.DB.prepare(
-      `SELECT roadmap_string, current_level FROM roadmaps WHERE email = ?`
+      `SELECT roadmap_string, current_level, created_at FROM roadmaps WHERE email = ?`
     ).bind(email).first();
     
+    console.log('📊 Roadmap query result:', roadmap);
+    
     if (!roadmap) {
+      console.log('📭 No roadmap found for:', email);
       return c.json({ 
         success: true, 
         exists: false,
@@ -982,18 +1019,21 @@ app.get('/api/roadmap', async (c) => {
       });
     }
     
+    console.log('✅ Roadmap found for:', email);
     return c.json({
       success: true,
       exists: true,
       roadmapString: roadmap.roadmap_string,
-      level: roadmap.current_level || 0
+      level: roadmap.current_level || 0,
+      createdAt: roadmap.created_at
     });
     
   } catch (error) {
-    console.error('Get roadmap error:', error);
+    console.error('❌ Get roadmap error:', error);
     return c.json({ 
       success: false, 
-      error: 'Failed to get roadmap' 
+      error: 'Failed to get roadmap',
+      details: error.message
     }, 500);
   }
 });
@@ -1003,6 +1043,10 @@ app.post('/api/roadmap', async (c) => {
   try {
     const body = await c.req.json();
     const { email, roadmapString, level } = body;
+    
+    console.log('💾 Saving roadmap for:', email);
+    console.log('📝 Roadmap string (first 50 chars):', roadmapString ? roadmapString.substring(0, 50) + '...' : 'empty');
+    console.log('📊 Level:', level);
     
     if (!email || !roadmapString) {
       return c.json({ 
@@ -1016,6 +1060,8 @@ app.post('/api/roadmap', async (c) => {
       `SELECT id FROM roadmaps WHERE email = ?`
     ).bind(email).first();
     
+    console.log('🔍 Existing roadmap check:', existing ? 'Found' : 'Not found');
+    
     let result;
     
     if (existing) {
@@ -1025,26 +1071,48 @@ app.post('/api/roadmap', async (c) => {
         SET roadmap_string = ?, current_level = ?, updated_at = datetime('now')
         WHERE email = ?
       `).bind(roadmapString, level || 0, email).run();
+      console.log('📝 Updated existing roadmap');
     } else {
       // Insert new roadmap
       result = await c.env.DB.prepare(`
         INSERT INTO roadmaps (email, roadmap_string, current_level, created_at, updated_at)
         VALUES (?, ?, ?, datetime('now'), datetime('now'))
       `).bind(email, roadmapString, level || 0).run();
+      console.log('✅ Created new roadmap, insert ID:', result.meta?.last_row_id);
     }
+    
+    // Verify the save by fetching it back
+    const savedRoadmap = await c.env.DB.prepare(
+      `SELECT roadmap_string, current_level FROM roadmaps WHERE email = ?`
+    ).bind(email).first();
+    
+    console.log('🔍 Verification - saved roadmap exists:', !!savedRoadmap);
     
     return c.json({
       success: true,
       message: existing ? 'Roadmap updated' : 'Roadmap saved',
       roadmapString,
-      level: level || 0
+      level: level || 0,
+      verified: !!savedRoadmap
     });
     
   } catch (error) {
-    console.error('Save roadmap error:', error);
+    console.error('❌ Save roadmap error:', error);
+    console.error('Error details:', error.message);
+    
+    // Check for unique constraint violation
+    if (error.message && error.message.includes('UNIQUE constraint failed')) {
+      return c.json({ 
+        success: false, 
+        error: 'A roadmap already exists for this email',
+        details: 'Try updating instead of creating new'
+      }, 409);
+    }
+    
     return c.json({ 
       success: false, 
-      error: 'Failed to save roadmap' 
+      error: 'Failed to save roadmap',
+      details: error.message
     }, 500);
   }
 });
@@ -1052,7 +1120,10 @@ app.post('/api/roadmap', async (c) => {
 // DELETE ROADMAP
 app.delete('/api/roadmap', async (c) => {
   try {
-    const { email } = await c.req.json();
+    const body = await c.req.json();
+    const { email } = body;
+    
+    console.log('🗑️ Deleting roadmap for:', email);
     
     if (!email) {
       return c.json({ 
@@ -1061,22 +1132,35 @@ app.delete('/api/roadmap', async (c) => {
       }, 400);
     }
     
-    await c.env.DB.prepare(
+    const result = await c.env.DB.prepare(
       `DELETE FROM roadmaps WHERE email = ?`
     ).bind(email).run();
     
+    console.log('✅ Deleted roadmap, rows affected:', result.meta?.rows_written);
+    
     return c.json({
       success: true,
-      message: 'Roadmap deleted successfully'
+      message: 'Roadmap deleted successfully',
+      rowsDeleted: result.meta?.rows_written || 0
     });
     
   } catch (error) {
-    console.error('Delete roadmap error:', error);
+    console.error('❌ Delete roadmap error:', error);
     return c.json({ 
       success: false, 
-      error: 'Failed to delete roadmap' 
+      error: 'Failed to delete roadmap',
+      details: error.message
     }, 500);
   }
+});
+
+// Fallback route - always return JSON
+app.all('*', (c) => {
+  return c.json({
+    success: false,
+    error: 'Route not found',
+    path: c.req.path
+  }, 404);
 });
 
 // Export the app

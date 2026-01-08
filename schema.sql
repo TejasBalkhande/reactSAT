@@ -37,6 +37,17 @@ CREATE TABLE IF NOT EXISTS accounts (
   status TEXT DEFAULT 'active'
 );
 
+-- Create roadmaps table if it doesn't exist
+CREATE TABLE IF NOT EXISTS roadmaps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  roadmap_string TEXT NOT NULL,
+  current_level INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(email)
+);
+
 -- Create indexes for blogs
 CREATE INDEX IF NOT EXISTS idx_blogs_slug ON blogs(slug);
 CREATE INDEX IF NOT EXISTS idx_blogs_category ON blogs(category);
@@ -46,6 +57,9 @@ CREATE INDEX IF NOT EXISTS idx_blogs_status_date ON blogs(status, publish_date);
 CREATE INDEX IF NOT EXISTS idx_accounts_email ON accounts(email);
 CREATE INDEX IF NOT EXISTS idx_accounts_username ON accounts(username);
 CREATE INDEX IF NOT EXISTS idx_accounts_status ON accounts(status);
+
+-- Create indexes for roadmaps
+CREATE INDEX IF NOT EXISTS idx_roadmaps_email ON roadmaps(email);
 
 -- Insert sample data only if tables are empty
 INSERT OR IGNORE INTO blogs (title, slug, category, meta_title, meta_description, keywords, author, html_content, status) 
@@ -71,16 +85,3 @@ VALUES (
   'premium',
   1
 );
-
--- Create roadmaps table
-CREATE TABLE IF NOT EXISTS roadmaps (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT UNIQUE NOT NULL,
-  roadmap_string TEXT NOT NULL,
-  current_level INTEGER DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create index for roadmaps
-CREATE INDEX IF NOT EXISTS idx_roadmaps_email ON roadmaps(email);

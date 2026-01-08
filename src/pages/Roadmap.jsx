@@ -348,6 +348,11 @@ const Roadmap = ({ user, onLogout }) => {
 
   const saveRoadmap = async (email, roadmapString, level) => {
     try {
+      console.log('📤 Saving roadmap to Cloudflare D1...');
+      console.log('Email:', email);
+      console.log('Roadmap string length:', roadmapString.length);
+      console.log('Level:', level);
+      
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/roadmap`, {
         method: 'POST',
@@ -358,13 +363,17 @@ const Roadmap = ({ user, onLogout }) => {
         body: JSON.stringify({ email, roadmapString, level }),
       });
       
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Failed to save roadmap');
+        console.error('❌ Save roadmap failed:', data);
+        throw new Error(data.error || 'Failed to save roadmap');
       }
       
-      return await response.json();
+      console.log('✅ Roadmap saved successfully:', data);
+      return data;
     } catch (error) {
-      console.error('Error saving roadmap:', error);
+      console.error('❌ Error saving roadmap:', error);
       throw error;
     }
   };
@@ -696,9 +705,25 @@ const Roadmap = ({ user, onLogout }) => {
     navigate('/login');
   };
 
+  // UPDATED: Handle Level Start - Navigate to RoadmapLevel page
   const handleLevelStart = (stepNumber) => {
-    alert(`Starting level ${stepNumber}: ${roadmapSteps[stepNumber - 1]?.skillName}`);
-    // Navigate to practice page or open modal
+    const step = roadmapSteps[stepNumber - 1];
+    if (!step) return;
+    
+    // Save current progress before starting the level
+    updateLevel(stepNumber - 1);
+    
+    // Navigate to RoadmapLevel page with skill data
+    navigate('/roadmap-level', {
+      state: {
+        skillName: step.skillName,
+        domain: step.domain,
+        category: step.category,
+        currentLevel: currentLevel,
+        roadmapString: roadmapString,
+        userData: localUser
+      }
+    });
   };
 
   const handleDomainLevelChange = (domain, value) => {
@@ -1009,3 +1034,10 @@ const Roadmap = ({ user, onLogout }) => {
 };
 
 export default Roadmap;
+
+// wrangler d1 create sat-blog-db
+// wrangler d1 info sat-blog-db 
+// wrangler d1 list   
+// wrangler d1 execute sat-blog-db --file=./schema.sql --remote
+// npm install -g wrangler
+// npx wrangler deploy    

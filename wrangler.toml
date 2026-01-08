@@ -6,7 +6,7 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "sat-blog-db"
-database_id = "db24459c-56f0-45c7-ac12-4f646acc1b5e"  
+database_id = "bed149f5-f416-4832-b1ed-f32d8123052b"  
 
 [vars]
 ENVIRONMENT = "production"

@@ -45,7 +45,7 @@ import ProfileScreen from './account/ProfileScreen';
 import CoursesScreen from './courses/courses';
 import CoursesPlaylistScreen from './courses/courses_playlist';
 import Roadmap from './pages/Roadmap';
-
+import RoadmapLevel from './pages/roadmap_level';
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -887,6 +887,7 @@ function App() {
           <Route path="/courses" element={<CoursesScreen/>} />
           <Route path="/courses/:id" element={<CoursesPlaylistScreen />} />
           <Route path="/roadmap" element={ <Roadmap/>  }/>
+          <Route path="/roadmap-level" element={ <RoadmapLevel/>  }/>
           <Route path="/mock-practice" element={<div className="page">Mock Practice Page</div>} />
           <Route path="/game" element={<div className="page">Game Page</div>} />
           <Route path="/community" element={<div className="page">Community Page</div>} />
