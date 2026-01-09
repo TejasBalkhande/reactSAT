@@ -1,5 +1,5 @@
-// App.jsx - UPDATED BLOG SLIDER WITH 3 POSTS ON SCREEN AND CENTERED MOBILE VIEW
-import { useState, useEffect, useRef } from 'react'
+// App.jsx - UPDATED WITH PERSISTENT LEADERBOARD DATA
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import { 
   FaPenAlt, 
@@ -7,7 +7,13 @@ import {
   FaUniversity, 
   FaBook, 
   FaGamepad, 
-  FaUsers 
+  FaUsers,
+  FaTrophy,
+  FaCrown,
+  FaMedal,
+  FaUserCircle,
+  FaArrowUp,
+  FaArrowDown
 } from 'react-icons/fa';
 import './App.css'
 
@@ -47,6 +53,11 @@ import CoursesPlaylistScreen from './courses/courses_playlist';
 import Roadmap from './pages/Roadmap';
 import RoadmapLevel from './pages/roadmap_level';
 import MockTestScreen from './pages/mock_test_screen';
+import Info from './pages/Info';
+import Blog1 from './blogs/blog1';
+import Blog2 from './blogs/blog2';
+import Blog3 from './blogs/blog3';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -58,6 +69,21 @@ const ProtectedRoute = ({ children }) => {
   
   return children;
 };
+
+// FIXED LEADERBOARD DATA - This will not change on refresh
+const FIXED_LEADERBOARD_DATA = [
+  { rank: 1, username: "AlexJohnson42", fullName: "Alex Johnson", country: "USA", score: 1580, progress: 95, improvement: "+25" },
+  { rank: 2, username: "TaylorSmith7", fullName: "Taylor Smith", country: "Canada", score: 1565, progress: 93, improvement: "+18" },
+  { rank: 3, username: "MorganLee23", fullName: "Morgan Lee", country: "UK", score: 1550, progress: 91, improvement: "+32" },
+  { rank: 4, username: "CaseyBrown89", fullName: "Casey Brown", country: "Australia", score: 1540, progress: 89, improvement: "+12" },
+  { rank: 5, username: "RileyWilliams31", fullName: "Riley Williams", country: "USA", score: 1535, progress: 88, improvement: "+8" },
+  { rank: 6, username: "QuinnDavis56", fullName: "Quinn Davis", country: "India", score: 1525, progress: 87, improvement: "-5" },
+  { rank: 7, username: "DakotaMiller12", fullName: "Dakota Miller", country: "Germany", score: 1515, progress: 85, improvement: "+15" },
+  { rank: 8, username: "SkylerRodriguez78", fullName: "Skyler Rodriguez", country: "France", score: 1505, progress: 84, improvement: "+22" },
+  { rank: 9, username: "AveryMartinez34", fullName: "Avery Martinez", country: "Japan", score: 1495, progress: 83, improvement: "+10" },
+  { rank: 10, username: "CameronGarcia91", fullName: "Cameron Garcia", country: "South Korea", score: 1485, progress: 81, improvement: "+5" }
+
+];
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -71,24 +97,17 @@ function HomePage() {
     eventLive: false
   })
   
-  // NEW: Track login state
+  // Track login state
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userData, setUserData] = useState(null)
   
-  // Blog Slider States - UPDATED FOR 3 POSTS
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [slidesToShow, setSlidesToShow] = useState(3)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const sliderRef = useRef(null)
-  const autoPlayRef = useRef(null)
-  const containerRef = useRef(null)
+  // Leaderboard state
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [leaderboardData, setLeaderboardData] = useState(FIXED_LEADERBOARD_DATA)
+  const [userRank, setUserRank] = useState(25) // Fixed user rank
 
   // Use navigate for routing
   const navigate = useNavigate()
-
-  // Calculate total slides based on 3 posts visible
-  const totalSlides = blogPosts.length
-  const maxSlide = Math.max(0, totalSlides - slidesToShow)
 
   useEffect(() => {
     // Check if user is already logged in
@@ -100,82 +119,40 @@ function HomePage() {
       setUserData(JSON.parse(user));
     }
 
-    // Mock blog posts data
+    // UPDATED: New blog posts with proper images and navigation
     const mockBlogPosts = [
       {
         id: 1,
-        title: 'SAT Math Tips: How to Master Algebra',
-        description: 'Learn the key strategies to solve algebra problems quickly and accurately. Our comprehensive guide covers everything from basic equations to complex word problems.',
-        date: '2024-03-15',
-        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=800&q=80'
+        title: 'Digital SAT Score Range: What is a \'Good\' Score for the Ivy League in 2026?',
+        description: 'Aiming for the Ivy League in 2026? Get the essential Digital SAT score ranges, understand the new testing requirements, and learn how to build a winning application strategy.',
+        date: '2026-01-20',
+        image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80',
+        slug: 'digital-sat-score-ivy-league-2026-good-score-range'
       },
       {
         id: 2,
-        title: 'Reading Comprehension Strategies for High Scores',
-        description: 'Boost your reading score with these proven techniques. Learn how to analyze passages efficiently and answer questions confidently.',
-        date: '2024-03-10',
-        image: 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=800&q=80'
+        title: 'SAT vs. ACT in 2026: The Ultimate Guide to Choosing the Right Test for You',
+        description: 'Struggling to choose between the SAT and ACT in 2026? Our comprehensive guide compares the digital SAT vs. ACT\'s format, content, scoring, and helps you pick the best test for your strengths.',
+        date: '2026-01-18',
+        image: 'https://images.unsplash.com/photo-1598981457915-aea220950616?q=80&w=1193&auto=format&fit=crop&w=800&q=80',
+        slug: 'sat-vs-act-2026-which-test-easier-choice-guide'
       },
       {
         id: 3,
-        title: 'Time Management for SAT Success',
-        description: 'Learn how to pace yourself during the exam. These time management strategies will help you complete every section with confidence.',
-        date: '2024-03-05',
-        image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 4,
-        title: 'Grammar Rules You Must Know for Writing Section',
-        description: 'Essential writing and language section tips. Master punctuation, sentence structure, and style improvement techniques.',
-        date: '2024-02-28',
-        image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 5,
-        title: 'SAT Vocabulary Building Techniques',
-        description: 'Effective ways to expand your vocabulary for the SAT. Learn memory techniques and context-based learning strategies.',
-        date: '2024-02-20',
-        image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 6,
-        title: 'Essay Writing Techniques That Impress',
-        description: 'Master the SAT essay with these writing strategies. Learn how to structure your essay and present compelling arguments.',
-        date: '2024-02-15',
-        image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 7,
-        title: 'Overcoming Test Anxiety: A Guide',
-        description: 'Practical techniques to manage stress and perform your best on test day. Learn breathing exercises and mental preparation strategies.',
-        date: '2024-02-10',
-        image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 8,
-        title: 'SAT Calculator Strategies for Math Section',
-        description: 'Maximize your calculator use with these expert tips. Learn which problems are best solved with calculator assistance.',
-        date: '2024-02-05',
-        image: 'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&w=800&q=80'
+        title: 'The Ultimate Guide to Mastering Desmos for the Digital SAT: Boost Your Score by 100+ Points',
+        description: 'Stop using Desmos like a basic calculator! Our ultimate guide reveals the 7 essential skills and step-by-step strategies to solve SAT math problems faster and boost your score. Click to learn the secrets.',
+        date: '2026-01-15',
+        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=800&q=80',
+        slug: 'ultimate-guide-master-desmos-digital-sat'
       }
     ]
 
     setBlogPosts(mockBlogPosts)
     setIsLoading(false)
 
-    // Handle responsive slides - UPDATED FOR 3 POSTS
-    const updateSlidesToShow = () => {
-      if (window.innerWidth < 768) {
-        setSlidesToShow(1) // On mobile, we'll show 3 posts but treat as carousel
-      } else if (window.innerWidth < 1200) {
-        setSlidesToShow(2)
-      } else {
-        setSlidesToShow(3) // Show 3 posts on desktop
-      }
-    }
-
-    updateSlidesToShow()
-    window.addEventListener('resize', updateSlidesToShow)
+    // Always use fixed leaderboard data
+    setLeaderboardData(FIXED_LEADERBOARD_DATA)
+    setUserRank(25)
 
     // Countdown timer setup
     const updateCountdown = () => {
@@ -211,40 +188,17 @@ function HomePage() {
     }
 
     const countdownInterval = setInterval(updateCountdown, 1000)
-    
-    // Auto-play slider - UPDATED FOR 3 POSTS
-    const startAutoPlay = () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current)
-      
-      if (isAutoPlaying && slidesToShow < totalSlides) {
-        autoPlayRef.current = setInterval(() => {
-          nextSlide()
-        }, 4000)
-      }
-    }
-    
-    startAutoPlay()
 
     return () => {
       clearInterval(countdownInterval)
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current)
-      window.removeEventListener('resize', updateSlidesToShow)
     }
-  }, [isAutoPlaying])
+  }, [])
 
-  // Update auto-play when slides change
-  useEffect(() => {
-    if (isAutoPlaying && slidesToShow < totalSlides) {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current)
-      autoPlayRef.current = setInterval(() => {
-        nextSlide()
-      }, 4000)
-    }
-    
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current)
-    }
-  }, [currentSlide, isAutoPlaying, slidesToShow, totalSlides])
+  // Load fixed leaderboard data (no generation needed)
+  const loadFixedLeaderboardData = () => {
+    setLeaderboardData(FIXED_LEADERBOARD_DATA)
+    setUserRank(25)
+  }
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -257,73 +211,54 @@ function HomePage() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  // Blog Slider Functions - UPDATED FOR 3 POSTS
-  const nextSlide = () => {
-    setCurrentSlide(prev => {
-      if (prev >= maxSlide) {
-        return 0 // Loop back to start
-      }
-      return prev + 1
-    })
-  }
-
-  const prevSlide = () => {
-    setCurrentSlide(prev => {
-      if (prev <= 0) {
-        return maxSlide // Loop to end
-      }
-      return prev - 1
-    })
-  }
-
-  const goToSlide = (index) => {
-    setCurrentSlide(Math.min(index, maxSlide))
-  }
-
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying)
-  }
-
-  // Calculate translate value for slider - FIXED FOR 3 POSTS
-  const getTranslateValue = () => {
-    if (slidesToShow === 1) {
-      // On mobile, each slide takes full width
-      return -currentSlide * 100
-    } else if (slidesToShow === 2) {
-      // On tablet, each slide takes 50% minus gap
-      return -currentSlide * 50
-    } else {
-      // On desktop, each slide takes 33.33% minus gap
-      return -currentSlide * 33.33
-    }
-  }
-
-  // Handle mobile scroll to center
-  const handleMobileScroll = () => {
-    if (window.innerWidth < 768 && containerRef.current) {
-      const slideWidth = containerRef.current.offsetWidth * 0.75 // 75vw
-      const gap = 0.75 * 16 // 0.75rem in pixels
-      const scrollPosition = (slideWidth + gap) * currentSlide
-      containerRef.current.scrollLeft = scrollPosition
-    }
-  }
-
-  useEffect(() => {
-    handleMobileScroll()
-  }, [currentSlide])
-
   // Function to navigate to StudyPlan
   const handleStartMockTest = () => {
     navigate('/study-plan')
   }
 
-  // NEW: Handle Account button click
+  // Handle Account button click
   const handleAccountClick = () => {
     if (isLoggedIn) {
       navigate('/profile');
     } else {
       navigate('/login');
     }
+  }
+
+  // Handle View All Blogs
+  const handleViewAllBlogs = () => {
+    navigate('/blogs');
+  }
+
+  // Handle Read More click for individual blog posts
+  const handleReadMore = (slug) => {
+    navigate(`/blog/${slug}`);
+  }
+
+  // Handle View Leaderboard button click
+  const handleViewLeaderboard = () => {
+    setShowLeaderboard(!showLeaderboard);
+    loadFixedLeaderboardData();
+  }
+
+  // Get medal icon based on rank
+  const getRankIcon = (rank) => {
+    switch(rank) {
+      case 1: return <FaCrown className="rank-icon gold" />;
+      case 2: return <FaMedal className="rank-icon silver" />;
+      case 3: return <FaMedal className="rank-icon bronze" />;
+      default: return <span className="rank-number">{rank}</span>;
+    }
+  }
+
+  // Get improvement arrow
+  const getImprovementIcon = (improvement) => {
+    if (improvement.startsWith('+')) {
+      return <FaArrowUp className="improvement-icon positive" />;
+    } else if (improvement.startsWith('-')) {
+      return <FaArrowDown className="improvement-icon negative" />;
+    }
+    return null;
   }
 
   return (
@@ -388,7 +323,8 @@ function HomePage() {
             >
               Start a Mock Test
             </button>
-            <button className="hero-btn secondary sat-hero-btn-secondary">
+            <button className="hero-btn secondary sat-hero-btn-secondary" onClick={handleStartMockTest}>
+              
               View Study Plans
             </button>
           </div>
@@ -437,129 +373,88 @@ function HomePage() {
         </div>
       </section>
 
-      {/* UPDATED: Blog Slider Section - SHOW 3 POSTS */}
-      <section className="blog-section sat-blog">
-        <div className="blog-slider-container">
-          <div className="blog-slider-header">
-            <div>
-              <h2>Latest Blog Posts</h2>
-              <p>Stay updated with the latest SAT prep tips and strategies</p>
-            </div>
-            <div className="blog-slider-nav">
-              <button 
-                className="blog-slider-btn" 
-                onClick={prevSlide}
-                disabled={currentSlide === 0 && maxSlide > 0}
-                aria-label="Previous slide"
-              >
-                <ArrowBackIosIcon style={{ fontSize: '18px' }} />
-              </button>
-              <button 
-                className="blog-slider-btn" 
-                onClick={nextSlide}
-                disabled={currentSlide >= maxSlide && maxSlide > 0}
-                aria-label="Next slide"
-              >
-                <ArrowForwardIosIcon style={{ fontSize: '18px' }} />
-              </button>
-            </div>
+      {/* UPDATED: Blog Section - Static Grid for Desktop, Stacked for Mobile */}
+      <section className="blog-section">
+        <div className="blog-container">
+          <div className="blog-header">
+            <h2>Latest Blog Posts</h2>
+            <p>Stay updated with the latest SAT prep tips and strategies</p>
           </div>
           
           {isLoading ? (
             <div className="loading-spinner">Loading...</div>
           ) : (
             <>
-              {/* Desktop/Tab View (transform slider) */}
-              <div className="blog-slider-wrapper" style={{ display: window.innerWidth >= 768 ? 'block' : 'none' }}>
-                <div 
-                  className="blog-slider" 
-                  ref={sliderRef}
-                  style={{ transform: `translateX(${getTranslateValue()}%)` }}
-                >
-                  {blogPosts.map((post) => (
-                    <div className="blog-slide" key={post.id}>
-                      <div 
-                        className="blog-slide-image"
-                        style={{ backgroundImage: `url(${post.image})` }}
-                      ></div>
-                      <div className="blog-slide-content">
-                        <h3 className="blog-slide-title">{post.title}</h3>
-                        <p className="blog-slide-desc">{post.description}</p>
-                        <div className="blog-slide-meta">
-                          <span className="blog-slide-date">
-                            <CalendarTodayIcon style={{ fontSize: '16px' }} />
-                            {formatDate(post.date)}
-                          </span>
-                          <a href="#" className="blog-read-more">
-                            Read More <ArrowForwardIcon style={{ fontSize: '16px' }} />
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Mobile View (scrollable container with 3 posts centered) */}
-              <div 
-                className="blog-slider-wrapper" 
-                ref={containerRef}
-                style={{ 
-                  display: window.innerWidth < 768 ? 'block' : 'none',
-                  overflowX: 'auto',
-                  scrollBehavior: 'smooth'
-                }}
-              >
-                <div className="blog-slider">
-                  {blogPosts.map((post, index) => (
+              {/* DESKTOP: Static Grid (3 posts side by side) */}
+              <div className="blog-grid-desktop">
+                {blogPosts.map((post) => (
+                  <div className="blog-card" key={post.id}>
                     <div 
-                      className="blog-slide" 
-                      key={post.id}
-                      onClick={() => setCurrentSlide(index)}
-                      style={{ 
-                        opacity: index >= currentSlide && index < currentSlide + 3 ? 1 : 0.7
-                      }}
-                    >
-                      <div 
-                        className="blog-slide-image"
-                        style={{ backgroundImage: `url(${post.image})` }}
-                      ></div>
-                      <div className="blog-slide-content">
-                        <h3 className="blog-slide-title">{post.title}</h3>
-                        <p className="blog-slide-desc">{post.description}</p>
-                        <div className="blog-slide-meta">
-                          <span className="blog-slide-date">
-                            <CalendarTodayIcon style={{ fontSize: '16px' }} />
-                            {formatDate(post.date)}
-                          </span>
-                          <a href="#" className="blog-read-more">
-                            Read More <ArrowForwardIcon style={{ fontSize: '16px' }} />
-                          </a>
-                        </div>
+                      className="blog-card-image"
+                      style={{ backgroundImage: `url(${post.image})` }}
+                    ></div>
+                    <div className="blog-card-content">
+                      <h3 className="blog-card-title">{post.title}</h3>
+                      <p className="blog-card-desc">{post.description}</p>
+                      <div className="blog-card-meta">
+                        <span className="blog-card-date">
+                          <CalendarTodayIcon style={{ fontSize: '16px' }} />
+                          {formatDate(post.date)}
+                        </span>
+                        <button 
+                          onClick={() => handleReadMore(post.slug)}
+                          className="blog-card-read-more"
+                        >
+                          Read More <ArrowForwardIcon style={{ fontSize: '16px' }} />
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
               
-              {/* Slider Dots */}
-              <div className="blog-slider-dots">
-                {Array.from({ length: maxSlide + 1 }).map((_, index) => (
-                  <button
-                    key={index}
-                    className={`blog-slider-dot ${index === currentSlide ? 'active' : ''}`}
-                    onClick={() => goToSlide(index)}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
+              {/* MOBILE: Stacked Layout (2 posts one above the other) */}
+              <div className="blog-mobile-stack">
+                {blogPosts.slice(0, 2).map((post) => (
+                  <div className="blog-card" key={post.id}>
+                    <div 
+                      className="blog-card-image"
+                      style={{ backgroundImage: `url(${post.image})` }}
+                    ></div>
+                    <div className="blog-card-content">
+                      <h3 className="blog-card-title">{post.title}</h3>
+                      <p className="blog-card-desc">{post.description}</p>
+                      <div className="blog-card-meta">
+                        <span className="blog-card-date">
+                          <CalendarTodayIcon style={{ fontSize: '16px' }} />
+                          {formatDate(post.date)}
+                        </span>
+                        <button 
+                          onClick={() => handleReadMore(post.slug)}
+                          className="blog-card-read-more"
+                        >
+                          Read More <ArrowForwardIcon style={{ fontSize: '16px' }} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
+              </div>
+              
+              <div className="blog-cta">
+                <button 
+                  className="blog-view-all-btn"
+                  onClick={handleViewAllBlogs}
+                >
+                  View All Blog Posts <ArrowForwardIcon style={{ fontSize: '20px' }} />
+                </button>
               </div>
             </>
           )}
         </div>
       </section>
 
-
-      {/* UPDATED RANKING SECTION - SIMPLIFIED FOR MOBILE */}
+      {/* UPDATED RANKING SECTION WITH LEADERBOARD */}
       <section className="ranking-section sat-ranking">
         
         <div className="ranking-content">
@@ -599,7 +494,7 @@ function HomePage() {
                 <div className="stat-label-compact">Win Prizes</div>
               </div>
               <div className="stat-item-compact">
-                <div className="stat-value-compact">$500+</div>
+                <div className="stat-value-compact">$100+</div>
                 <div className="stat-label-compact">Total Prizes</div>
               </div>
             </div>
@@ -608,8 +503,11 @@ function HomePage() {
               <button className="ranking-cta-compact ranking-cta-primary">
                 Join Competition →
               </button>
-              <button className="ranking-cta-compact ranking-cta-secondary">
-                View Leaderboard
+              <button 
+                className="ranking-cta-compact ranking-cta-secondary"
+                onClick={handleViewLeaderboard}
+              >
+                {showLeaderboard ? 'Hide Leaderboard' : 'View Leaderboard'}
               </button>
             </div>
           </div>
@@ -685,6 +583,99 @@ function HomePage() {
             )}
           </div>
         </div>
+        
+        {/* LEADERBOARD SECTION */}
+        {showLeaderboard && (
+          <div className="leaderboard-container">
+            <div className="leaderboard-header">
+              <h3><FaTrophy /> Global SAT Leaderboard</h3>
+              <p className="leaderboard-subtitle">Top 20 performers from Global Ranking Test #41</p>
+            </div>
+            
+            <div className="leaderboard-table-container">
+              <table className="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th className="rank-col">Rank</th>
+                    <th className="user-col">Student</th>
+                    <th className="score-col">SAT Score</th>
+                    <th className="progress-col">Progress</th>
+                    <th className="improvement-col">Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboardData.map((student) => (
+                    <tr key={student.rank} className={student.rank <= 3 ? 'top-three' : ''}>
+                      <td className="rank-cell">
+                        <div className="rank-display">
+                          {getRankIcon(student.rank)}
+                        </div>
+                      </td>
+                      <td className="user-cell">
+                        <div className="user-info">
+                          <div className="user-avatar">
+                            <FaUserCircle />
+                          </div>
+                          <div className="user-details">
+                            <div className="user-name">{student.fullName}</div>
+                            <div className="user-username">@{student.username}</div>
+                            <div className="user-country">
+                              <span className="country-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> {student.country}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="score-cell">
+                        <div className="score-display">
+                          <span className="score-value">{student.score}</span>
+                          <span className="score-max">/1600</span>
+                        </div>
+                      </td>
+                      <td className="progress-cell">
+                        <div className="progress-bar-container">
+                          <div className="progress-bar-label">{student.progress}%</div>
+                          <div className="progress-bar">
+                            <div 
+                              className="progress-fill" 
+                              style={{ width: `${student.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="improvement-cell">
+                        <div className="improvement-display">
+                          {getImprovementIcon(student.improvement)}
+                          <span className={`improvement-value ${student.improvement.startsWith('+') ? 'positive' : student.improvement.startsWith('-') ? 'negative' : ''}`}>
+                            {student.improvement}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            
+            
+            <div className="leaderboard-footer">
+              <div className="leaderboard-stats">
+                <div className="stat">
+                  <div className="stat-value">2,847</div>
+                  <div className="stat-label">Total Participants</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-value">1,420</div>
+                  <div className="stat-label">Average Score</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-value">72</div>
+                  <div className="stat-label">Countries</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Quick Navigation */}
@@ -727,8 +718,6 @@ function HomePage() {
             </div>
             <div className="nav-tile-label">SAT Game</div>
           </div>
-          
-          
         </div>
       </section>
 
@@ -793,35 +782,35 @@ function HomePage() {
           <div className="footer-columns">
             <div className="footer-column">
               <h3>Company</h3>
-              <a href="#">About Us</a>
-              <a href="#">Careers</a>
-              <a href="#">Press</a>
+              <Link to="/info#company">About Us</Link>
+              <Link to="/info#company">Careers</Link>
+              <Link to="/info#company">Press</Link>
             </div>
             
             <div className="footer-column">
               <h3>Resources</h3>
-              <a href="#">Pricing/Plans</a>
-              <a href="#">Study Materials</a>
-              <a href="#">FAQs</a>
+              <Link to="/info#resources">Pricing/Plans</Link>
+              <Link to="/info#resources">Study Materials</Link>
+              <Link to="/info#resources">FAQs</Link>
             </div>
             
             <div className="footer-column">
               <h3>Support</h3>
-              <a href="#">Contact Us</a>
-              <a href="#">Help Center</a>
-              <a href="#">System Status</a>
+              <Link to="/info#support">Contact Us</Link>
+              <Link to="/info#support">Help Center</Link>
+              <Link to="/info#support">System Status</Link>
             </div>
             
             <div className="footer-column">
               <h3>Legal</h3>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">Cookie Policy</a>
+              <Link to="/info#legal">Privacy Policy</Link>
+              <Link to="/info#legal">Terms of Service</Link>
+              <Link to="/info#legal">Cookie Policy</Link>
             </div>
           </div>
-          
+
           <div className="footer-divider"></div>
-          
+
           <div className="footer-bottom">
             <p>© 2025 SAT Prep Pro. All rights reserved.</p>
           </div>
@@ -883,7 +872,11 @@ function App() {
           <Route path="/mock-practice" element={<StudyPlan/>} />
           <Route path="/mock-test/:mockTestId" element={<MockTestScreen />} />
           <Route path="/game" element={<div className="page">Game Page</div>} />
+          <Route path="/info" element={<Info />} />
           <Route path="/blogs" element={<BlogsList />} />
+          <Route path="/blog/digital-sat-score-ivy-league-2026-good-score-range" element={<Blog1 />} />
+          <Route path="/blog/sat-vs-act-2026-which-test-easier-choice-guide" element={<Blog2 />} />
+          <Route path="/blog/ultimate-guide-master-desmos-digital-sat" element={<Blog3 />} />          
           <Route path="/blog/:slug" element={<SingleBlog />} />
           <Route path="/admin/create-blog" element={<CreateBlog />} />
           <Route path="/login" element={<LoginScreen />} />

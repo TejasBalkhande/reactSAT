@@ -57,7 +57,9 @@
 .profile-card {
   background: white;
   border-radius: 16px;
-  padding: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 30px;
   box-shadow: var(--shadow);
 }
 

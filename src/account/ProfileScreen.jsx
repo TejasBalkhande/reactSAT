@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './profile_screen.css';
@@ -19,6 +20,10 @@ const ProfileScreen = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentLevel, setCurrentLevel] = useState(0);
+  const [loadingRoadmap, setLoadingRoadmap] = useState(true);
+  
+  // Stats based on currentLevel
   const [stats, setStats] = useState({
     practiceTests: 0,
     averageScore: 0,
@@ -30,6 +35,61 @@ const ProfileScreen = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const API_URL = 'https://sat-blog-worker.tejasbalkhande221.workers.dev';
+
+  // Fetch user roadmap data
+  const fetchRoadmapData = async (email) => {
+    try {
+      setLoadingRoadmap(true);
+      console.log('📊 Fetching roadmap data for email:', email);
+      
+      const response = await fetch(`${API_URL}/api/roadmap?email=${encodeURIComponent(email)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      console.log('📊 Roadmap API response:', data);
+      
+      if (data.success && data.exists) {
+        const level = data.level || 0;
+        setCurrentLevel(level);
+        
+        // Calculate stats based on current level
+        setStats({
+          practiceTests: level,
+          averageScore: level * 150,
+          studyHours: level * 0.75,
+          improvement: level * 13
+        });
+        
+        console.log('✅ Roadmap loaded. Level:', level);
+      } else {
+        // If no roadmap exists, use default level 0
+        console.log('📭 No roadmap found for user, using default level 0');
+        setCurrentLevel(0);
+        setStats({
+          practiceTests: 0,
+          averageScore: 0,
+          studyHours: 0,
+          improvement: 0
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error fetching roadmap:', error);
+      // Fallback to default level 0 on error
+      setCurrentLevel(0);
+      setStats({
+        practiceTests: 0,
+        averageScore: 0,
+        studyHours: 0,
+        improvement: 0
+      });
+    } finally {
+      setLoadingRoadmap(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,13 +115,20 @@ const ProfileScreen = () => {
         
         if (data.success) {
           setUserData(data.user);
-          // Mock stats - in real app, fetch these from your API
-          setStats({
-            practiceTests: Math.floor(Math.random() * 20) + 5,
-            averageScore: Math.floor(Math.random() * 400) + 1000,
-            studyHours: Math.floor(Math.random() * 100) + 20,
-            improvement: Math.floor(Math.random() * 200) + 50
-          });
+          
+          // Fetch roadmap data after getting user profile
+          if (data.user.email) {
+            await fetchRoadmapData(data.user.email);
+          } else {
+            // Use default stats if no email
+            setStats({
+              practiceTests: 0,
+              averageScore: 0,
+              studyHours: 0,
+              improvement: 0
+            });
+            setLoadingRoadmap(false);
+          }
         } else {
           setError(data.error || 'Failed to load profile');
           // Clear invalid token
@@ -126,6 +193,12 @@ const ProfileScreen = () => {
     } else {
       return 'Expired';
     }
+  };
+
+  // Calculate progress percentage based on current level
+  const calculateProgress = () => {
+    const maxLevel = 29; // Assuming max level is 10
+    return Math.min((currentLevel / maxLevel) * 100, 100);
   };
 
   if (loading) {
@@ -269,6 +342,22 @@ const ProfileScreen = () => {
 
               <div className="profile-details">
                 <div className="detail-row">
+                  <span className="detail-label">Current Level</span>
+                  <span className="detail-value">
+                    {loadingRoadmap ? (
+                      <span style={{ color: '#4A7C59' }}>Loading...</span>
+                    ) : (
+                      <span style={{ 
+                        color: '#4A7C59', 
+                        fontWeight: 'bold',
+                        fontSize: '16px'
+                      }}>
+                        Level {currentLevel}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="detail-row">
                   <span className="detail-label">Member Since</span>
                   <span className="detail-value">
                     {formatDate(userData?.created_at)}
@@ -302,37 +391,30 @@ const ProfileScreen = () => {
                   </span>
                 </div>
               </div>
-
-              <div className="profile-actions">
-                <button className="action-button primary">
-                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                  Edit Profile
-                </button>
-                <button className="action-button secondary">
-                  <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                  </svg>
-                  Change Password
-                </button>
-              </div>
             </div>
 
             <div className="study-plan-card">
-              <h3>Study Plan</h3>
+              <h3>Study Plan Progress</h3>
               <div className="plan-progress">
                 <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: '65%' }}></div>
+                  <div 
+                    className="progress-fill" 
+                    style={{ width: `${calculateProgress()}%` }}
+                  ></div>
                 </div>
-                <span className="progress-text">65% Complete</span>
+                <span className="progress-text">
+                  {loadingRoadmap ? 'Loading...' : `${Math.round(calculateProgress())}% Complete (Level ${currentLevel})`}
+                </span>
               </div>
               <div className="plan-details">
-                <p>Next scheduled study session: Today, 6:00 PM</p>
-                <p>Focus area: Math - Algebra</p>
+                <p>Next level: Level {currentLevel + 1}</p>
+                <p>Focus area: Continue with roadmap progression</p>
               </div>
-              <button className="plan-button">
-                View Full Plan
+              <button 
+                className="plan-button"
+                onClick={() => navigate('/roadmap')}
+              >
+                View Roadmap
               </button>
             </div>
           </div>
@@ -346,8 +428,9 @@ const ProfileScreen = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                   </svg>
                 </div>
-                <h3>{stats.practiceTests}</h3>
+                <h3>{loadingRoadmap ? '...' : stats.practiceTests}</h3>
                 <p>Practice Tests Completed</p>
+                
               </div>
 
               <div className="stat-card">
@@ -356,8 +439,12 @@ const ProfileScreen = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                   </svg>
                 </div>
-                <h3>{stats.averageScore}</h3>
+                <h3>{loadingRoadmap ? '...' : stats.averageScore}</h3>
                 <p>Average SAT Score</p>
+                {!loadingRoadmap && currentLevel > 0 && (
+                  <p style={{ fontSize: '12px', color: '#4A7C59', marginTop: '5px' }}>
+                  </p>
+                )}
               </div>
 
               <div className="stat-card">
@@ -366,8 +453,12 @@ const ProfileScreen = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                 </div>
-                <h3>{stats.studyHours}</h3>
+                <h3>{loadingRoadmap ? '...' : stats.studyHours}</h3>
                 <p>Study Hours</p>
+                {!loadingRoadmap && currentLevel > 0 && (
+                  <p style={{ fontSize: '12px', color: '#4A7C59', marginTop: '5px' }}>
+                  </p>
+                )}
               </div>
 
               <div className="stat-card">
@@ -376,75 +467,105 @@ const ProfileScreen = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                   </svg>
                 </div>
-                <h3>+{stats.improvement}</h3>
+                <h3>{loadingRoadmap ? '...' : `+${stats.improvement}`}</h3>
                 <p>Score Improvement</p>
+                {!loadingRoadmap && currentLevel > 0 && (
+                  <p style={{ fontSize: '12px', color: '#4A7C59', marginTop: '5px' }}>
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="recent-activity">
               <h3>Recent Activity</h3>
               <div className="activity-list">
-                <div className="activity-item">
-                  <div className="activity-icon completed">
-                    <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <div className="activity-content">
-                    <p>Completed Practice Test #8</p>
-                    <span className="activity-time">2 hours ago</span>
-                  </div>
-                  <span className="activity-score">+15 points</span>
-                </div>
+                {currentLevel > 0 ? (
+                  <>
+                    <div className="activity-item">
+                      <div className="activity-icon completed">
+                        <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div className="activity-content">
+                        <p>Reached Level {currentLevel} in Roadmap</p>
+                        <span className="activity-time">Latest achievement</span>
+                      </div>
+                      <span className="activity-score">Level up!</span>
+                    </div>
 
-                <div className="activity-item">
-                  <div className="activity-icon study">
-                    <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                  </svg>
-                  </div>
-                  <div className="activity-content">
-                    <p>Studied SAT Math - Geometry</p>
-                    <span className="activity-time">Yesterday</span>
-                  </div>
-                  <span className="activity-time">45 min</span>
-                </div>
+                    <div className="activity-item">
+                      <div className="activity-icon study">
+                        <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                      </svg>
+                      </div>
+                      <div className="activity-content">
+                        <p>Completed {stats.practiceTests} practice tests</p>
+                        <span className="activity-time">Total practice</span>
+                      </div>
+                      <span className="activity-time">{stats.studyHours} hrs</span>
+                    </div>
 
-                <div className="activity-item">
-                  <div className="activity-icon quiz">
-                    <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <div className="activity-item">
+                      <div className="activity-icon quiz">
+                        <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div className="activity-content">
+                        <p>Score improved by +{stats.improvement} points</p>
+                        <span className="activity-time">Overall progress</span>
+                      </div>
+                      <span className="activity-score">+{stats.improvement}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="activity-item">
+                    <div className="activity-icon study">
+                      <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
+                    </div>
+                    <div className="activity-content">
+                      <p>Start your learning journey!</p>
+                      <span className="activity-time">No activity yet</span>
+                    </div>
+                    <span className="activity-time">0</span>
                   </div>
-                  <div className="activity-content">
-                    <p>Completed Reading Comprehension Quiz</p>
-                    <span className="activity-time">2 days ago</span>
-                  </div>
-                  <span className="activity-score">92%</span>
-                </div>
+                )}
               </div>
             </div>
 
             <div className="quick-actions">
               <h3>Quick Actions</h3>
               <div className="action-buttons">
-                <button className="quick-action-button">
+                <button 
+                  className="quick-action-button"
+                  onClick={() => navigate('/mock-practice')}
+                >
                   <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                   </svg>
                   New Practice Test
                 </button>
-                <button className="quick-action-button">
+                <button 
+                  className="quick-action-button"
+                  onClick={() => navigate('/roadmap')}
+                >
                   <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                   </svg>
-                  View Analytics
+                  View Roadmap
                 </button>
-                <button className="quick-action-button">
+                <button 
+                  className="quick-action-button"
+                  onClick={() => navigate('/courses')}
+                >
                   <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
-                  Schedule Study
+                  Study Courses
                 </button>
               </div>
             </div>

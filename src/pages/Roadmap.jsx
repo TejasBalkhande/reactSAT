@@ -805,11 +805,11 @@ const Roadmap = ({ user, onLogout }) => {
         <div className="courses-footer">
           <div className="footer-header">
             <span className="material-icons">info_outline</span>
-            <h3>Course Information</h3>
+            <h3>Roadmap Information</h3>
           </div>
           <ul>
-            <li>All courses are available for free on YouTube</li>
-            <li>New videos added regularly</li>
+            <li>Roadmaps are available for free</li>
+            <li>New questions added regularly</li>
             <li>Structured learning path for optimal results</li>
             <li>Expert instructors with proven track records</li>
             <li>Practice problems and real exam strategies</li>
