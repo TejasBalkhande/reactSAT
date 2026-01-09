@@ -779,10 +779,9 @@ const StudyPlan = () => {
             <Link to="/community" className="nav-link sat-nav-link community-link">
                Community
             </Link>
-            {/* UPDATED ACCOUNT BUTTON */}
-            <button className="signin-btn sat-signin-btn">
+            <Link to="/profile" className="nav-link sat-nav-link community-link">
                Account
-            </button>
+            </Link>
           </div>
           
           {/* Mobile menu toggle */}
@@ -818,9 +817,10 @@ const StudyPlan = () => {
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               <ArticleIcon /> Blogs
             </Link>
-            <button className="mobile-signin-btn">
-              <PersonIcon /> Account
-            </button>
+            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              <ArticleIcon /> Account
+            </Link>
+            
           </div>
         </div>
       )}

@@ -29,7 +29,7 @@
 .nav-container {
   width: 100%;
   margin: 0;
-  padding: 0.5rem 0rem; /* REDUCED VERTICAL PADDING TO ACCOMMODATE SHORTER NAVBAR */
+  padding: 0.5rem 0rem; 
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1981,7 +1981,7 @@
   .sat-blog,
   .sat-progress,
   .sat-testimonials {
-    padding: 3rem 1rem;
+    padding: 2rem 1rem;
   }
   
   .sat-ranking {
@@ -2071,4 +2071,26 @@
   color: #666666;
   font-size: 1.3rem; /* INCREASED */
   font-family: 'Inter', sans-serif;
+}
+/* Hide scrollbar but keep scrolling functionality */
+html, body {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For IE and Edge */
+}
+
+/* For Chrome, Safari, and Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.app.sat-app::-webkit-scrollbar,
+.main-content::-webkit-scrollbar,
+.content-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Ensure scrolling still works */
+.app.sat-app {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }

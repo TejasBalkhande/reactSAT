@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Roadmap.css';
+import '../App.css';
 
 const Roadmap = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -292,6 +293,7 @@ const Roadmap = ({ user, onLogout }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [localUser, setLocalUser] = useState(null);
+  const [expandedTopics, setExpandedTopics] = useState({});
   const profileMenuRef = useRef(null);
 
   // Check for existing roadmap on component mount
@@ -399,6 +401,7 @@ const Roadmap = ({ user, onLogout }) => {
     }
   };
 
+  // FIXED: Generate roadmap from string with proper subskills
   const generateRoadmapFromString = (roadmapStr, level = 0) => {
     const skillOrder = roadmapStr.split('-');
     const steps = [];
@@ -418,38 +421,26 @@ const Roadmap = ({ user, onLogout }) => {
       let category = '';
       let subskills = [];
       
-      // Search in Reading and Writing
-      for (const [dom, categories] of Object.entries(domainStructure['Reading and Writing'])) {
+      // Search in both domains
+      for (const [dom, categories] of Object.entries(domainStructure)) {
+        let found = false;
         for (const [cat, skills] of Object.entries(categories)) {
           if (skills[skillName]) {
-            domain = 'Reading and Writing';
+            domain = dom;
             category = cat;
-            subskills = skills[skillName];
+            subskills = skills[skillName]; // This is the array of topics
+            found = true;
             break;
           }
         }
-        if (domain) break;
+        if (found) break;
       }
       
-      // If not found, search in Math
-      if (!domain) {
-        for (const [dom, categories] of Object.entries(domainStructure['Math'])) {
-          for (const [cat, skills] of Object.entries(categories)) {
-            if (skills[skillName]) {
-              domain = 'Math';
-              category = cat;
-              subskills = skills[skillName];
-              break;
-            }
-          }
-          if (domain) break;
-        }
-      }
+      console.log(`Skill: ${skillName}, Subskills:`, subskills); // Debug log
       
-      const icon = domain === 'Reading and Writing' ? '📚' : '🧮';
+      const icon = domain === 'Reading and Writing' ? 'menu_book' : 'calculate';
       const color = domain === 'Reading and Writing' ? colors.primary : colors.secondary;
       const stepLevel = domainLevels[category] || 3;
-      const practiceType = getPracticeType(stepLevel);
       
       steps.push({
         stepNumber: index + 1,
@@ -457,7 +448,6 @@ const Roadmap = ({ user, onLogout }) => {
         category,
         skillName,
         level: stepLevel,
-        practiceType,
         icon,
         color,
         subskills,
@@ -466,6 +456,7 @@ const Roadmap = ({ user, onLogout }) => {
       });
     });
     
+    console.log('Generated steps with subskills:', steps); // Debug log
     setRoadmapSteps(steps);
   };
 
@@ -488,13 +479,13 @@ const Roadmap = ({ user, onLogout }) => {
     const allSkills = [];
     
     // Process Math skills
-    Object.entries(domainStructure['Math']).forEach(([domain, skills]) => {
+    Object.entries(domainStructure['Math']).forEach(([category, skills]) => {
       Object.entries(skills).forEach(([skillName, subskills]) => {
         allSkills.push({
           domain: 'Math',
-          category: domain,
+          category: category,
           name: skillName,
-          level: domainLevels[domain] || 3,
+          level: domainLevels[category] || 3,
           subskills,
           skillNumber: skillNumbers[skillName],
         });
@@ -502,13 +493,13 @@ const Roadmap = ({ user, onLogout }) => {
     });
     
     // Process Reading and Writing skills
-    Object.entries(domainStructure['Reading and Writing']).forEach(([domain, skills]) => {
+    Object.entries(domainStructure['Reading and Writing']).forEach(([category, skills]) => {
       Object.entries(skills).forEach(([skillName, subskills]) => {
         allSkills.push({
           domain: 'Reading and Writing',
-          category: domain,
+          category: category,
           name: skillName,
-          level: domainLevels[domain] || 3,
+          level: domainLevels[category] || 3,
           subskills,
           skillNumber: skillNumbers[skillName],
         });
@@ -540,24 +531,23 @@ const Roadmap = ({ user, onLogout }) => {
       if (alternateToReading && readingIndex < readingSkills.length) {
         skill = readingSkills[readingIndex++];
         domain = "Reading and Writing";
-        icon = "📚";
+        icon = "menu_book";
         color = colors.primary;
       } else if (mathIndex < mathSkills.length) {
         skill = mathSkills[mathIndex++];
         domain = "Math";
-        icon = "🧮";
+        icon = "calculate";
         color = colors.secondary;
       } else if (readingIndex < readingSkills.length) {
         skill = readingSkills[readingIndex++];
         domain = "Reading and Writing";
-        icon = "📚";
+        icon = "menu_book";
         color = colors.primary;
       } else {
         break;
       }
       
       skillOrderNumbers.push(skill.skillNumber);
-      const practiceType = getPracticeType(skill.level);
       
       steps.push({
         stepNumber: i + 1,
@@ -565,7 +555,6 @@ const Roadmap = ({ user, onLogout }) => {
         category: skill.category,
         skillName: skill.name,
         level: skill.level,
-        practiceType,
         icon,
         color,
         subskills: skill.subskills,
@@ -647,6 +636,7 @@ const Roadmap = ({ user, onLogout }) => {
           setHasExistingRoadmap(false);
           setCurrentLevel(0);
           setRoadmapString('');
+          setExpandedTopics({});
         }
       } catch (error) {
         console.error('Error resetting roadmap:', error);
@@ -656,6 +646,7 @@ const Roadmap = ({ user, onLogout }) => {
         setHasExistingRoadmap(false);
         setCurrentLevel(0);
         setRoadmapString('');
+        setExpandedTopics({});
       }
     }
   };
@@ -664,14 +655,6 @@ const Roadmap = ({ user, onLogout }) => {
     if (window.confirm('You need to be logged in to generate a personalized roadmap.\n\nWould you like to login now?')) {
       navigate('/login');
     }
-  };
-
-  const getPracticeType = (level) => {
-    if (level <= 1) return "Focus on concept revision";
-    if (level <= 2) return "Timed problem sets";
-    if (level <= 3) return "Mixed practice";
-    if (level <= 4) return "Concept strengthening";
-    return "Advanced practice & review";
   };
 
   const getLevelDescription = (level) => {
@@ -702,7 +685,16 @@ const Roadmap = ({ user, onLogout }) => {
     }
     setProfileMenuOpen(false);
     setLocalUser(null);
+    setExpandedTopics({});
     navigate('/login');
+  };
+
+  // Toggle expanded topics for a specific step
+  const toggleTopicsExpanded = (stepNumber) => {
+    setExpandedTopics(prev => ({
+      ...prev,
+      [stepNumber]: !prev[stepNumber]
+    }));
   };
 
   // UPDATED: Handle Level Start - Navigate to RoadmapLevel page
@@ -742,7 +734,7 @@ const Roadmap = ({ user, onLogout }) => {
         <div className="skill-categories-container">
           <div className="skill-category">
             <div className="category-header">
-              <span className="category-icon">🧮</span>
+              <span className="material-icons category-icon">calculate</span>
               <h3 className="category-title">Math Skills</h3>
             </div>
             {Object.keys(domainStructure['Math']).map(domain => (
@@ -771,7 +763,7 @@ const Roadmap = ({ user, onLogout }) => {
           
           <div className="skill-category">
             <div className="category-header">
-              <span className="category-icon">📚</span>
+              <span className="material-icons category-icon">menu_book</span>
               <h3 className="category-title">Reading & Writing Skills</h3>
             </div>
             {Object.keys(domainStructure['Reading and Writing']).map(domain => (
@@ -809,6 +801,20 @@ const Roadmap = ({ user, onLogout }) => {
           </button>
         </div>
       </div>
+      {/* Footer info */}
+        <div className="courses-footer">
+          <div className="footer-header">
+            <span className="material-icons">info_outline</span>
+            <h3>Course Information</h3>
+          </div>
+          <ul>
+            <li>All courses are available for free on YouTube</li>
+            <li>New videos added regularly</li>
+            <li>Structured learning path for optimal results</li>
+            <li>Expert instructors with proven track records</li>
+            <li>Practice problems and real exam strategies</li>
+          </ul>
+        </div>
     </div>
   );
 
@@ -816,7 +822,10 @@ const Roadmap = ({ user, onLogout }) => {
     <div className="roadmap-section">
       <div className="roadmap-header">
         <div className="header-content">
-          <h2 className="roadmap-title">🎯 Your Personalized SAT Roadmap</h2>
+          <h2 className="roadmap-title">
+            <span className="material-icons">my_location</span>
+            Your Personalized SAT Roadmap
+          </h2>
           <p className="roadmap-progress">
             Progress: {currentLevel}/{roadmapSteps.length} completed
           </p>
@@ -827,124 +836,139 @@ const Roadmap = ({ user, onLogout }) => {
             ></div>
           </div>
         </div>
-        <button 
-          className="edit-button"
-          onClick={() => setShowRoadmap(false)}
-        >
-          ✏️
-        </button>
+        
       </div>
       
       <div className="timeline">
-        {roadmapSteps.map((step, index) => (
-          <div key={index} className="timeline-step">
-            <div className="timeline-indicator">
-              <div 
-                className="indicator-circle"
-                style={{ 
-                  backgroundColor: step.isCompleted ? '#4CAF50' : step.color,
-                  border: index === currentLevel && !step.isCompleted ? `3px solid ${colors.accent}` : 'none'
-                }}
-              >
-                {step.isCompleted ? '✓' : step.stepNumber}
-              </div>
-              {index < roadmapSteps.length - 1 && (
+        {roadmapSteps.map((step, index) => {
+          const isExpanded = expandedTopics[step.stepNumber] || false;
+          const topicsToShow = isExpanded ? step.subskills : (step.subskills ? step.subskills.slice(0, 3) : []);
+          const hasMoreTopics = step.subskills && step.subskills.length > 3;
+          
+          return (
+            <div key={index} className="timeline-step">
+              <div className="timeline-indicator">
                 <div 
-                  className="timeline-connector"
+                  className="indicator-circle"
                   style={{ 
-                    backgroundColor: step.isCompleted ? '#4CAF5090' : `${step.color}90`
+                    backgroundColor: step.isCompleted ? '#4CAF50' : step.color,
+                    border: index === currentLevel && !step.isCompleted ? `3px solid ${colors.accent}` : 'none'
                   }}
-                ></div>
-              )}
-            </div>
-            
-            <div className="step-card">
-              <div 
-                className="step-header"
-                style={{ 
-                  borderLeftColor: index === currentLevel && !step.isCompleted ? colors.accent : 'transparent'
-                }}
-              >
-                <div className="step-info">
-                  <div className="step-domain">
-                    <span className="domain-icon">{step.icon}</span>
-                    <span className="domain-name">{step.domain}</span>
-                    <span className="skill-number">#{step.skillNumber}</span>
-                  </div>
-                  <span 
-                    className="step-level"
+                >
+                  {step.isCompleted ? 
+                    <span className="material-icons icon-small" style={{color: 'white'}}>check</span> : 
+                    step.stepNumber
+                  }
+                </div>
+                {index < roadmapSteps.length - 1 && (
+                  <div 
+                    className="timeline-connector"
                     style={{ 
-                      backgroundColor: `${getLevelColor(step.level)}20`,
-                      color: getLevelColor(step.level)
+                      backgroundColor: step.isCompleted ? '#4CAF5090' : `${step.color}90`
+                    }}
+                  ></div>
+                )}
+              </div>
+              
+              <div className="step-card">
+                <div 
+                  className="step-header"
+                  style={{ 
+                    borderLeftColor: index === currentLevel && !step.isCompleted ? colors.accent : 'transparent'
+                  }}
+                >
+                  <div className="step-info">
+                    <div className="step-domain">
+                      <span className="material-icons domain-icon">{step.icon}</span>
+                      <span className="domain-name">{step.domain}</span>
+                      <span className="skill-number">#{step.skillNumber}</span>
+                    </div>
+                    <span 
+                      className="step-level"
+                      style={{ 
+                        backgroundColor: `${getLevelColor(step.level)}20`,
+                        color: getLevelColor(step.level)
+                      }}
+                    >
+                      {getLevelDescription(step.level)}
+                    </span>
+                  </div>
+                  
+                  <h3 
+                    className="step-category"
+                    style={{ 
+                      textDecoration: step.isCompleted ? 'line-through' : 'none',
+                      color: step.isCompleted ? '#666' : colors.primary
                     }}
                   >
-                    {getLevelDescription(step.level)}
-                  </span>
-                </div>
-                
-                <h3 
-                  className="step-category"
-                  style={{ 
-                    textDecoration: step.isCompleted ? 'line-through' : 'none',
-                    color: step.isCompleted ? '#666' : colors.primary
-                  }}
-                >
-                  {step.category}
-                </h3>
-                
-                <p 
-                  className="step-skill"
-                  style={{ 
-                    textDecoration: step.isCompleted ? 'line-through' : 'none',
-                    color: step.isCompleted ? '#888' : colors.secondary
-                  }}
-                >
-                  {step.skillName}
-                </p>
-                
-                <div 
-                  className="practice-type"
-                  style={{ 
-                    backgroundColor: step.isCompleted ? '#f0f0f0' : `${colors.accent}20`
-                  }}
-                >
-                  <span className="practice-icon">{step.isCompleted ? '✓' : '💡'}</span>
-                  <span className="practice-text">
-                    {step.isCompleted ? 'Completed!' : step.practiceType}
-                  </span>
-                </div>
-                
-                {step.subskills.length > 0 && (
-                  <div className="subskills-section">
-                    <p className="subskills-title">Key Subskills:</p>
-                    <div className="subskills-container">
-                      {step.subskills.slice(0, 3).map((subskill, idx) => (
-                        <span 
-                          key={idx}
-                          className="subskill-chip"
-                          style={{ 
-                            backgroundColor: step.isCompleted ? '#e0e0e0' : `${step.color}20`
-                          }}
-                        >
-                          {subskill}
-                        </span>
-                      ))}
+                    {step.category}
+                  </h3>
+                  
+                  <h4 className="step-skill-title">
+                    Skill: {step.skillName}
+                  </h4>
+                  
+                  {step.subskills && step.subskills.length > 0 ? (
+                    <div className="topics-section">
+                      <div className="topics-header">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span className="material-icons topic-icon">topic</span>
+                          <span className="topics-title">Key Topics in this Skill:</span>
+                        </div>
+                        {hasMoreTopics && (
+                          <button 
+                            className="show-more-button"
+                            onClick={() => toggleTopicsExpanded(step.stepNumber)}
+                          >
+                            <span className="material-icons icon-small">
+                              {isExpanded ? 'expand_less' : 'expand_more'}
+                            </span>
+                            {isExpanded ? 'Show less' : 'Show more'}
+                          </button>
+                        )}
+                      </div>
+                      <div className="topics-grid">
+                        {topicsToShow.map((topic, idx) => (
+                          <div 
+                            key={idx}
+                            className="topic-item"
+                            style={{ 
+                              backgroundColor: step.isCompleted ? '#e8e8e8' : `${step.color}10`,
+                              borderLeftColor: step.isCompleted ? '#666' : step.color
+                            }}
+                          >
+                            <span className="topic-bullet">•</span>
+                            <span className="topic-text">{topic}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                
-                {index === currentLevel && !step.isCompleted && (
-                  <button 
-                    className="start-level-button"
-                    onClick={() => handleLevelStart(step.stepNumber)}
-                  >
-                    ▶ Start Level
-                  </button>
-                )}
+                  ) : (
+                    <div className="topics-section">
+                      <div className="topics-header">
+                        <span className="material-icons topic-icon">topic</span>
+                        <span className="topics-title">Key Topics in this Skill:</span>
+                      </div>
+                      <p className="no-topics-message" style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                        No specific topics defined for this skill.
+                      </p>
+                    </div>
+                  )}
+                  
+                  {index === currentLevel && !step.isCompleted && (
+                    <button 
+                      className="start-level-button"
+                      onClick={() => handleLevelStart(step.stepNumber)}
+                    >
+                      <span className="material-icons icon-small">play_arrow</span>
+                      Start Level
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -955,7 +979,8 @@ const Roadmap = ({ user, onLogout }) => {
         className="profile-button"
         onClick={() => setProfileMenuOpen(!profileMenuOpen)}
       >
-        👤 {localUser?.username || 'Account'}
+        <span className="material-icons">account_circle</span>
+        {localUser?.username || 'Account'}
       </button>
       
       {profileMenuOpen && (
@@ -967,7 +992,8 @@ const Roadmap = ({ user, onLogout }) => {
               navigate('/profile');
             }}
           >
-            👤 Profile
+            <span className="material-icons icon-small">account_circle</span>
+            Profile
           </button>
           {hasExistingRoadmap && (
             <button 
@@ -977,7 +1003,8 @@ const Roadmap = ({ user, onLogout }) => {
                 resetRoadmap();
               }}
             >
-              🔄 Reset Roadmap
+              <span className="material-icons icon-small">refresh</span>
+              Reset Roadmap
             </button>
           )}
           {localUser && (
@@ -985,7 +1012,8 @@ const Roadmap = ({ user, onLogout }) => {
               className="dropdown-item"
               onClick={handleLogout}
             >
-              🚪 Logout
+              <span className="material-icons icon-small">logout</span>
+              Logout
             </button>
           )}
           {!localUser && (
@@ -996,7 +1024,8 @@ const Roadmap = ({ user, onLogout }) => {
                 navigate('/login');
               }}
             >
-              🔑 Login
+              <span className="material-icons icon-small">login</span>
+              Login
             </button>
           )}
         </div>
@@ -1008,8 +1037,13 @@ const Roadmap = ({ user, onLogout }) => {
     return (
       <div className="roadmap-container">
         <header className="roadmap-header-bar">
-          <h1 className="header-title">SAT Practice Roadmap</h1>
-          {renderProfileMenu()}
+          <div className="header-logo">
+            <img src="/logo.png" alt="Logo" className="logo-img" />
+            <span className="logo-text">Mock SAT Exam</span>
+          </div>
+          <div className="header-profile">
+            {renderProfileMenu()}
+          </div>
         </header>
         <div className="roadmap-loading">
           <div className="spinner"></div>
@@ -1022,8 +1056,13 @@ const Roadmap = ({ user, onLogout }) => {
   return (
     <div className="roadmap-container">
       <header className="roadmap-header-bar">
-        <h1 className="header-title">SAT Practice Roadmap</h1>
-        {renderProfileMenu()}
+        <div className="header-logo">
+          <img src="/logo.png" alt="Logo" className="logo-img" />
+          <span className="logo-text">Mock SAT Exam</span>
+        </div>
+        <div className="header-profile">
+          {renderProfileMenu()}
+        </div>
       </header>
       
       <main className="roadmap-content">
@@ -1034,10 +1073,3 @@ const Roadmap = ({ user, onLogout }) => {
 };
 
 export default Roadmap;
-
-// wrangler d1 create sat-blog-db
-// wrangler d1 info sat-blog-db 
-// wrangler d1 list   
-// wrangler d1 execute sat-blog-db --file=./schema.sql --remote
-// npm install -g wrangler
-// npx wrangler deploy    

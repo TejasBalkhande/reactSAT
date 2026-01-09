@@ -1,0 +1,6 @@
+// wrangler d1 create sat-blog-db
+// wrangler d1 info sat-blog-db 
+// wrangler d1 list   
+// wrangler d1 execute sat-blog-db --file=./schema.sql --remote
+// npm install -g wrangler
+// npx wrangler deploy    

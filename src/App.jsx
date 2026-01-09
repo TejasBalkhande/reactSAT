@@ -353,9 +353,7 @@ function HomePage() {
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
             </Link>
-            <Link to="/community" className="nav-link sat-nav-link community-link">
-              Community
-            </Link>
+            
             {/* UPDATED ACCOUNT BUTTON - Shows Profile when logged in */}
             <button 
               onClick={handleAccountClick}
@@ -729,12 +727,7 @@ function HomePage() {
             <div className="nav-tile-label">SAT Game</div>
           </div>
           
-          <div className="nav-tile sat-nav-tile">
-            <div className="nav-tile-icon">
-              <FaUsers className="icon" />
-            </div>
-            <div className="nav-tile-label">Community</div>
-          </div>
+          
         </div>
       </section>
 
@@ -848,9 +841,7 @@ function HomePage() {
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
-            <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Community
-            </Link>
+            
             <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Mock Practice
             </Link>
@@ -888,9 +879,8 @@ function App() {
           <Route path="/courses/:id" element={<CoursesPlaylistScreen />} />
           <Route path="/roadmap" element={ <Roadmap/>  }/>
           <Route path="/roadmap-level" element={ <RoadmapLevel/>  }/>
-          <Route path="/mock-practice" element={<div className="page">Mock Practice Page</div>} />
+          <Route path="/mock-practice" element={<StudyPlan/>} />
           <Route path="/game" element={<div className="page">Game Page</div>} />
-          <Route path="/community" element={<div className="page">Community Page</div>} />
           <Route path="/blogs" element={<BlogsList />} />
           <Route path="/blog/:slug" element={<SingleBlog />} />
           <Route path="/admin/create-blog" element={<CreateBlog />} />
