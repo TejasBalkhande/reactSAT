@@ -46,6 +46,7 @@ import CoursesScreen from './courses/courses';
 import CoursesPlaylistScreen from './courses/courses_playlist';
 import Roadmap from './pages/Roadmap';
 import RoadmapLevel from './pages/roadmap_level';
+import MockTestScreen from './pages/mock_test_screen';
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -880,6 +881,7 @@ function App() {
           <Route path="/roadmap" element={ <Roadmap/>  }/>
           <Route path="/roadmap-level" element={ <RoadmapLevel/>  }/>
           <Route path="/mock-practice" element={<StudyPlan/>} />
+          <Route path="/mock-test/:mockTestId" element={<MockTestScreen />} />
           <Route path="/game" element={<div className="page">Game Page</div>} />
           <Route path="/blogs" element={<BlogsList />} />
           <Route path="/blog/:slug" element={<SingleBlog />} />

@@ -26,6 +26,7 @@
     "react-helmet-async": "^2.0.5",
     "react-icons": "^4.12.0",
     "react-katex": "^3.1.0",
+    "react-latex": "^2.0.0",
     "react-latex-next": "^3.0.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.30.2",

@@ -553,6 +553,7 @@ const StudyPlan = () => {
       return;
     }
     
+    // Navigate to the mock test screen
     navigate(`/mock-test/${mockName.toLowerCase()}`);
   };
 
