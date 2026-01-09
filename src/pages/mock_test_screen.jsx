@@ -386,8 +386,6 @@ const MockTestScreen = () => {
               </div>
             </div>
             
-            
-            
             <div className="start-test-section">
               <button 
                 className="start-test-button"
@@ -462,7 +460,10 @@ const MockTestScreen = () => {
             <h1>Mock SAT Exam</h1>
           </div>
         </header>
-        
+        <div className="loading-spinner">
+          <FaSpinner className="spinner" />
+          <p>Loading questions...</p>
+        </div>
       </div>
     );
   }
@@ -555,10 +556,10 @@ const MockTestScreen = () => {
       {/* Header */}
       <header className="app-header">
         <div className="app-header-left" onClick={() => navigate('/study-plan')}>
-        <div className="logo">
+          <div className="logo">
             <img src="/logo.png" alt="Logo" className="logo-img" />
-        </div>
-        <h1>{currentSectionIndex === 0 ? 'Reading & Writing' : 'Math'} Section</h1>
+          </div>
+          <h1>{currentSectionIndex === 0 ? 'Reading & Writing' : 'Math'} Section</h1>
         </div>
         
         <div className="header-actions">
@@ -599,14 +600,15 @@ const MockTestScreen = () => {
             {renderQuestionText(question.questionText, 18, { color: '#2c3e50' })}
           </div>
           
-          {/* Image (if any) */}
-          {question.image && (
+          {/* Image - ONLY SHOW IF IMAGE EXISTS IN JSON */}
+          {question.image && question.image.trim() !== '' && (
             <div className="question-image">
               <img 
-                src={`/mockquestions/images/${question.image}`} 
+                src={`/${question.image}`} 
                 alt="Question diagram" 
                 onError={(e) => {
                   e.target.style.display = 'none';
+                  console.error(`Failed to load image: /${question.image}`);
                 }}
               />
             </div>
@@ -843,6 +845,20 @@ const MockTestResultsScreen = ({
             
             <div className="review-question">
               {renderQuestionText(question.questionText, 16)}
+              
+              {/* Show image in review if it exists */}
+              {question.image && question.image.trim() !== '' && (
+                <div className="question-image" style={{ marginTop: '1rem' }}>
+                  <img 
+                    src={`/${question.image}`} 
+                    alt="Question diagram" 
+                    style={{ maxWidth: '100%', maxHeight: '200px' }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
             </div>
             
             <div className="review-answers">
@@ -872,20 +888,19 @@ const MockTestResultsScreen = ({
     <div className="results-container">
       <header className="app-header">
         <div className="app-header-left" onClick={() => navigate('/study-plan')}>
-            <div className="logo">
+          <div className="logo">
             <img src="/logo.png" alt="Logo" className="logo-img" />
-            </div>
-            <h1>Mock SAT Exam</h1>
+          </div>
+          <h1>Mock SAT Exam</h1>
         </div>
 
         <button 
-            className="app-header-back"
-            onClick={() => navigate(-1)}
+          className="app-header-back"
+          onClick={() => navigate('/study-plan')}
         >
-            ← Back
+          ← Back to Tests
         </button>
-        </header>
-
+      </header>
       
       <div className="results-tabs">
         <button 

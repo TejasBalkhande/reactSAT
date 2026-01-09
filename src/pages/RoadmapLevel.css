@@ -245,12 +245,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #f9f9f9;
 }
 
 .question-image img {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
+  display: block;
+}
+
+/* Image Error Message */
+.image-error-message {
+  margin-bottom: 32px;
+  padding: 20px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #856404;
+  font-size: 16px;
+}
+
+.image-error-message svg {
+  font-size: 20px;
 }
 
 /* Options */
