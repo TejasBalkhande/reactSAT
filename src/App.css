@@ -575,13 +575,13 @@
 
 /* SAT Features Section - UPDATED WITH GRADIENT ICONS */
 .sat-features {
-  padding: 5rem 2rem;
+  padding: 3rem 2rem;
   background: linear-gradient(180deg, #F5F9F2 0%, #FFFFFF 100%);
 }
 
 .sat-features-title {
   text-align: center;
-  font-size: 1.5rem; /* INCREASED */
+  font-size: 1.8rem; /* INCREASED */
   font-weight: 800;
   color: #2B463C;
   margin-bottom: 1rem;
@@ -1870,7 +1870,7 @@
   .sat-quick-nav h2,
   .sat-progress h2,
   .sat-testimonials h2 {
-    font-size: 2.3rem; /* INCREASED */
+    font-size: 1.8rem; /* INCREASED */
   }
   
   .sat-features-subtitle,
