@@ -844,7 +844,7 @@ const StudyPlan = () => {
           <div className="logo sat-logo "  onClick={(e) => {
             e.stopPropagation();   // important!
             navigate('/');
-          }}>
+          } }>
             <img src="/logo.png" alt="Mock SAT Exam Logo" className="logo-img" />
             <span className="logo-text">Mock SAT Exam</span>
           </div>

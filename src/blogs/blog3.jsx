@@ -455,7 +455,6 @@ const Blog3 = () => {
             "datePublished": blog.publish_date,
             "dateModified": blog.modified_date,
             "wordCount": "2500",
-            "timeRequired": `PT${blog.reading_time}M`,
             "keywords": blog.keywords,
             "articleSection": blog.category,
             "articleBody": blog.html_content.replace(/<[^>]*>/g, '').substring(0, 5000),

@@ -480,13 +480,13 @@ body {
 .time-value {
   width: 56px;
   height: 56px;
+  font-size: 25px !important;
+  font-weight: 400;
   background: linear-gradient(to bottom, var(--secondary-green), #5A9C69);
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: 800;
   color: white;
   box-shadow: 0 3px 6px rgba(74, 124, 89, 0.2);
   margin-bottom: 6px;

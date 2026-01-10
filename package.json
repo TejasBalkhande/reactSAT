@@ -17,6 +17,7 @@
     "@mui/material": "^7.3.6",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
+    "groq-sdk": "^0.37.0",
     "hono": "^4.11.3",
     "katex": "^0.16.27",
     "lucide-react": "^0.556.0",
