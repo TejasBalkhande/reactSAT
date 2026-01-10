@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import './Roadmap.css';
 import '../App.css';
+import { Link } from 'react-router-dom';
 
 const Roadmap = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -9,6 +11,45 @@ const Roadmap = ({ user, onLogout }) => {
   // Use the correct API URL for Cloudflare Worker
   const API_BASE_URL = 'https://sat-blog-worker.tejasbalkhande221.workers.dev';
   
+  // SEO Metadata
+  const seoMetadata = {
+    title: 'SAT Study Plan & Personalized Roadmap - Mock SAT Exam Platform',
+    description: 'Generate a personalized SAT study roadmap based on your skill assessment. Track progress, master domains, and improve your SAT scores with AI-powered recommendations.',
+    keywords: 'SAT study plan, SAT roadmap, personalized learning, SAT preparation, study schedule, skill assessment, SAT practice, college board, test prep',
+    ogTitle: 'Personalized SAT Study Roadmap - Master Your SAT Preparation',
+    ogDescription: 'Get a customized SAT study plan based on your current skill levels. Our AI-powered roadmap helps you focus on weak areas and track your progress.',
+    ogImage: '/roadmap-og-image.png',
+    ogUrl: window.location.href,
+    canonicalUrl: window.location.origin + '/roadmap',
+    twitterCard: 'summary_large_image',
+    twitterTitle: 'SAT Study Roadmap - Personalized Learning Path',
+    twitterDescription: 'Generate your free personalized SAT study plan with skill assessment and progress tracking.',
+    twitterImage: '/roadmap-twitter-image.png'
+  };
+
+  // Structured Data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "SAT Study Roadmap",
+    "description": seoMetadata.description,
+    "educationalLevel": "High School",
+    "learningResourceType": "Study Plan",
+    "provider": {
+      "@type": "Organization",
+      "name": "Mock SAT Exam Platform",
+      "url": window.location.origin
+    },
+    "audience": {
+      "@type": "EducationalAudience",
+      "educationalRole": "Student"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "SAT Preparation"
+    }
+  };
+
   // Color theme
   const colors = {
     primary: '#2B463C',
@@ -725,17 +766,37 @@ const Roadmap = ({ user, onLogout }) => {
     }));
   };
 
+  // SEO Breadcrumb Structured Data
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": window.location.origin
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "SAT Study Roadmap",
+        "item": window.location.href
+      }
+    ]
+  };
+
   const renderSkillAssessmentSection = () => (
     <div className="roadmap-assessment-section">
       <div className="assessment-card">
-        <h2 className="assessment-title">Rate Your Domain Proficiency (0-5)</h2>
-        <p className="assessment-subtitle">0 = No knowledge, 5 = Expert level</p>
+        <h1 className="assessment-title">Personalized SAT Study Roadmap Generator</h1>
+        <p className="assessment-subtitle">Rate your domain proficiency (0-5) to generate a customized study plan</p>
         
         <div className="skill-categories-container">
           <div className="skill-category">
             <div className="category-header">
               <span className="material-icons category-icon">calculate</span>
-              <h3 className="category-title">Math Skills</h3>
+              <h2 className="category-title">Math Skills Assessment</h2>
             </div>
             {Object.keys(domainStructure['Math']).map(domain => (
               <div key={domain} className="domain-slider-container">
@@ -756,6 +817,7 @@ const Roadmap = ({ user, onLogout }) => {
                     '--track-color': getLevelColor(domainLevels[domain]),
                     '--thumb-color': getLevelColor(domainLevels[domain])
                   }}
+                  aria-label={`Set ${domain} skill level to ${domainLevels[domain]}`}
                 />
               </div>
             ))}
@@ -764,7 +826,7 @@ const Roadmap = ({ user, onLogout }) => {
           <div className="skill-category">
             <div className="category-header">
               <span className="material-icons category-icon">menu_book</span>
-              <h3 className="category-title">Reading & Writing Skills</h3>
+              <h2 className="category-title">Reading & Writing Skills Assessment</h2>
             </div>
             {Object.keys(domainStructure['Reading and Writing']).map(domain => (
               <div key={domain} className="domain-slider-container">
@@ -785,6 +847,7 @@ const Roadmap = ({ user, onLogout }) => {
                     '--track-color': getLevelColor(domainLevels[domain]),
                     '--thumb-color': getLevelColor(domainLevels[domain])
                   }}
+                  aria-label={`Set ${domain} skill level to ${domainLevels[domain]}`}
                 />
               </div>
             ))}
@@ -796,25 +859,42 @@ const Roadmap = ({ user, onLogout }) => {
             className="generate-button"
             onClick={generateRoadmap}
             disabled={isLoading}
+            aria-label="Generate personalized SAT study roadmap"
           >
-            {isLoading ? 'Generating...' : 'Generate My Roadmap'}
+            {isLoading ? 'Generating...' : 'Generate My SAT Study Roadmap'}
           </button>
         </div>
       </div>
-      {/* Footer info */}
-        <div className="courses-footer">
-          <div className="footer-header">
-            <span className="material-icons">info_outline</span>
-            <h3>Roadmap Information</h3>
-          </div>
-          <ul>
-            <li>Roadmaps are available for free</li>
-            <li>New questions added regularly</li>
-            <li>Structured learning path for optimal results</li>
-            <li>Expert instructors with proven track records</li>
-            <li>Practice problems and real exam strategies</li>
-          </ul>
+      
+      {/* SEO Rich Content Section */}
+      <div className="courses-footer">
+        <div className="footer-header">
+          <span className="material-icons">school</span>
+          <h3>About Our SAT Study Roadmap</h3>
         </div>
+        <ul>
+          <li><strong>Free Personalized SAT Study Plan:</strong> Generate a customized roadmap based on your skill assessment</li>
+          <li><strong>Comprehensive Skill Coverage:</strong> All 29 SAT skills across Math, Reading, and Writing domains</li>
+          <li><strong>Progress Tracking:</strong> Monitor your improvement with detailed progress indicators</li>
+          <li><strong>Adaptive Learning:</strong> Roadmap adjusts based on your performance and skill levels</li>
+          <li><strong>Expert-Designed Structure:</strong> Based on College Board SAT test specifications</li>
+        </ul>
+      </div>
+      
+      {/* SEO Keywords Section */}
+      <div className="courses-footer" style={{ marginTop: '1rem' }}>
+        <div className="footer-header">
+          <span className="material-icons">search</span>
+          <h3>SAT Study Plan Features</h3>
+        </div>
+        <ul>
+          <li><strong>SAT Math Preparation:</strong> Algebra, Geometry, Trigonometry, Data Analysis</li>
+          <li><strong>SAT Reading Practice:</strong> Comprehension, Vocabulary, Critical Analysis</li>
+          <li><strong>SAT Writing Skills:</strong> Grammar, Essay Structure, Evidence-based Writing</li>
+          <li><strong>Personalized Schedule:</strong> Daily/Weekly study plans tailored to your goals</li>
+          <li><strong>Practice Tests:</strong> Simulated SAT exams with detailed analytics</li>
+        </ul>
+      </div>
     </div>
   );
 
@@ -822,21 +902,21 @@ const Roadmap = ({ user, onLogout }) => {
     <div className="roadmap-section">
       <div className="roadmap-header">
         <div className="header-content">
-          <h2 className="roadmap-title">
+          <h1 className="roadmap-title">
             <span className="material-icons">my_location</span>
-            Your Personalized SAT Roadmap
-          </h2>
+            Your Personalized SAT Study Roadmap
+          </h1>
           <p className="roadmap-progress">
-            Progress: {currentLevel}/{roadmapSteps.length} completed
+            Progress: {currentLevel}/{roadmapSteps.length} skills completed
           </p>
           <div className="progress-bar">
             <div 
               className="progress-fill"
               style={{ width: `${(currentLevel / roadmapSteps.length) * 100}%` }}
+              aria-label={`${Math.round((currentLevel / roadmapSteps.length) * 100)}% completion rate`}
             ></div>
           </div>
         </div>
-        
       </div>
       
       <div className="timeline">
@@ -846,7 +926,7 @@ const Roadmap = ({ user, onLogout }) => {
           const hasMoreTopics = step.subskills && step.subskills.length > 3;
           
           return (
-            <div key={index} className="timeline-step">
+            <div key={index} className="timeline-step" itemScope itemType="https://schema.org/LearningActivity">
               <div className="timeline-indicator">
                 <div 
                   className="indicator-circle"
@@ -854,6 +934,7 @@ const Roadmap = ({ user, onLogout }) => {
                     backgroundColor: step.isCompleted ? '#4CAF50' : step.color,
                     border: index === currentLevel && !step.isCompleted ? `3px solid ${colors.accent}` : 'none'
                   }}
+                  aria-label={`Step ${step.stepNumber}: ${step.category} - ${step.isCompleted ? 'Completed' : 'Pending'}`}
                 >
                   {step.isCompleted ? 
                     <span className="material-icons icon-small" style={{color: 'white'}}>check</span> : 
@@ -880,7 +961,7 @@ const Roadmap = ({ user, onLogout }) => {
                   <div className="step-info">
                     <div className="step-domain">
                       <span className="material-icons domain-icon">{step.icon}</span>
-                      <span className="domain-name">{step.domain}</span>
+                      <span className="domain-name" itemProp="educationalAlignment">{step.domain}</span>
                       <span className="skill-number">#{step.skillNumber}</span>
                     </div>
                     <span 
@@ -894,19 +975,20 @@ const Roadmap = ({ user, onLogout }) => {
                     </span>
                   </div>
                   
-                  <h3 
+                  <h2 
                     className="step-category"
                     style={{ 
                       textDecoration: step.isCompleted ? 'line-through' : 'none',
                       color: step.isCompleted ? '#666' : colors.primary
                     }}
+                    itemProp="name"
                   >
                     {step.category}
-                  </h3>
+                  </h2>
                   
-                  <h4 className="step-skill-title">
+                  <h3 className="step-skill-title" itemProp="teaches">
                     Skill: {step.skillName}
-                  </h4>
+                  </h3>
                   
                   {step.subskills && step.subskills.length > 0 ? (
                     <div className="topics-section">
@@ -919,6 +1001,8 @@ const Roadmap = ({ user, onLogout }) => {
                           <button 
                             className="show-more-button"
                             onClick={() => toggleTopicsExpanded(step.stepNumber)}
+                            aria-expanded={isExpanded}
+                            aria-label={isExpanded ? `Show fewer topics for ${step.skillName}` : `Show more topics for ${step.skillName}`}
                           >
                             <span className="material-icons icon-small">
                               {isExpanded ? 'expand_less' : 'expand_more'}
@@ -927,7 +1011,7 @@ const Roadmap = ({ user, onLogout }) => {
                           </button>
                         )}
                       </div>
-                      <div className="topics-grid">
+                      <div className="topics-grid" itemProp="learningResourceType">
                         {topicsToShow.map((topic, idx) => (
                           <div 
                             key={idx}
@@ -936,6 +1020,7 @@ const Roadmap = ({ user, onLogout }) => {
                               backgroundColor: step.isCompleted ? '#e8e8e8' : `${step.color}10`,
                               borderLeftColor: step.isCompleted ? '#666' : step.color
                             }}
+                            itemProp="teaches"
                           >
                             <span className="topic-bullet">•</span>
                             <span className="topic-text">{topic}</span>
@@ -959,9 +1044,10 @@ const Roadmap = ({ user, onLogout }) => {
                     <button 
                       className="start-level-button"
                       onClick={() => handleLevelStart(step.stepNumber)}
+                      aria-label={`Start learning ${step.category} - ${step.skillName}`}
                     >
                       <span className="material-icons icon-small">play_arrow</span>
-                      Start Level
+                      Start Learning This Skill
                     </button>
                   )}
                 </div>
@@ -978,19 +1064,22 @@ const Roadmap = ({ user, onLogout }) => {
       <button 
         className="profile-button"
         onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+        aria-label="Account menu"
+        aria-expanded={profileMenuOpen}
       >
         <span className="material-icons">account_circle</span>
         {localUser?.username || 'Account'}
       </button>
       
       {profileMenuOpen && (
-        <div className="profile-dropdown">
+        <div className="profile-dropdown" role="menu">
           <button 
             className="dropdown-item"
             onClick={() => {
               setProfileMenuOpen(false);
               navigate('/profile');
             }}
+            role="menuitem"
           >
             <span className="material-icons icon-small">account_circle</span>
             Profile
@@ -1002,6 +1091,7 @@ const Roadmap = ({ user, onLogout }) => {
                 setProfileMenuOpen(false);
                 resetRoadmap();
               }}
+              role="menuitem"
             >
               <span className="material-icons icon-small">refresh</span>
               Reset Roadmap
@@ -1011,6 +1101,7 @@ const Roadmap = ({ user, onLogout }) => {
             <button 
               className="dropdown-item"
               onClick={handleLogout}
+              role="menuitem"
             >
               <span className="material-icons icon-small">logout</span>
               Logout
@@ -1023,6 +1114,7 @@ const Roadmap = ({ user, onLogout }) => {
                 setProfileMenuOpen(false);
                 navigate('/login');
               }}
+              role="menuitem"
             >
               <span className="material-icons icon-small">login</span>
               Login
@@ -1036,18 +1128,47 @@ const Roadmap = ({ user, onLogout }) => {
   if (isLoading) {
     return (
       <div className="roadmap-container">
+        <Helmet>
+          <title>{seoMetadata.title}</title>
+          <meta name="description" content={seoMetadata.description} />
+          <meta name="keywords" content={seoMetadata.keywords} />
+          <link rel="canonical" href={seoMetadata.canonicalUrl} />
+          
+          {/* Open Graph */}
+          <meta property="og:title" content={seoMetadata.ogTitle} />
+          <meta property="og:description" content={seoMetadata.ogDescription} />
+          <meta property="og:image" content={seoMetadata.ogImage} />
+          <meta property="og:url" content={seoMetadata.ogUrl} />
+          <meta property="og:type" content="website" />
+          
+          {/* Twitter */}
+          <meta name="twitter:card" content={seoMetadata.twitterCard} />
+          <meta name="twitter:title" content={seoMetadata.twitterTitle} />
+          <meta name="twitter:description" content={seoMetadata.twitterDescription} />
+          <meta name="twitter:image" content={seoMetadata.twitterImage} />
+          
+          {/* Structured Data */}
+          <script type="application/ld+json">
+            {JSON.stringify(structuredData)}
+          </script>
+          <script type="application/ld+json">
+            {JSON.stringify(breadcrumbStructuredData)}
+          </script>
+        </Helmet>
+        
         <header className="roadmap-header-bar">
-          <div className="header-logo">
-            <img src="/logo.png" alt="Logo" className="logo-img" />
+          <Link to="/" className="header-logo">
+            <img src="/logo.png" alt="Mock SAT Exam Logo" className="logo-img" />
             <span className="logo-text">Mock SAT Exam</span>
-          </div>
+          </Link>
+
           <div className="header-profile">
             {renderProfileMenu()}
           </div>
         </header>
         <div className="roadmap-loading">
           <div className="spinner"></div>
-          <p>Generating your personalized roadmap...</p>
+          <p>Generating your personalized SAT study roadmap...</p>
         </div>
       </div>
     );
@@ -1055,11 +1176,59 @@ const Roadmap = ({ user, onLogout }) => {
 
   return (
     <div className="roadmap-container">
+      <Helmet>
+        <title>{seoMetadata.title}</title>
+        <meta name="description" content={seoMetadata.description} />
+        <meta name="keywords" content={seoMetadata.keywords} />
+        <link rel="canonical" href={seoMetadata.canonicalUrl} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content={seoMetadata.ogTitle} />
+        <meta property="og:description" content={seoMetadata.ogDescription} />
+        <meta property="og:image" content={seoMetadata.ogImage} />
+        <meta property="og:url" content={seoMetadata.ogUrl} />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content={seoMetadata.twitterCard} />
+        <meta name="twitter:title" content={seoMetadata.twitterTitle} />
+        <meta name="twitter:description" content={seoMetadata.twitterDescription} />
+        <meta name="twitter:image" content={seoMetadata.twitterImage} />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbStructuredData)}
+        </script>
+        
+        {/* Additional SEO Meta Tags */}
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="author" content="Mock SAT Exam Platform" />
+        <meta name="language" content="English" />
+        <meta name="topic" content="SAT Preparation, Test Prep, Education" />
+        <meta name="subject" content="SAT Study Plan and Roadmap" />
+        <meta name="coverage" content="Worldwide" />
+        <meta name="distribution" content="Global" />
+        <meta name="rating" content="General" />
+        
+        {/* Viewport for responsive design */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Helmet>
+      
       <header className="roadmap-header-bar">
-        <div className="header-logo">
-          <img src="/logo.png" alt="Logo" className="logo-img" />
+        <div 
+          className="header-logo"
+          onClick={(e) => {
+            e.stopPropagation();   // important!
+            navigate('/');
+          }}
+        >
+          <img src="/logo.png" alt="Mock SAT Exam Logo" className="logo-img" />
           <span className="logo-text">Mock SAT Exam</span>
         </div>
+
         <div className="header-profile">
           {renderProfileMenu()}
         </div>
@@ -1068,6 +1237,21 @@ const Roadmap = ({ user, onLogout }) => {
       <main className="roadmap-content">
         {!showRoadmap ? renderSkillAssessmentSection() : renderRoadmapSection()}
       </main>
+      
+      {/* Hidden SEO Content for Search Engines */}
+      <div style={{ display: 'none' }} aria-hidden="true">
+        <h1>SAT Study Roadmap - Personalized Learning Plan</h1>
+        <h2>Create Your Custom SAT Preparation Schedule</h2>
+        <p>Our SAT Study Roadmap generator helps students create personalized study plans based on their current skill levels in Math, Reading, and Writing. Get a step-by-step learning path with progress tracking, skill assessment, and adaptive recommendations.</p>
+        <p>Keywords: SAT study plan, SAT prep schedule, personalized learning, SAT practice, test preparation, college board SAT, SAT math, SAT reading, SAT writing, study roadmap, learning path, skill assessment, progress tracking</p>
+        <ul>
+          <li>Free SAT Study Plan Generator</li>
+          <li>Personalized Skill Assessment</li>
+          <li>Comprehensive SAT Coverage</li>
+          <li>Progress Tracking Dashboard</li>
+          <li>Adaptive Learning Recommendations</li>
+        </ul>
+      </div>
     </div>
   );
 };

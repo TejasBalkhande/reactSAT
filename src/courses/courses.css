@@ -5,12 +5,10 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
-/* App Bar - REMOVED OLD STYLES, USING App.css NAVBAR */
-
 /* Main content - ADJUSTED FOR NAVBAR HEIGHT */
 .courses-content {
   padding: 32px 24px 24px;
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
   padding-top: 80px; /* Account for navbar */
 }
@@ -37,16 +35,34 @@
   margin: 32px 0;
 }
 
-@media (max-width: 1023px) {
+/* Responsive grid */
+@media (min-width: 1024px) {
+  .courses-grid {
+    grid-template-columns: repeat(4, 1fr);
+    --grid-columns: 4;
+  }
+}
+
+@media (max-width: 1023px) and (min-width: 768px) {
+  .courses-grid {
+    grid-template-columns: repeat(3, 1fr);
+    --grid-columns: 3;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 767px) and (min-width: 600px) {
   .courses-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    --grid-columns: 2;
+    gap: 16px;
   }
 }
 
 @media (max-width: 599px) {
   .courses-grid {
     grid-template-columns: 1fr;
+    --grid-columns: 1;
     gap: 16px;
   }
 }
@@ -61,8 +77,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  aspect-ratio: var(--grid-ratio);
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .course-card:hover {
@@ -113,9 +129,11 @@
   z-index: 2;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
+  font-size: 12px;
 }
 
 .category-badge .material-icons {
+  font-size: 14px;
   color: white;
 }
 
@@ -136,6 +154,7 @@
 }
 
 .premium-badge .material-icons {
+  font-size: 14px;
   color: white;
 }
 
@@ -338,12 +357,10 @@
   margin-bottom: 0;
 }
 
-/* Navigation Drawer - REMOVED, USING App.css MOBILE MENU */
-
 /* Responsive adjustments */
-@media (max-width: 399px) {
+@media (max-width: 768px) {
   .courses-content {
-    padding: 16px;
+    padding: 24px 16px 16px;
     padding-top: 70px;
   }
   
@@ -356,7 +373,7 @@
   }
   
   .course-title {
-    font-size: 14px;
+    font-size: 15px;
   }
   
   .course-description {
@@ -372,7 +389,7 @@
   }
   
   .stat-item .material-icons {
-    font-size: 12px;
+    font-size: 13px;
   }
   
   .level-badge {
@@ -385,7 +402,7 @@
   }
   
   .rating .material-icons {
-    font-size: 12px;
+    font-size: 13px;
   }
   
   .start-course-btn {
@@ -406,25 +423,31 @@
   }
 }
 
-@media (max-width: 1023px) and (min-width: 600px) {
-  .course-card {
-    aspect-ratio: 0.85;
+@media (max-width: 480px) {
+  .courses-content {
+    padding: 16px 12px 12px;
+    padding-top: 65px;
   }
-}
-
-@media (max-width: 599px) and (min-width: 400px) {
-  .course-card {
-    aspect-ratio: 1.1;
-  }
-}
-
-@media (max-width: 399px) {
-  .course-card {
-    aspect-ratio: 1.1;
+  
+  .courses-header h2 {
+    font-size: 22px;
   }
   
   .course-thumbnail {
-    height: 160px; /* Slightly smaller for skinny mobile */
+    height: 160px;
+  }
+  
+  .course-title {
+    font-size: 14px;
+  }
+  
+  .course-description {
+    font-size: 11px;
+  }
+  
+  .start-course-btn {
+    font-size: 12px;
+    padding: 8px 0;
   }
 }
 

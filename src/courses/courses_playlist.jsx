@@ -272,6 +272,9 @@ const CoursesPlaylistScreen = () => {
           
           {/* Navigation links - hidden on mobile */}
           <div className="nav-links sat-nav-links">
+            <Link to="/" className="nav-link sat-nav-link community-link">
+              Home
+            </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link">
               Courses
             </Link>
@@ -287,9 +290,7 @@ const CoursesPlaylistScreen = () => {
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
             </Link>
-            <Link to="/community" className="nav-link sat-nav-link community-link">
-              Community
-            </Link>
+            
             <Link to="/login" className="nav-link sat-nav-link community-link">
               Account
             </Link>
@@ -305,8 +306,14 @@ const CoursesPlaylistScreen = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="mobile-menu sat-mobile-menu">
-          <div className="mobile-menu-content">
+          <div className="mobile-menu-header">
+            <div className="mobile-menu-logo">
+              <span className="mobile-logo-text">Mock SAT Exam</span>
+            </div>
             <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+          </div>
+
+          <div className="mobile-menu-content">
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
@@ -316,11 +323,8 @@ const CoursesPlaylistScreen = () => {
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
-            <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Community
-            </Link>
             <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Mock Practice
+              Mocks
             </Link>
             <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Game

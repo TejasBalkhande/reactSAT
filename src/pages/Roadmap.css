@@ -1,10 +1,22 @@
-/* Roadmap.css */
+/* Roadmap.css - SEO Optimized */
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
+/* Base styles with improved semantic markup support */
 .roadmap-container {
   min-height: 100vh;
   background-color: #F8F9F5;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Improved heading hierarchy for SEO */
+.assessment-title,
+.roadmap-title,
+.category-title,
+.step-category {
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 /* Header */
@@ -23,6 +35,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
+  cursor: pointer;
 }
 
 /* Profile section on right */
@@ -30,6 +44,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .header-title {
@@ -56,6 +71,10 @@
   gap: 0.5rem;
   font-size: 1rem;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 .profile-button:hover {
@@ -135,15 +154,16 @@
 
 .assessment-title {
   color: #2B463C;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
 .assessment-subtitle {
   color: #4A7C59;
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin-bottom: 2rem;
+  line-height: 1.5;
 }
 
 .skill-categories-container {
@@ -176,7 +196,7 @@
 
 .category-title {
   color: #2B463C;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: bold;
   margin: 0;
 }
@@ -212,6 +232,7 @@
   background: linear-gradient(to right, var(--track-color), var(--track-color));
   border-radius: 2px;
   outline: none;
+  cursor: pointer;
 }
 
 .domain-slider::-webkit-slider-thumb {
@@ -223,6 +244,11 @@
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.domain-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
 }
 
 .domain-slider::-moz-range-thumb {
@@ -289,7 +315,7 @@
 
 .roadmap-title {
   margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -433,7 +459,7 @@
 
 .step-category {
   margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: #2B463C;
 }
@@ -441,7 +467,7 @@
 /* New: Skill Title */
 .step-skill-title {
   margin: 0 0 1rem 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #4A7C59;
   padding: 0.5rem 0;
@@ -553,6 +579,39 @@
   box-shadow: 0 2px 8px rgba(143, 203, 155, 0.3);
 }
 
+/* SEO Rich Content Styles */
+.seo-content {
+  background-color: #F8FBF8;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  border: 1px solid rgba(74, 124, 89, 0.2);
+}
+
+.seo-content h2 {
+  color: #2B463C;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.seo-content ul {
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+.seo-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  color: #444;
+}
+
+.seo-content strong {
+  color: #2B463C;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .roadmap-assessment-section,
@@ -564,6 +623,10 @@
     padding: 1.5rem;
   }
   
+  .assessment-title {
+    font-size: 1.5rem;
+  }
+  
   .skill-categories-container {
     grid-template-columns: 1fr;
   }
@@ -572,6 +635,10 @@
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+  }
+  
+  .roadmap-title {
+    font-size: 1.5rem;
   }
   
   .edit-button {
@@ -599,6 +666,10 @@
     padding: 1rem;
   }
   
+  .step-category {
+    font-size: 1.1rem;
+  }
+  
   .topics-grid {
     grid-template-columns: 1fr;
   }
@@ -608,26 +679,52 @@
   }
 }
 
+/* Fixed mobile view for header - KEEP LOGO AND ACCOUNT IN SAME LINE */
 @media (max-width: 480px) {
   .roadmap-header-bar {
-    padding: 1rem;
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
+    padding: 0.5rem 0.75rem;
+    flex-direction: row;
+    gap: 0.5rem;
+    text-align: left;
   }
   
   .header-logo, .header-profile {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    justify-content: flex-start;
+  }
+  
+  .header-logo {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  
+  .header-profile {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+  }
+  
+  .logo-text {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
   }
   
   .profile-menu {
-    align-self: stretch;
+    align-self: center;
   }
   
   .profile-button {
     justify-content: center;
-    width: 100%;
+    width: auto;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    max-width: 150px;
+  }
+  
+  .profile-button span:first-child {
+    margin-right: 0.25rem;
   }
   
   .topics-title {
@@ -641,6 +738,19 @@
   .show-more-button {
     font-size: 0.75rem;
     padding: 0.25rem 0.6rem;
+  }
+  
+  .logo-img {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .assessment-title {
+    font-size: 1.3rem;
+  }
+  
+  .category-title {
+    font-size: 1.1rem;
   }
 }
 
@@ -673,10 +783,14 @@
 }
 
 .courses-footer li {
-  color: #666;
+  color: #444;
   font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 4px;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.courses-footer li strong {
+  color: #2B463C;
 }
 
 .courses-footer li:last-child {
@@ -728,4 +842,61 @@
   width: 35px;
   height: 35px;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Accessibility improvements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus {
+  outline: 2px solid #4A7C59;
+  outline-offset: 2px;
+}
+
+/* Print styles for SEO */
+@media print {
+  .roadmap-container {
+    background-color: white;
+    color: black;
+  }
+  
+  .assessment-card,
+  .step-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .generate-button,
+  .start-level-button,
+  .show-more-button,
+  .edit-button,
+  .profile-button {
+    display: none;
+  }
+  
+  .roadmap-header-bar {
+    background-color: white;
+    color: black;
+    border-bottom: 2px solid #000;
+  }
+  
+  .timeline-connector {
+    background-color: #000 !important;
+  }
+  
+  .step-card {
+    break-inside: avoid;
+  }
 }

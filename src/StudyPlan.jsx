@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import './StudyPlan.css';
 import {
   FaChevronDown,
@@ -35,6 +36,10 @@ const StudyPlan = () => {
   
   // Navbar state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
   
   // Domain structure - same as Flutter version
   const domainStructure = {
@@ -274,7 +279,6 @@ const StudyPlan = () => {
   });
 
   // Mock user data (replace with actual auth)
-  const userData = { isPremium: false };
   const loggedIn = false;
 
   // Initialize selection maps
@@ -383,6 +387,15 @@ const StudyPlan = () => {
       }, 300);
     }
   }, [location]);
+
+  // Handle Account button click
+  const handleAccountClick = () => {
+    if (isLoggedIn) {
+      navigate('/profile');
+    } else {
+      navigate('/login');
+    }
+  };
 
   // Helper functions
   const updateSubdomainSelectionState = (domain, subdomain) => {
@@ -548,7 +561,7 @@ const StudyPlan = () => {
   };
 
   const handleMockTestSelected = (mockName, isPremium) => {
-    if (isPremium && !(userData?.isPremium)) {
+    if (isPremium && !isLoggedIn) {
       navigate('/login');
       return;
     }
@@ -579,6 +592,7 @@ const StudyPlan = () => {
               checked={domainSelectionState[domain] || false}
               onChange={(e) => toggleDomainSelection(domain, e.target.checked)}
               className="tristate-checkbox"
+              aria-label={`Select all ${domain} topics`}
             />
           </div>
         </div>
@@ -604,6 +618,16 @@ const StudyPlan = () => {
         <div 
           className="subdomain-header"
           onClick={() => toggleSubdomainExpansion(domain, subdomain)}
+          role="button"
+          tabIndex={0}
+          aria-expanded={isExpanded}
+          aria-controls={`subdomain-content-${domain}-${subdomain}`}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleSubdomainExpansion(domain, subdomain);
+            }
+          }}
         >
           <div className="subdomain-checkbox">
             <input
@@ -611,6 +635,7 @@ const StudyPlan = () => {
               checked={subdomainSelectionState[domain]?.[subdomain] || false}
               onChange={(e) => toggleSubdomainSelection(domain, subdomain, e.target.checked)}
               className="tristate-checkbox"
+              aria-label={`Select all ${subdomain} topics`}
             />
           </div>
           <div className="subdomain-title">{subdomain}</div>
@@ -619,7 +644,7 @@ const StudyPlan = () => {
           </div>
         </div>
         {isExpanded && (
-          <div className="subdomain-content">
+          <div className="subdomain-content" id={`subdomain-content-${domain}-${subdomain}`}>
             {Object.keys(domainStructure[domain][subdomain] || {}).map(topic => (
               <TopicRow
                 key={topic}
@@ -654,6 +679,7 @@ const StudyPlan = () => {
               type="checkbox"
               checked={isSelected}
               onChange={() => toggleTopicSelection(domain, subdomain, topic)}
+              aria-label={`Select ${topic}`}
             />
           </div>
           <div 
@@ -666,6 +692,8 @@ const StudyPlan = () => {
             className="topic-expand-btn"
             onClick={() => toggleTopicExpansion(domain, subdomain, topic)}
             style={{ backgroundColor: `${domainColor}20` }}
+            aria-expanded={isExpanded}
+            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${topic} details`}
           >
             {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
           </button>
@@ -691,6 +719,7 @@ const StudyPlan = () => {
         <button 
           className="premium-mock-test-btn"
           onClick={() => handleMockTestSelected(label, true)}
+          aria-label={`Take ${label} premium mock test`}
         >
           {label} <FaLock />
         </button>
@@ -701,6 +730,7 @@ const StudyPlan = () => {
       <button 
         className="free-mock-test-btn"
         onClick={() => handleMockTestSelected(label, false)}
+        aria-label={`Take ${label} free mock test`}
       >
         {label}
       </button>
@@ -729,7 +759,7 @@ const StudyPlan = () => {
 
     return (
       <div className="countdown-section">
-        <h3>Upcoming Mock Test</h3>
+        <h2>Upcoming Mock Test</h2>
         <p>Practice with a full-length test under timed conditions</p>
         <div className="countdown-label">TEST STARTS IN</div>
         <div className="countdown-timer">
@@ -749,87 +779,131 @@ const StudyPlan = () => {
     );
   };
 
+  // Generate JSON-LD structured data for SEO
+  const generateStructuredData = () => {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "SAT Study Plan | Targeted Practice with AI Tutor",
+      "description": "Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests and track your progress with our AI-powered tutoring system.",
+      "url": window.location.href,
+      "mainEntity": {
+        "@type": "WebApplication",
+        "name": "Mock SAT Exam Study Planner",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "Interactive SAT study plan tool with topic selection and mock tests",
+        "offers": {
+          "@type": "Offer",
+          "category": "Free",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    };
+
+    return JSON.stringify(structuredData);
+  };
+
   return (
     <div className="app sat-app">
+      {/* SEO Meta Tags */}
+      <Helmet>
+        <title>SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam</title>
+        <meta name="description" content="Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests and track your progress with our AI-powered tutoring system." />
+        <meta name="keywords" content="SAT preparation, SAT study plan, SAT practice, SAT mock tests, SAT Math, SAT Reading, SAT Writing, AI tutor, targeted practice, SAT exam prep" />
+        <meta name="author" content="Mock SAT Exam" />
+        <meta property="og:title" content="SAT Study Plan | Targeted Practice with AI Tutor" />
+        <meta property="og:description" content="Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests and track your progress." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:image" content="/logo.png" />
+        <meta property="og:site_name" content="Mock SAT Exam" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SAT Study Plan | Targeted Practice with AI Tutor" />
+        <meta name="twitter:description" content="Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests." />
+        <meta name="twitter:image" content="/logo.png" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <link rel="canonical" href={window.location.href} />
+        <script type="application/ld+json">
+          {generateStructuredData()}
+        </script>
+      </Helmet>
+
+      {/* Hidden structured data for accessibility */}
+      <div className="structured-data">
+        <h1 className="visually-hidden">SAT Study Plan - Targeted Practice with AI Tutor</h1>
+        <div className="schema-container">
+          {generateStructuredData()}
+        </div>
+      </div>
+
       {/* Navigation - SAME AS APP PAGE */}
       <nav className="navbar sat-navbar">
         <div className="nav-container">
           {/* Logo on leftmost side */}
-          <div className="logo sat-logo">
-            <img src="/logo.png" alt="Logo" className="logo-img" />
+          <div className="logo sat-logo "  onClick={(e) => {
+            e.stopPropagation();   // important!
+            navigate('/');
+          }}>
+            <img src="/logo.png" alt="Mock SAT Exam Logo" className="logo-img" />
             <span className="logo-text">Mock SAT Exam</span>
           </div>
           
           {/* Navigation links and Account button on rightmost side */}
           <div className="nav-links sat-nav-links">
-            <Link to="/" className="nav-link sat-nav-link courses-link">
-               Home
+            <Link to="/" className="nav-link sat-nav-link home-link">
+              Home
+            </Link>
+            <Link to="/" className="nav-link sat-nav-link mock-practice-link">
+              Home
             </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link">
-               Courses
+              Courses
             </Link>
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
             </Link>
+            
             <Link to="/game" className="nav-link sat-nav-link game-link">
-               Game
+              Game
             </Link>
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
-               Blogs
+              Blogs
             </Link>
-            <Link to="/community" className="nav-link sat-nav-link community-link">
-               Community
-            </Link>
-            <Link to="/profile" className="nav-link sat-nav-link community-link">
-               Account
-            </Link>
+            
+            {/* UPDATED ACCOUNT BUTTON - Shows Profile when logged in */}
+            <button 
+              onClick={handleAccountClick}
+              className="nav-link sat-nav-link community-link account-button"
+              aria-label={isLoggedIn ? 'Go to profile' : 'Sign in to account'}
+            >
+              {isLoggedIn ? 'Profile' : 'Account'}
+            </button>
           </div>
           
           {/* Mobile menu toggle */}
-          <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button 
+            className="menu-toggle" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle mobile menu"
+            aria-expanded={isMenuOpen}
+          >
             ☰
           </button>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="mobile-menu sat-mobile-menu">
-          <div className="mobile-menu-content">
-            <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
-            <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <HomeIcon /> Home
-            </Link>
-            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <MenuBookIcon /> Courses
-            </Link>
-            <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <MapIcon /> RoadMap
-            </Link>
-            <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <GroupsIcon /> Community
-            </Link>
-            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <QuizIcon /> Mock Practice
-            </Link>
-            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <SportsEsportsIcon /> Game
-            </Link>
-            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <ArticleIcon /> Blogs
-            </Link>
-            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <ArticleIcon /> Account
-            </Link>
-            
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <main className="main-content">
         <div className="content-container">
-          <h2>Targeted Practice with AI Tutor</h2>
+          {/* Breadcrumb navigation */}
+          <nav className="breadcrumb" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span className="breadcrumb-separator">›</span>
+            <span>Study Plan</span>
+          </nav>
+
+          <h1>Targeted Practice with AI Tutor</h1>
           <p className="subtitle">Select specific domains and topics to focus on your weak areas</p>
 
           {/* Domain Cards */}
@@ -850,14 +924,18 @@ const StudyPlan = () => {
 
           {/* Warning */}
           {showSelectTopicWarning && (
-            <div className="warning-message">
+            <div className="warning-message" role="alert">
               Please select at least one topic to practice
             </div>
           )}
 
           {/* Start Practice Button */}
           <div className="start-practice-container">
-            <button className="start-practice-btn" onClick={startPractice}>
+            <button 
+              className="start-practice-btn" 
+              onClick={startPractice}
+              aria-label="Start practice session with selected topics"
+            >
               Start Practice Session
             </button>
           </div>
@@ -867,7 +945,7 @@ const StudyPlan = () => {
             {isMobile ? (
               <>
                 <div ref={mockTestsRef} className="mock-tests-section">
-                  <h3>Full SAT Mock Tests</h3>
+                  <h2>Full SAT Mock Tests</h2>
                   <p>Practice with full-length mock tests</p>
                   
                   <div className="mock-tests-container">
@@ -885,12 +963,14 @@ const StudyPlan = () => {
                     <button 
                       className="more-tests-btn"
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      aria-expanded={isDropdownOpen}
+                      aria-controls="premium-tests-dropdown"
                     >
                       More Tests {isDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
                     </button>
 
                     {isDropdownOpen && (
-                      <div className="premium-tests">
+                      <div className="premium-tests" id="premium-tests-dropdown">
                         <div className="section-label">
                           <FaLock /> PREMIUM MOCK TESTS
                         </div>
@@ -913,7 +993,7 @@ const StudyPlan = () => {
             ) : (
               <div className="mock-tests-row">
                 <div ref={mockTestsRef} className="mock-tests-section">
-                  <h3>Full SAT Mock Tests</h3>
+                  <h2>Full SAT Mock Tests</h2>
                   <p>Practice with full-length mock tests</p>
                   
                   <div className="mock-tests-container">
@@ -931,12 +1011,14 @@ const StudyPlan = () => {
                     <button 
                       className="more-tests-btn"
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      aria-expanded={isDropdownOpen}
+                      aria-controls="premium-tests-dropdown"
                     >
                       More Tests {isDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
                     </button>
 
                     {isDropdownOpen && (
-                      <div className="premium-tests">
+                      <div className="premium-tests" id="premium-tests-dropdown">
                         <div className="section-label">
                           <FaLock /> PREMIUM MOCK TESTS
                         </div>
@@ -958,6 +1040,53 @@ const StudyPlan = () => {
           </div>
         </div>
       </main>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="mobile-menu sat-mobile-menu">
+          {/* Header Section with Logo */}
+          <div className="mobile-menu-header">
+            <div className="mobile-menu-logo">
+              <img src="/logo.png" alt="Mock SAT Exam Logo" className="mobile-logo-img" />
+            </div>
+            <button 
+              className="close-menu" 
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Close mobile menu"
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="mobile-menu-content">
+            <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Home
+            </Link>
+            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Courses
+            </Link>
+            <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              RoadMap
+            </Link>
+
+            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Game
+            </Link>
+            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Blogs
+            </Link>
+            <button 
+              onClick={() => {
+                handleAccountClick();
+                setIsMenuOpen(false);
+              }}
+              className="mobile-menu-link"
+            >
+              {isLoggedIn ? 'Profile' : 'Account'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

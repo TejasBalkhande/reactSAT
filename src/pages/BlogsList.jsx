@@ -250,13 +250,11 @@ const BlogsList = () => {
                 Game
               </Link>
               
-              <Link to="/community" className="nav-link sat-nav-link community-link">
-                Community
+              <Link to="/profile" className="nav-link sat-nav-link community-link">
+                Account
               </Link>
               {/* UPDATED ACCOUNT BUTTON */}
-              <button className="signin-btn sat-signin-btn">
-                Account
-              </button>
+             
             </div>
             
             {/* Mobile menu toggle */}
@@ -514,51 +512,17 @@ const BlogsList = () => {
             </main>
           </div>
 
-          {/* Footer - Matching App.jsx */}
-          <footer className="footer sat-footer">
-            <div className="footer-content">
-              <div className="footer-columns">
-                <div className="footer-column">
-                  <h3>Company</h3>
-                  <a href="#">About Us</a>
-                  <a href="#">Careers</a>
-                  <a href="#">Press</a>
-                </div>
-                
-                <div className="footer-column">
-                  <h3>Resources</h3>
-                  <a href="#">Pricing/Plans</a>
-                  <a href="#">Study Materials</a>
-                  <a href="#">FAQs</a>
-                </div>
-                
-                <div className="footer-column">
-                  <h3>Support</h3>
-                  <a href="#">Contact Us</a>
-                  <a href="#">Help Center</a>
-                  <a href="#">System Status</a>
-                </div>
-                
-                <div className="footer-column">
-                  <h3>Legal</h3>
-                  <a href="#">Privacy Policy</a>
-                  <a href="#">Terms of Service</a>
-                  <a href="#">Cookie Policy</a>
-                </div>
-              </div>
-              
-              <div className="footer-divider"></div>
-              
-              <div className="footer-bottom">
-                <p>© 2025 Mock SAT Exam. All rights reserved.</p>
-              </div>
-            </div>
-          </footer>
         </div>
 
         {/* Mobile Menu - Matching App.jsx */}
         {isMenuOpen && (
           <div className="mobile-menu sat-mobile-menu">
+            <div className="mobile-menu-header">
+            <div className="mobile-menu-logo">
+              <img src="/logo.png" alt="Logo" className="mobile-logo-img" />
+            </div>
+            <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+          </div>
             <div className="mobile-menu-content">
               <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
               <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
@@ -570,21 +534,18 @@ const BlogsList = () => {
               <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 RoadMap
               </Link>
-              <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-                Community
-              </Link>
+              
               <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-                Mock Practice
+                Mocks
               </Link>
               <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Game
               </Link>
-              <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-                Blogs
-              </Link>
-              <button className="mobile-signin-btn">
+              <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Account
-              </button>
+              </Link>
+               
+
             </div>
           </div>
         )}

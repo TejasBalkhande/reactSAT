@@ -1,116 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './courses.css';
 
 // Import Material-UI icons
-import HomeIcon from '@mui/icons-material/Home';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MapIcon from '@mui/icons-material/Map';
+import QuizIcon from '@mui/icons-material/Quiz';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import ArticleIcon from '@mui/icons-material/Article';
 import GroupsIcon from '@mui/icons-material/Groups';
+import PersonIcon from '@mui/icons-material/Person';
+import HomeIcon from '@mui/icons-material/Home';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 // CourseCard component
-const CourseCard = ({ course, isMobile, isTablet, isDesktop, isSkinnyMobile, navigate }) => {
-  const getCategoryIcon = (category) => {
-    switch(category) {
-      case 'Math': return 'calculate';
-      case 'Reading': return 'menu_book';
-      case 'Reading & Writing': return 'edit_note';
-      default: return 'school';
-    }
-  };
-
-  const getCategoryColor = (category) => {
-    switch(category) {
-      case 'Math': return '#1976d2';
-      case 'Reading': return '#2e7d32';
-      case 'Reading & Writing': return '#7b1fa2';
-      default: return '#4A7C59';
-    }
-  };
-
-  const categoryColor = getCategoryColor(course.category);
-  const categoryIcon = getCategoryIcon(course.category);
-
-  // Determine responsive values
-  const getContentPadding = () => {
-    if (isSkinnyMobile) return '10px';
-    if (isMobile) return '12px';
-    return '16px';
-  };
-
-  const getTitleFontSize = () => {
-    if (isSkinnyMobile) return '12px';
-    if (isMobile) return '14px';
-    return '16px';
-  };
-
-  const getDescriptionFontSize = () => {
-    if (isSkinnyMobile) return '10px';
-    if (isMobile) return '11px';
-    return '12px';
-  };
-
-  const getDescriptionMaxLines = () => {
-    if (isSkinnyMobile) return 2;
-    if (isMobile) return 2;
-    return 3;
-  };
-
-  const getIconSize = () => {
-    if (isSkinnyMobile) return '12px';
-    if (isMobile) return '14px';
-    return '16px';
-  };
-
-  const getStatsFontSize = () => {
-    if (isSkinnyMobile) return '9px';
-    if (isMobile) return '10px';
-    return '12px';
-  };
-
-  const getBadgePadding = () => {
-    if (isSkinnyMobile) return '2px 5px';
-    if (isMobile) return '3px 6px';
-    return '4px 8px';
-  };
-
-  const getBadgeFontSize = () => {
-    if (isSkinnyMobile) return '8px';
-    if (isMobile) return '9px';
-    return '10px';
-  };
-
-  const getRatingIconSize = () => {
-    if (isSkinnyMobile) return '11px';
-    if (isMobile) return '12px';
-    return '14px';
-  };
-
-  const getRatingFontSize = () => {
-    if (isSkinnyMobile) return '9px';
-    if (isMobile) return '10px';
-    return '12px';
-  };
-
-  const getButtonPadding = () => {
-    if (isSkinnyMobile) return '8px';
-    if (isMobile) return '10px';
-    return '12px';
-  };
-
-  const getButtonIconSize = () => {
-    if (isSkinnyMobile) return '14px';
-    if (isMobile) return '16px';
-    return '18px';
-  };
-
-  const getButtonFontSize = () => {
-    if (isSkinnyMobile) return '11px';
-    if (isMobile) return '12px';
-    return '14px';
+const CourseCard = ({ course, navigate }) => {
+  const handleCourseClick = () => {
+    navigate(`/courses/${course.id}`, { state: { course } });
   };
 
   return (
-    <div className="course-card">
+    <div className="course-card" onClick={handleCourseClick}>
       {/* Thumbnail section */}
       <div className="course-thumbnail">
         <img 
@@ -124,111 +34,62 @@ const CourseCard = ({ course, isMobile, isTablet, isDesktop, isSkinnyMobile, nav
         <div className="thumbnail-overlay"></div>
         
         {/* Category badge */}
-        <div className="category-badge" style={{ backgroundColor: categoryColor }}>
-          <span className="material-icons" style={{ fontSize: isSkinnyMobile || isMobile ? '12px' : '14px' }}>
-            {categoryIcon}
+        <div className="category-badge">
+          <span className="material-icons">
+            {course.category === 'Math' ? 'calculate' : 
+             course.category === 'Reading' ? 'menu_book' : 'edit_note'}
           </span>
-          <span style={{ 
-            fontSize: (isSkinnyMobile || isMobile) ? '10px' : '12px',
-            fontWeight: '600'
-          }}>
-            {course.category}
-          </span>
+          <span>{course.category}</span>
         </div>
         
         {/* Premium badge */}
         {course.isPremium && (
           <div className="premium-badge">
-            <span className="material-icons" style={{ fontSize: isSkinnyMobile || isMobile ? '12px' : '14px' }}>
-              lock
-            </span>
-            <span style={{ 
-              fontSize: (isSkinnyMobile || isMobile) ? '10px' : '12px',
-              fontWeight: 'bold'
-            }}>
-              PRO
-            </span>
+            <span className="material-icons">lock</span>
+            <span>PRO</span>
           </div>
         )}
         
         {/* Play button overlay */}
         <div className="play-button-overlay">
           <div className="play-button">
-            <span className="material-icons" style={{ 
-              fontSize: (isSkinnyMobile || isMobile) ? '24px' : '30px',
-              color: '#4A7C59'
-            }}>
-              play_arrow
-            </span>
+            <span className="material-icons">play_arrow</span>
           </div>
         </div>
       </div>
       
       {/* Course content */}
-      <div className="course-content" style={{ padding: getContentPadding() }}>
+      <div className="course-content">
         {/* Title */}
-        <h3 className="course-title" style={{ fontSize: getTitleFontSize() }}>
-          {course.title}
-        </h3>
+        <h3 className="course-title">{course.title}</h3>
         
         {/* Description */}
-        <p className="course-description" style={{ 
-          fontSize: getDescriptionFontSize(),
-          WebkitLineClamp: getDescriptionMaxLines()
-        }}>
-          {course.description}
-        </p>
+        <p className="course-description">{course.description}</p>
         
         {/* Stats row */}
         <div className="course-stats">
           <div className="stat-item">
-            <span className="material-icons" style={{ fontSize: getIconSize() }}>
-              access_time
-            </span>
-            <span style={{ fontSize: getStatsFontSize() }}>{course.duration}</span>
+            <span className="material-icons">access_time</span>
+            <span>{course.duration}</span>
           </div>
           <div className="stat-item">
-            <span className="material-icons" style={{ fontSize: getIconSize() }}>
-              video_library
-            </span>
-            <span style={{ fontSize: getStatsFontSize() }}>{course.videoCount} videos</span>
+            <span className="material-icons">video_library</span>
+            <span>{course.videoCount} videos</span>
           </div>
         </div>
         
         {/* Level and rating row */}
-        {!isSkinnyMobile && (
-          <div className="course-meta">
-            <div className="level-badge" style={{ 
-              padding: getBadgePadding(),
-              fontSize: getBadgeFontSize()
-            }}>
-              {course.level}
-            </div>
-            <div className="rating">
-              <span className="material-icons" style={{ 
-                fontSize: getRatingIconSize(),
-                color: '#ffb300'
-              }}>
-                star
-              </span>
-              <span style={{ fontSize: getRatingFontSize() }}>{course.rating}</span>
-            </div>
+        <div className="course-meta">
+          <div className="level-badge">{course.level}</div>
+          <div className="rating">
+            <span className="material-icons">star</span>
+            <span>{course.rating}</span>
           </div>
-        )}
+        </div>
         
         {/* Action button */}
-        <button 
-          className="start-course-btn"
-          style={{ 
-            backgroundColor: course.isPremium ? '#ff8f00' : '#4A7C59',
-            padding: `${getButtonPadding()} 0`,
-            fontSize: getButtonFontSize()
-          }}
-          onClick={() => navigate(`/courses/${course.id}`, { state: { course } })}
-        >
-          <span className="material-icons" style={{ fontSize: getButtonIconSize() }}>
-            play_arrow
-          </span>
+        <button className="start-course-btn">
+          <span className="material-icons">play_arrow</span>
           <span>{course.isPremium ? 'Start Pro Course' : 'Start Course'}</span>
         </button>
       </div>
@@ -239,16 +100,15 @@ const CourseCard = ({ course, isMobile, isTablet, isDesktop, isSkinnyMobile, nav
 // Main CoursesScreen component
 const CoursesScreen = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // Course data
   const courses = [
     {
       id: 'sat-reading-hacks',
       title: 'Must-Know SAT Reading Hacks',
-      description: 'Master the SAT Reading section with proven hacks, strategies, and time-saving methods. Learn how to approach passages, eliminate wrong answers, and maximize your reading score.',
+      description: 'Master the SAT Reading section with proven hacks, strategies, and time-saving methods.',
       playlistUrl: 'https://www.youtube.com/watch?v=eCmWcSdjt7E&list=PLXmJvdMwHZJ-reading-hacks',
       playlistId: 'PLXmJvdMwHZJ-reading-hacks',
       thumbnail: 'https://i.ytimg.com/vi/eCmWcSdjt7E/maxresdefault.jpg',
@@ -278,7 +138,7 @@ const CoursesScreen = () => {
     {
       id: 'digital-sat-math-speedruns',
       title: 'Digital SAT Math Speedruns',
-      description: 'Master SAT Math with lightning-fast problem-solving techniques. Learn to solve complex math problems quickly and accurately under time pressure.',
+      description: 'Master SAT Math with lightning-fast problem-solving techniques under time pressure.',
       playlistUrl: 'https://www.youtube.com/watch?v=uY-R7CQqZbc&list=PLXmJvdMwHZJ-6Mr5PjwFHk9iyj1Z81eux',
       playlistId: 'PLXmJvdMwHZJ-6Mr5PjwFHk9iyj1Z81eux',
       thumbnail: 'https://i.ytimg.com/vi/uY-R7CQqZbc/maxresdefault.jpg',
@@ -308,7 +168,7 @@ const CoursesScreen = () => {
     {
       id: 'digital-sat-reading-writing',
       title: 'Digital SAT Reading and Writing',
-      description: 'Comprehensive guide to mastering the Reading and Writing section of the Digital SAT. Build critical reading skills and writing proficiency.',
+      description: 'Comprehensive guide to mastering the Reading and Writing section of the Digital SAT.',
       playlistUrl: 'https://www.youtube.com/watch?v=Q1FOo9irGLg&list=PLXmJvdMwHZJ_S9vTPh3MjYhSPD5kD2Dks',
       playlistId: 'PLXmJvdMwHZJ_S9vTPh3MjYhSPD5kD2Dks',
       thumbnail: 'https://i.ytimg.com/vi/Q1FOo9irGLg/maxresdefault.jpg',
@@ -338,7 +198,7 @@ const CoursesScreen = () => {
     {
       id: 'digital-sat-math-tips-tricks',
       title: 'Digital SAT Math Tricks, and Strategies',
-      description: 'Learn powerful shortcuts, insider tips, and proven strategies to excel in SAT Math. Perfect for students looking to boost their math scores significantly.',
+      description: 'Learn powerful shortcuts, insider tips, and proven strategies to excel in SAT Math.',
       playlistUrl: 'https://www.youtube.com/watch?v=oPuJG6AJOlQ&list=PLXmJvdMwHZJ-ho5po_VE-PNiCCJ_Xwavk',
       playlistId: 'PLXmJvdMwHZJ-ho5po_VE-PNiCCJ_Xwavk',
       thumbnail: 'https://i.ytimg.com/vi/oPuJG6AJOlQ/maxresdefault.jpg',
@@ -367,61 +227,28 @@ const CoursesScreen = () => {
     },
   ];
 
-  // Get user data from location state
-  const userData = location.state?.userData;
-  const loggedIn = userData != null;
-
-  // Responsive breakpoints
-  const isSkinnyMobile = windowWidth < 400;
-  const isMobile = windowWidth >= 400 && windowWidth < 600;
-  const isTablet = windowWidth >= 600 && windowWidth < 1024;
-  const isDesktop = windowWidth >= 1024;
-
-  // Grid configuration
-  const getCrossAxisCount = () => {
-    if (isDesktop) return 4;
-    if (isTablet) return 2;
-    return 1;
-  };
-
-  const getChildAspectRatio = () => {
-    if (isDesktop) return 0.75;
-    if (isTablet) return 0.85;
-    if (isMobile) return 1.1;
-    return 1.1;
-  };
-
-  // Window resize effect
+  // Check if user is logged in on component mount
   useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      setIsLoggedIn(true);
+    }
   }, []);
 
-  // Navigation buttons
-  const NavButton = ({ title, icon, route }) => (
-    <button className="nav-button" onClick={() => navigate(route)}>
-      <span className="material-icons">{icon}</span>
-      <span>{title}</span>
-    </button>
-  );
-
-  const AccountButton = () => (
-    <button 
-      className="account-button"
-      onClick={() => navigate(loggedIn ? '/profile' : '/login', { state: { userData } })}
-    >
-      <span className="material-icons">account_circle</span>
-      <span>Account</span>
-    </button>
-  );
+  // Handle Account button click
+  const handleAccountClick = () => {
+    if (isLoggedIn) {
+      navigate('/profile');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="courses-screen">
-      {/* App.jsx Navbar - INTEGRATED */}
+      {/* Navigation - Using the same navbar from App.jsx */}
       <nav className="navbar sat-navbar">
         <div className="nav-container">
           {/* Logo on leftmost side */}
@@ -447,13 +274,14 @@ const CoursesScreen = () => {
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
             </Link>
-            <Link to="/community" className="nav-link sat-nav-link community-link">
-              Community
-            </Link>
-            {/* UPDATED ACCOUNT BUTTON */}
-            <Link to="/login" className="nav-link sat-nav-link community-link">
-              Account
-            </Link>
+            
+            {/* UPDATED ACCOUNT BUTTON - Shows Profile when logged in */}
+            <button 
+              onClick={handleAccountClick}
+              className="nav-link sat-nav-link community-link account-button"
+            >
+              {isLoggedIn ? 'Profile' : 'Account'}
+            </button>
           </div>
           
           {/* Mobile menu toggle */}
@@ -475,21 +303,11 @@ const CoursesScreen = () => {
         </div>
 
         {/* Courses grid */}
-        <div 
-          className="courses-grid"
-          style={{
-            '--grid-columns': getCrossAxisCount(),
-            '--grid-ratio': getChildAspectRatio()
-          }}
-        >
+        <div className="courses-grid">
           {courses.map((course) => (
             <CourseCard
               key={course.id}
               course={course}
-              isMobile={isMobile}
-              isTablet={isTablet}
-              isDesktop={isDesktop}
-              isSkinnyMobile={isSkinnyMobile}
               navigate={navigate}
             />
           ))}
@@ -511,43 +329,43 @@ const CoursesScreen = () => {
         </div>
       </main>
 
-      {/* Mobile Menu - FROM App.jsx */}
+      {/* Mobile Menu - Same as App.jsx */}
       {isMenuOpen && (
         <div className="mobile-menu sat-mobile-menu">
-          <div className="mobile-menu-content">
+          {/* Header section with logo */}
+          <div className="mobile-menu-header">
+            <div className="mobile-menu-logo">
+              <span className="mobile-logo-text">Mock SAT Exam</span>
+            </div>
             <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+          </div>
+          
+          <div className="mobile-menu-content">
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <HomeIcon />
               Home
             </Link>
-            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <span className="material-icons">play_circle_fill</span>
-              Courses
-            </Link>
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <span className="material-icons">add_road</span>
-              RoadMap
-            </Link>
-            <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <GroupsIcon />
-              Community
+               RoadMap
             </Link>
             <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <span className="material-icons">assignment</span>
-              Mock Practice
+               Mocks
             </Link>
             <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <span className="material-icons">sports_esports</span>
-              Game
+             Game
             </Link>
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <ArticleIcon />
-              Blogs
+               Blogs
             </Link>
-            <Link to="/login" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              <span className="material-icons">account_circle</span>
-              Account
-            </Link>
+
+            <button 
+              onClick={() => {
+                handleAccountClick();
+                setIsMenuOpen(false);
+              }}
+              className="mobile-menu-link"
+            >
+           {isLoggedIn ? 'Profile' : 'Account'}
+            </button>
           </div>
         </div>
       )}

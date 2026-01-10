@@ -57,6 +57,7 @@ import Info from './pages/Info';
 import Blog1 from './blogs/blog1';
 import Blog2 from './blogs/blog2';
 import Blog3 from './blogs/blog3';
+import Game from './game';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -274,14 +275,15 @@ function HomePage() {
           
           {/* Navigation links and Account button on rightmost side */}
           <div className="nav-links sat-nav-links">
-            <Link to="/courses" className="nav-link sat-nav-link courses-link">
-              Courses
-            </Link>
+            
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
             </Link>
             <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
               Mocks
+            </Link>
+            <Link to="/courses" className="nav-link sat-nav-link courses-link">
+              Courses
             </Link>
             <Link to="/game" className="nav-link sat-nav-link game-link">
               Game
@@ -698,19 +700,6 @@ function HomePage() {
             <div className="nav-tile-label">Mock Exams</div>
           </div>
           
-          <div className="nav-tile sat-nav-tile">
-            <div className="nav-tile-icon">
-              <FaUniversity className="icon" />
-            </div>
-            <div className="nav-tile-label">Top Colleges</div>
-          </div>
-          
-          <div className="nav-tile sat-nav-tile">
-            <div className="nav-tile-icon">
-              <FaBook className="icon" />
-            </div>
-            <div className="nav-tile-label">Prep Resources</div>
-          </div>
           
           <div className="nav-tile sat-nav-tile">
             <div className="nav-tile-icon">
@@ -817,11 +806,18 @@ function HomePage() {
         </div>
       </footer>
 
-      {/* Mobile Menu */}
+      
       {isMenuOpen && (
         <div className="mobile-menu sat-mobile-menu">
-          <div className="mobile-menu-content">
+          {/* ADD THIS HEADER SECTION WITH LOGO */}
+          <div className="mobile-menu-header">
+            <div className="mobile-menu-logo">
+              <img src="/logo.png" alt="Logo" className="mobile-logo-img" />
+            </div>
             <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+          </div>
+          
+          <div className="mobile-menu-content">
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
@@ -833,7 +829,7 @@ function HomePage() {
             </Link>
             
             <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Mock Practice
+              Mocks
             </Link>
             <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Game
@@ -853,6 +849,7 @@ function HomePage() {
           </div>
         </div>
       )}
+
     </div>
   )
 }
@@ -871,7 +868,7 @@ function App() {
           <Route path="/roadmap-level" element={ <RoadmapLevel/>  }/>
           <Route path="/mock-practice" element={<StudyPlan/>} />
           <Route path="/mock-test/:mockTestId" element={<MockTestScreen />} />
-          <Route path="/game" element={<div className="page">Game Page</div>} />
+          <Route path="/game" element={<Game/>} />
           <Route path="/info" element={<Info />} />
           <Route path="/blogs" element={<BlogsList />} />
           <Route path="/blog/digital-sat-score-ivy-league-2026-good-score-range" element={<Blog1 />} />
