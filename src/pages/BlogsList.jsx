@@ -35,6 +35,7 @@ const BlogsList = () => {
     totalPages: 1,
     total: 0
   });
+  const [currentDomain, setCurrentDomain] = useState('');
 
   // Mobile menu state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -62,6 +63,9 @@ const BlogsList = () => {
     checkIfMobile();
     window.addEventListener('resize', checkIfMobile);
     
+    // Get current domain
+    setCurrentDomain(window.location.origin);
+    
     return () => {
       window.removeEventListener('resize', checkIfMobile);
     };
@@ -83,15 +87,18 @@ const BlogsList = () => {
         sort
       });
 
-      console.log(`Fetching blogs from: ${API_BASE_URL}/api/blogs?${params}`);
+      console.log(`🌐 Fetching blogs from: ${API_BASE_URL}/api/blogs`);
+      console.log(`📊 Current domain: ${currentDomain}`);
+      console.log(`🔍 Params: ${params.toString()}`);
 
       const response = await axios.get(
         `${API_BASE_URL}/api/blogs?${params}`,
         {
-          timeout: 10000,
+          timeout: 15000,
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Origin': currentDomain
           }
         }
       );
@@ -104,22 +111,30 @@ const BlogsList = () => {
           totalPages: 1,
           total: 0
         });
+        console.log(`✅ Successfully loaded ${response.data.blogs?.length || 0} blogs`);
       } else {
         setApiError(response.data.message || 'Failed to load blogs');
       }
     } catch (error) {
-      console.error(`Error fetching blogs from ${environment}:`, error);
+      console.error(`❌ Error fetching blogs from ${environment}:`, error);
       setBlogs([]);
       setCategories([]);
       
-      if (error.code === 'ERR_NETWORK') {
-        setApiError(`Cannot connect to ${environment} Cloudflare Worker at ${API_BASE_URL}.`);
-        
-        // Try switching environment automatically
-        if (environment === 'remote') {
-          setEnvironment('local');
-          setApiError('Trying local environment...');
+      // Enhanced error detection
+      if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+        setApiError(`Network Error: Cannot connect to ${environment} API at ${API_BASE_URL}. Check if the worker is running.`);
+      } else if (error.code === 'ECONNABORTED') {
+        setApiError('Request timeout. The server is taking too long to respond.');
+      } else if (error.response) {
+        // Server responded with error
+        const status = error.response.status;
+        if (status === 403 || status === 0 || error.message.includes('CORS')) {
+          setApiError(`CORS Error (${status}): Your domain (${currentDomain}) is not allowed to access the API. Make sure it's added to CORS settings.`);
+        } else {
+          setApiError(`Server Error ${status}: ${error.response.data?.error || 'Unknown error'}`);
         }
+      } else if (error.request) {
+        setApiError('No response received from server. The API might be down.');
       } else {
         setApiError(`Error: ${error.message}`);
       }
@@ -167,21 +182,6 @@ const BlogsList = () => {
     setSearchParams(params);
   };
 
-  const getPopularKeywords = () => {
-    return [
-      'SAT Math tips',
-      'SAT Reading comprehension',
-      'SAT Writing grammar',
-      'SAT practice tests',
-      'SAT score improvement',
-      'SAT study schedule',
-      'SAT test dates',
-      'SAT online preparation',
-      'SAT vocabulary',
-      'SAT calculator tips'
-    ];
-  };
-
   // Handle navigation to create blog
   const handleCreateBlog = () => {
     navigate('/admin/create-blog');
@@ -192,6 +192,56 @@ const BlogsList = () => {
     const params = new URLSearchParams(searchParams);
     params.set('page', 1);
     setSearchParams(params);
+  };
+
+  // Test API connection
+  const testAPIConnection = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/health`, {
+        timeout: 10000,
+        headers: {
+          'Origin': currentDomain
+        }
+      });
+      
+      alert(`✅ API Connection Successful!\n\nMessage: ${response.data.message}\nDatabase: ${response.data.database}\nYour Domain: ${currentDomain}\nAllowed: ${response.data.allowedDomains.join(', ')}`);
+      
+      // Also test CORS specifically
+      const corsTest = await axios.get(`${API_BASE_URL}/api/cors-test`, {
+        headers: {
+          'Origin': currentDomain
+        }
+      });
+      console.log('CORS Test Result:', corsTest.data);
+      
+    } catch (error) {
+      console.error('API Test Error:', error);
+      alert(`❌ API Connection Failed!\n\nError: ${error.message}\n\nURL: ${API_BASE_URL}\n\nYour Domain: ${currentDomain}\n\nCheck:\n1. Cloudflare Worker is running\n2. CORS settings include your domain\n3. No network restrictions`);
+    }
+  };
+
+  // Check CORS status
+  const checkCORSStatus = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/cors-test`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Origin': currentDomain
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('CORS Check Result:', data);
+        alert(`✅ CORS Check Passed!\n\nYour Domain: ${currentDomain}\n\nAllowed Patterns:\n${data.supportedPatterns.join('\n')}`);
+      } else {
+        alert(`❌ CORS Check Failed: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('CORS Check Error:', error);
+      alert(`❌ CORS Check Failed!\n\nError: ${error.message}\n\nThis usually means your domain (${currentDomain}) is not in the allowed CORS origins list.`);
+    }
   };
 
   return (
@@ -253,8 +303,6 @@ const BlogsList = () => {
               <Link to="/profile" className="nav-link sat-nav-link community-link">
                 Account
               </Link>
-              {/* UPDATED ACCOUNT BUTTON */}
-             
             </div>
             
             {/* Mobile menu toggle */}
@@ -326,17 +374,7 @@ const BlogsList = () => {
                   </div>
                 </div>
 
-                <div className="sidebar-section">
-                  <h3 className="sidebar-title">Quick Actions</h3>
-                  <div className="quick-actions">
-                    <button onClick={handleCreateBlog} className="quick-action-btn primary">
-                      ✍️ Write a Blog
-                    </button>
-                    <Link to="/" className="quick-action-btn secondary">
-                      🏠 Back to Home
-                    </Link>
-                  </div>
-                </div>
+
 
                 <div className="sidebar-section cta-box">
                   <h3 className="sidebar-title">Free SAT Guide</h3>
@@ -345,10 +383,61 @@ const BlogsList = () => {
                     Download Now →
                   </button>
                 </div>
+
+                {/* Environment selector for debugging */}
+                <div className="sidebar-section debug-section">
+                  <h3 className="sidebar-title">🔧 Debug Panel</h3>
+                  <div className="debug-info">
+                    <div className="debug-item">
+                      <strong>Your Domain:</strong>
+                      <span className="debug-value">{currentDomain}</span>
+                    </div>
+                    <div className="debug-item">
+                      <strong>API Target:</strong>
+                      <span className="debug-value">{API_BASE_URL}</span>
+                    </div>
+                    <div className="debug-item">
+                      <strong>Environment:</strong>
+                      <div className="environment-buttons">
+                        <button 
+                          onClick={() => handleEnvironmentChange('remote')}
+                          className={`env-btn ${environment === 'remote' ? 'active' : ''}`}
+                        >
+                          Cloudflare
+                        </button>
+                        <button 
+                          onClick={() => handleEnvironmentChange('local')}
+                          className={`env-btn ${environment === 'local' ? 'active' : ''}`}
+                        >
+                          Local
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="debug-actions">
+                    <button 
+                      onClick={testAPIConnection}
+                      className="debug-btn primary"
+                    >
+                      Test API Connection
+                    </button>
+                    <button 
+                      onClick={checkCORSStatus}
+                      className="debug-btn secondary"
+                    >
+                      Check CORS Status
+                    </button>
+                    <button 
+                      onClick={fetchBlogs}
+                      className="debug-btn tertiary"
+                    >
+                      Reload Data
+                    </button>
+                  </div>
+                </div>
               </aside>
             )}
-
-            
 
             {/* Main Content */}
             <main className={`blogs-content-area ${isMobile ? 'mobile-view' : ''}`}>
@@ -362,11 +451,56 @@ const BlogsList = () => {
                   )}
                 </h2>
                 <div className="content-stats">
-                  Showing {blogs.length} of {pagination.total} articles
+                  <span>Showing {blogs.length} of {pagination.total} articles</span>
+                  <div className="environment-info">
+                    <span className="environment-badge">
+                      {environment === 'remote' ? '🌐 Cloudflare' : '💻 Local'}
+                    </span>
+                    <span className="domain-badge">
+                      🔗 {currentDomain}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* NEW: Search Bar at top of articles section */}
+              {/* API Error Display */}
+              {apiError && (
+                <div className="api-error-alert">
+                  <h4>⚠️ Connection Issue Detected</h4>
+                  <p><strong>Error:</strong> {apiError}</p>
+                  <div className="error-actions">
+                    <button onClick={fetchBlogs} className="error-btn">
+                      🔄 Retry Connection
+                    </button>
+                    <button onClick={testAPIConnection} className="error-btn">
+                      🧪 Test API
+                    </button>
+                    <button onClick={checkCORSStatus} className="error-btn">
+                      🔍 Check CORS
+                    </button>
+                    {environment === 'remote' ? (
+                      <button onClick={() => handleEnvironmentChange('local')} className="error-btn">
+                        💻 Switch to Local
+                      </button>
+                    ) : (
+                      <button onClick={() => handleEnvironmentChange('remote')} className="error-btn">
+                        🌐 Switch to Cloudflare
+                      </button>
+                    )}
+                  </div>
+                  <div className="error-help">
+                    <p><strong>Troubleshooting Tips:</strong></p>
+                    <ul>
+                      <li>Make sure Cloudflare Worker is running</li>
+                      <li>Check if your domain ({currentDomain}) is in CORS allowed list</li>
+                      <li>Verify network connection</li>
+                      <li>Try switching environments</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Search Bar at top of articles section */}
               <div className="content-search-container">
                 <form onSubmit={handleSearch} className="content-search-form">
                   <div className="content-search-input-container">
@@ -387,8 +521,12 @@ const BlogsList = () => {
               {loading ? (
                 <div className="loading-state">
                   <div className="loading-spinner"></div>
-                  <p>Loading SAT articles....</p>
-                  
+                  <p>Loading SAT articles from {environment === 'remote' ? 'Cloudflare' : 'Local'}...</p>
+                  <p className="loading-hint">
+                    Connected to: <strong>{API_BASE_URL}</strong>
+                    <br />
+                    Your domain: <strong>{currentDomain}</strong>
+                  </p>
                 </div>
               ) : (
                 <>
@@ -488,23 +626,42 @@ const BlogsList = () => {
                   {/* No results */}
                   {blogs.length === 0 && !loading && (
                     <div className="no-results">
-                      <h3>No articles found</h3>
+                      <h3>📭 No articles found</h3>
                       <p>
                         {search || category 
                           ? `No articles found for "${search || category}" in ${environment} database.` 
                           : `No articles in ${environment} database.`}
                       </p>
-                      <button onClick={() => handleCreateBlog()} className="create-blog-btn">
-                        ✍️ Write Your First Blog
-                      </button>
-                      {environment === 'remote' && (
-                        <button 
-                          onClick={() => handleEnvironmentChange('local')}
-                          className="switch-db-btn"
-                        >
-                          Try Local Database
+                      <div className="no-results-actions">
+                        
+                        <button onClick={fetchBlogs} className="retry-btn">
+                          🔄 Retry Loading
                         </button>
-                      )}
+                        {environment === 'remote' ? (
+                          <button 
+                            onClick={() => handleEnvironmentChange('local')}
+                            className="switch-db-btn"
+                          >
+                            🔄 Try Local Database
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleEnvironmentChange('remote')}
+                            className="switch-db-btn"
+                          >
+                            🌐 Try Cloudflare Database
+                          </button>
+                        )}
+                      </div>
+                      <div className="debug-suggestions">
+                        <h4>🛠️ Debug Suggestions:</h4>
+                        <ol>
+                          <li>Click "Test API Connection" to verify API is accessible</li>
+                          <li>Check if your domain ({currentDomain}) is allowed in CORS</li>
+                          <li>Try switching between Local and Cloudflare environments</li>
+                          <li>Check browser console for detailed errors (F12)</li>
+                        </ol>
+                      </div>
                     </div>
                   )}
                 </>
@@ -518,13 +675,12 @@ const BlogsList = () => {
         {isMenuOpen && (
           <div className="mobile-menu sat-mobile-menu">
             <div className="mobile-menu-header">
-            <div className="mobile-menu-logo">
-              <img src="/logo.png" alt="Logo" className="mobile-logo-img" />
-            </div>
-            <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
-          </div>
-            <div className="mobile-menu-content">
+              <div className="mobile-menu-logo">
+                <img src="/logo.png" alt="Logo" className="mobile-logo-img" />
+              </div>
               <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+            </div>
+            <div className="mobile-menu-content">
               <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Home
               </Link>
@@ -541,11 +697,52 @@ const BlogsList = () => {
               <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Game
               </Link>
-              <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/profile" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Account
               </Link>
-               
 
+              {/* Mobile debug panel */}
+              <div className="mobile-debug-section">
+                <h4>🔧 Debug Tools</h4>
+                <div className="mobile-env-buttons">
+                  <button 
+                    onClick={() => {
+                      handleEnvironmentChange('remote');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`mobile-env-btn ${environment === 'remote' ? 'active' : ''}`}
+                  >
+                    Cloudflare API
+                  </button>
+                  <button 
+                    onClick={() => {
+                      handleEnvironmentChange('local');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`mobile-env-btn ${environment === 'local' ? 'active' : ''}`}
+                  >
+                    Local API
+                  </button>
+                </div>
+                <button 
+                  onClick={() => {
+                    testAPIConnection();
+                    setIsMenuOpen(false);
+                  }}
+                  className="mobile-debug-btn"
+                >
+                  Test Connection
+                </button>
+                <button 
+                  onClick={() => {
+                    fetchBlogs();
+                    setIsMenuOpen(false);
+                  }}
+                  className="mobile-debug-btn"
+                >
+                  Reload Data
+                </button>
+              </div>
             </div>
           </div>
         )}

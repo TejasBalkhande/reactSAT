@@ -861,7 +861,7 @@ const Roadmap = ({ user, onLogout }) => {
             disabled={isLoading}
             aria-label="Generate personalized SAT study roadmap"
           >
-            {isLoading ? 'Generating...' : 'Generate My SAT Study Roadmap'}
+            {isLoading ? 'Generating...' : 'Generate My Roadmap'}
           </button>
         </div>
       </div>

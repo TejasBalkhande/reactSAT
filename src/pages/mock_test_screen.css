@@ -303,7 +303,7 @@
   background: transparent;
   border-top: none;
   box-shadow: none;
-  backdrop-filter: none;   /* 👈 kill the blur */
+  backdrop-filter: none;
   z-index: 90;
 }
 
@@ -528,9 +528,10 @@
   visibility: visible;
 }
 
-/* Loading State - Matching PracticePage */
+/* Loading State - Single spinner for all loading states */
 .loading {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -850,7 +851,7 @@
 .score-card,
 .stats-card,
 .skill-performance {
-  flex: 1 1 320px;   /* grow | shrink | base width */
+  flex: 1 1 320px;
   max-width: 320px;
 }
 
@@ -1374,13 +1375,13 @@
   .start-test-section {
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Gap between buttons */
+    gap: 12px;
     width: 100%;
   }
   
   .start-test-button, .back-button {
     width: 100%;
-    min-height: 56px; /* Equal minimum height */
+    min-height: 56px;
     padding: 16px 24px;
     font-size: 16px;
     display: flex;
@@ -1396,15 +1397,15 @@
   .start-test-section {
     display: flex;
     flex-direction: row;
-    gap: 16px; /* Gap between buttons */
+    gap: 16px;
     justify-content: center;
     align-items: center;
     margin-top: 20px;
   }
   
   .start-test-button, .back-button {
-    min-width: 180px; /* Equal minimum width */
-    min-height: 56px; /* Equal height */
+    min-width: 180px;
+    min-height: 56px;
     padding: 16px 32px;
     font-size: 16px;
     display: flex;
@@ -1412,11 +1413,10 @@
     justify-content: center;
     border-radius: 12px;
     font-weight: 600;
-    flex: 1; /* Allow buttons to grow equally */
-    max-width: 240px; /* Maximum width for consistency */
+    flex: 1;
+    max-width: 240px;
   }
   
-  /* Make sure they have equal width */
   .start-test-button {
     flex: 1;
   }

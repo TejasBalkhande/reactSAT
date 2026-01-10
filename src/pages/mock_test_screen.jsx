@@ -198,7 +198,7 @@ const MockTestScreen = () => {
         setMathAnswerStates(Array(math.length).fill().map(() => new AnswerState()));
         setRemainingSeconds(totalReadingWritingTime);
         setIsLoading(false);
-        setShowWelcomeScreen(true); // Show welcome screen instead of popup
+        setShowWelcomeScreen(true);
         
       } catch (error) {
         console.error('Error loading questions:', error);
@@ -243,7 +243,6 @@ const MockTestScreen = () => {
       setIsSidebarOpen(false);
     }
     
-    // Scroll to top of question area
     if (questionAreaRef.current) {
       questionAreaRef.current.scrollTop = 0;
     }
@@ -320,6 +319,23 @@ const MockTestScreen = () => {
     <div className="timer-widget">
       <FaClock className="timer-icon" />
       <span className="timer-text">{formatTime(remainingSeconds)}</span>
+    </div>
+  );
+  
+  // Loading Component - Single spinner for all loading states
+  const LoadingScreen = () => (
+    <div className="mock-test-container loading">
+      <header className="app-header">
+        <div className="app-header-left" onClick={() => navigate('/study-plan')}>
+          <div className="logo">
+            <img src="/logo.png" alt="Logo" className="logo-img" />
+          </div>
+          <h1>Mock SAT Exam</h1>
+        </div>
+      </header>
+      <div className="loading-spinner">
+        {/* <FaSpinner className="spinner" /> */}
+      </div>
     </div>
   );
   
@@ -448,24 +464,9 @@ const MockTestScreen = () => {
     );
   };
   
-  // Loading state
+  // Loading state - use single LoadingScreen component
   if (isLoading) {
-    return (
-      <div className="mock-test-container loading">
-        <header className="app-header">
-          <div className="app-header-left" onClick={() => navigate('/study-plan')}>
-            <div className="logo">
-              <img src="/logo.png" alt="Logo" className="logo-img" />
-            </div>
-            <h1>Mock SAT Exam</h1>
-          </div>
-        </header>
-        <div className="loading-spinner">
-          <FaSpinner className="spinner" />
-          <p>Loading questions...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
   
   // Show welcome screen
@@ -473,24 +474,9 @@ const MockTestScreen = () => {
     return <WelcomeScreen />;
   }
   
-  // Test not started (shouldn't happen with new flow)
+  // Test not started
   if (!testStarted) {
-    return (
-      <div className="mock-test-container">
-        <header className="app-header">
-          <div className="app-header-left" onClick={() => navigate('/study-plan')}>
-            <div className="logo">
-              <img src="/logo.png" alt="Logo" className="logo-img" />
-            </div>
-            <h1>Mock SAT Exam</h1>
-          </div>
-        </header>
-        <div className="loading-spinner">
-          <FaSpinner className="spinner" />
-          <p>Preparing test...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
   
   // Test completed - show results

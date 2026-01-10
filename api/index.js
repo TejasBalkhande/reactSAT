@@ -3,9 +3,33 @@ import { cors } from 'hono/cors';
 
 const app = new Hono();
 
-// Enable CORS for all origins
+// IMPROVED: Dynamic CORS for all environments
 app.use('/api/*', cors({
-  origin: ['http://localhost:3000', 'https://sat-blog-worker.tejasbalkhande221.workers.dev'],
+  origin: (origin) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return true;
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173', // Vite dev server
+      'https://e5661c37.sat-mock-react.pages.dev',
+      'https://mocksatexam.online',
+      'https://*.mocksatexam.online',
+      'https://*.pages.dev'
+    ];
+    
+    // Check if origin matches any allowed pattern
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed.includes('*')) {
+        const pattern = allowed.replace('*', '.*');
+        return new RegExp(pattern).test(origin);
+      }
+      return origin === allowed;
+    });
+    
+    return isAllowed;
+  },
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
   allowMethods: ['POST', 'GET', 'PUT', 'DELETE', 'OPTIONS'],
   exposeHeaders: ['Content-Length', 'X-Requested-With'],
@@ -75,7 +99,12 @@ app.get('/api/health', (c) => {
     message: 'Cloudflare Worker API is running',
     timestamp: new Date().toISOString(),
     database: 'D1 (Cloudflare)',
-    environment: c.env.ENVIRONMENT || 'production'
+    environment: c.env.ENVIRONMENT || 'production',
+    allowedOrigins: [
+      'http://localhost:3000',
+      'https://e5661c37.sat-mock-react.pages.dev',
+      'https://mocksatexam.online'
+    ]
   });
 });
 
@@ -739,15 +768,17 @@ app.get('/api/blogs', async (c) => {
     }
 
     if (search) {
-      query += ` AND (title LIKE ? OR meta_description LIKE ? OR keywords LIKE ?)`;
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      query += ` AND (title LIKE ? OR meta_description LIKE ? OR keywords LIKE ? OR html_content LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     // Sorting
     if (sort === 'popular' || sort === 'trending') {
       query += ` ORDER BY views DESC`;
+    } else if (sort === 'oldest') {
+      query += ` ORDER BY publish_date ASC`;
     } else {
-      query += ` ORDER BY publish_date DESC`;
+      query += ` ORDER BY publish_date DESC`; // newest default
     }
 
     query += ` LIMIT ? OFFSET ?`;
