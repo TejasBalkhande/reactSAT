@@ -618,11 +618,8 @@ const Blog2 = () => {
             <Link to="/roadmap" className="blog2-nav-link" itemProp="url">
               <span itemProp="name">RoadMap</span>
             </Link>
-            <Link to="/mock-practice" className="blog2-nav-link" itemProp="url">
+            <Link to="/digital-sat-practice-questions" className="blog2-nav-link" itemProp="url">
               <span itemProp="name">Mocks</span>
-            </Link>
-            <Link to="/game" className="blog2-nav-link" itemProp="url">
-              <span itemProp="name">Game</span>
             </Link>
             <Link to="/blogs" className="blog2-nav-link" itemProp="url">
               <span itemProp="name">Blogs</span>
@@ -677,11 +674,8 @@ const Blog2 = () => {
             <Link to="/community" className="blog2-nav-link" onClick={() => setIsMenuOpen(false)}>
               Community
             </Link>
-            <Link to="/mock-practice" className="blog2-nav-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/digital-sat-practice-questions" className="blog2-nav-link" onClick={() => setIsMenuOpen(false)}>
               Mock Practice
-            </Link>
-            <Link to="/game" className="blog2-nav-link" onClick={() => setIsMenuOpen(false)}>
-              Game
             </Link>
             <Link to="/blogs" className="blog2-nav-link" onClick={() => setIsMenuOpen(false)}>
               Blogs

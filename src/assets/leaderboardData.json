@@ -1,0 +1,12 @@
+[
+  { "rank": 1, "username": "AlexJohnson42", "fullName": "Alex Johnson", "country": "USA", "score": 1580, "progress": 95, "improvement": "+25" },
+  { "rank": 2, "username": "TaylorSmith7", "fullName": "Taylor Smith", "country": "Canada", "score": 1565, "progress": 93, "improvement": "+18" },
+  { "rank": 3, "username": "MorganLee23", "fullName": "Morgan Lee", "country": "UK", "score": 1550, "progress": 91, "improvement": "+32" },
+  { "rank": 4, "username": "CaseyBrown89", "fullName": "Casey Brown", "country": "Australia", "score": 1540, "progress": 89, "improvement": "+12" },
+  { "rank": 5, "username": "RileyWilliams31", "fullName": "Riley Williams", "country": "USA", "score": 1535, "progress": 88, "improvement": "+8" },
+  { "rank": 6, "username": "QuinnDavis56", "fullName": "Quinn Davis", "country": "India", "score": 1525, "progress": 87, "improvement": "-5" },
+  { "rank": 7, "username": "DakotaMiller12", "fullName": "Dakota Miller", "country": "Germany", "score": 1515, "progress": 85, "improvement": "+15" },
+  { "rank": 8, "username": "SkylerRodriguez78", "fullName": "Skyler Rodriguez", "country": "France", "score": 1505, "progress": 84, "improvement": "+22" },
+  { "rank": 9, "username": "AveryMartinez34", "fullName": "Avery Martinez", "country": "Japan", "score": 1495, "progress": 83, "improvement": "+10" },
+  { "rank": 10, "username": "CameronGarcia91", "fullName": "Cameron Garcia", "country": "South Korea", "score": 1485, "progress": 81, "improvement": "+5" }
+]

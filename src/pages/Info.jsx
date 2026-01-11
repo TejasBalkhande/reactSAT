@@ -171,20 +171,7 @@ function Info() {
                   Latest news, media coverage, and press resources about Mock SAT Exam.
                 </p>
                 <div className="card-details">
-                  <h4>Press Kit</h4>
-                  <p>
-                    Download our press kit containing logos, product screenshots, executive bios, 
-                    and company information.
-                  </p>
-                  
-                  <div className="press-downloads">
-                    <button className="download-btn">
-                      Download Press Kit (ZIP)
-                    </button>
-                    <button className="download-btn">
-                      Download Logos (PNG)
-                    </button>
-                  </div>
+          
                   
                   <h4>Recent Coverage</h4>
                   <ul className="coverage-list">
@@ -209,7 +196,7 @@ function Info() {
                   <a href="mailto:mocksatexam.website@gmail.com" className="email-link">
                     mocksatexam.website@gmail.com
                   </a>
-                  <p className="contact-phone">+1 (555) 123-4567</p>
+                  <p className="contact-phone">+91 7499175732</p>
                 </div>
               </div>
             </div>
@@ -234,43 +221,19 @@ function Info() {
                       <li>✓ Basic Progress Tracking</li>
                       <li>✓ Limited AI Tutor Access</li>
                       <li>✓ Community Forums</li>
-                      <li>✗ Advanced Analytics</li>
-                      <li>✗ Personalized Roadmaps</li>
-                      <li>✗ Priority Support</li>
-                    </ul>
-                    <button className="plan-select-btn">Get Started</button>
-                  </div>
-
-                  <div className="plan-card premium">
-                    <div className="popular-badge">MOST POPULAR</div>
-                    <h4>Premium Plan</h4>
-                    <div className="plan-price">$29<span>/month</span></div>
-                    <ul className="plan-features">
-                      <li>✓ Unlimited Mock Tests</li>
-                      <li>✓ Advanced Progress Tracking</li>
-                      <li>✓ Full AI Tutor Access</li>
-                      <li>✓ Priority Community</li>
-                      <li>✓ Detailed Analytics</li>
+                      <li>✓ Advanced Analytics</li>
                       <li>✓ Personalized Roadmaps</li>
                       <li>✓ Priority Support</li>
                     </ul>
-                    <button className="plan-select-btn premium-btn">Choose Premium</button>
+                    <button
+                        className="plan-select-btn"
+                        onClick={() => window.location.href = "/"}
+                      >
+                        Get Started
+                      </button>
                   </div>
 
-                  <div className="plan-card">
-                    <h4>Family Plan</h4>
-                    <div className="plan-price">$79<span>/month</span></div>
-                    <ul className="plan-features">
-                      <li>✓ Everything in Premium</li>
-                      <li>✓ Up to 5 Student Accounts</li>
-                      <li>✓ Family Progress Dashboard</li>
-                      <li>✓ Group Study Sessions</li>
-                      <li>✓ Dedicated Family Manager</li>
-                      <li>✓ Monthly Parent Reports</li>
-                      <li>✓ 24/7 Priority Support</li>
-                    </ul>
-                    <button className="plan-select-btn">Choose Family</button>
-                  </div>
+                  
                 </div>
                 
                 <div className="billing-info">
@@ -402,49 +365,20 @@ function Info() {
                     <p className="response-time">Response time: Within 24 hours</p>
                   </div>
 
-                  <div className="contact-card">
-                    <div className="contact-icon">💬</div>
-                    <h4>Live Chat</h4>
-                    <p>Available Monday-Friday, 9AM-6PM EST</p>
-                    <button className="chat-btn">Start Live Chat</button>
-                    <p className="response-time">Instant response during business hours</p>
-                  </div>
+                
 
                   <div className="contact-card">
                     <div className="contact-icon">📞</div>
                     <h4>Phone Support</h4>
-                    <p>For urgent issues and premium members:</p>
-                    <a href="tel:+15551234567" className="contact-link">
-                      +1 (555) 123-4567
+                    <p>For urgent issues and Whatsapp:</p>
+                    <a href="tel:+917499175732" className="contact-link">
+                      +91 7499175732
                     </a>
                     <p className="response-time">Available 24/7 for premium users</p>
                   </div>
                 </div>
 
-                <div className="contact-form">
-                  <h4>Send us a Message</h4>
-                  <form>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Name</label>
-                        <input type="text" placeholder="Your name" />
-                      </div>
-                      <div className="form-group">
-                        <label>Email</label>
-                        <input type="email" placeholder="Your email" />
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label>Subject</label>
-                      <input type="text" placeholder="What is this regarding?" />
-                    </div>
-                    <div className="form-group">
-                      <label>Message</label>
-                      <textarea placeholder="How can we help you?" rows="5"></textarea>
-                    </div>
-                    <button type="submit" className="submit-btn">Send Message</button>
-                  </form>
-                </div>
+              
               </div>
 
               <div className="section-card">
@@ -491,32 +425,7 @@ function Info() {
                   </div>
                 </div>
 
-                <div className="video-tutorials">
-                  <h4>Video Tutorials</h4>
-                  <div className="tutorial-grid">
-                    <div className="tutorial-card">
-                      <div className="tutorial-thumbnail">
-                        <div className="play-icon">▶</div>
-                      </div>
-                      <h5>Getting Started with Mock SAT Exam</h5>
-                      <span>5:24 min</span>
-                    </div>
-                    <div className="tutorial-card">
-                      <div className="tutorial-thumbnail">
-                        <div className="play-icon">▶</div>
-                      </div>
-                      <h5>Mastering the AI Tutor</h5>
-                      <span>8:16 min</span>
-                    </div>
-                    <div className="tutorial-card">
-                      <div className="tutorial-thumbnail">
-                        <div className="play-icon">▶</div>
-                      </div>
-                      <h5>Understanding Your Analytics</h5>
-                      <span>6:45 min</span>
-                    </div>
-                  </div>
-                </div>
+                
               </div>
 
               <div className="section-card">
@@ -750,10 +659,7 @@ function Info() {
                     of our platform.
                   </p>
                   
-                  <div className="cookie-controls">
-                    <button className="cookie-settings-btn">Cookie Settings</button>
-                    <button className="accept-all-btn">Accept All Cookies</button>
-                  </div>
+                  
                   
                   <h4>Third-Party Cookies</h4>
                   <p>

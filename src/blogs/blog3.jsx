@@ -207,9 +207,7 @@ const Blog3 = () => {
         <li><strong>Time Yourself:</strong> Track how quickly you can solve different problem types with Desmos versus traditional methods.</li>
       </ol>
       
-      <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="Study plan and schedule" />
-      <p style="text-align: center; font-style: italic; color: #666; margin-top: -1rem; font-size: 0.9rem;">Consistent practice is key to mastering Desmos for the SAT</p>
-      
+
       <blockquote>
         Desmos can be your most powerful ally on the Digital SAT, but only if you invest the time to master it. By moving from basic calculation to strategic visualization, you'll solve problems faster, with more confidence, and unlock the score increase you're aiming for. Start practicing today—your future 100+ point score boost begins with your first Desmos graph.
       </blockquote>
@@ -574,11 +572,8 @@ const Blog3 = () => {
             <Link to="/roadmap" className="blog3-nav-link">
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="blog3-nav-link">
+            <Link to="/digital-sat-practice-questions" className="blog3-nav-link">
               Mocks
-            </Link>
-            <Link to="/game" className="blog3-nav-link">
-              Game
             </Link>
             <Link to="/blogs" className="blog3-nav-link">
               Blogs
@@ -631,11 +626,8 @@ const Blog3 = () => {
             <Link to="/roadmap" className="blog3-nav-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="blog3-nav-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/digital-sat-practice-questions" className="blog3-nav-link" onClick={() => setIsMenuOpen(false)}>
               Mock Practice
-            </Link>
-            <Link to="/game" className="blog3-nav-link" onClick={() => setIsMenuOpen(false)}>
-              Game
             </Link>
             <Link to="/blogs" className="blog3-nav-link" onClick={() => setIsMenuOpen(false)}>
               Blogs

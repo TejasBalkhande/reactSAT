@@ -1,4 +1,4 @@
-// App.jsx - UPDATED WITH PERSISTENT LEADERBOARD DATA
+// App.jsx - UPDATED WITH NOTIFICATION MESSAGES
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import { 
@@ -7,17 +7,19 @@ import {
   FaUniversity, 
   FaBook, 
   FaGamepad, 
+  FaPlayCircle,
   FaUsers,
   FaTrophy,
   FaCrown,
   FaMedal,
   FaUserCircle,
   FaArrowUp,
-  FaArrowDown
+  FaArrowDown,
+  FaTimes
 } from 'react-icons/fa';
 import './App.css'
 
-import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 
 // Import Material-UI icons
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -59,6 +61,9 @@ import Blog2 from './blogs/blog2';
 import Blog3 from './blogs/blog3';
 import Game from './game';
 
+// Import leaderboard data from JSON file
+import leaderboardData from './assets/leaderboardData.json';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -71,20 +76,50 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// FIXED LEADERBOARD DATA - This will not change on refresh
-const FIXED_LEADERBOARD_DATA = [
-  { rank: 1, username: "AlexJohnson42", fullName: "Alex Johnson", country: "USA", score: 1580, progress: 95, improvement: "+25" },
-  { rank: 2, username: "TaylorSmith7", fullName: "Taylor Smith", country: "Canada", score: 1565, progress: 93, improvement: "+18" },
-  { rank: 3, username: "MorganLee23", fullName: "Morgan Lee", country: "UK", score: 1550, progress: 91, improvement: "+32" },
-  { rank: 4, username: "CaseyBrown89", fullName: "Casey Brown", country: "Australia", score: 1540, progress: 89, improvement: "+12" },
-  { rank: 5, username: "RileyWilliams31", fullName: "Riley Williams", country: "USA", score: 1535, progress: 88, improvement: "+8" },
-  { rank: 6, username: "QuinnDavis56", fullName: "Quinn Davis", country: "India", score: 1525, progress: 87, improvement: "-5" },
-  { rank: 7, username: "DakotaMiller12", fullName: "Dakota Miller", country: "Germany", score: 1515, progress: 85, improvement: "+15" },
-  { rank: 8, username: "SkylerRodriguez78", fullName: "Skyler Rodriguez", country: "France", score: 1505, progress: 84, improvement: "+22" },
-  { rank: 9, username: "AveryMartinez34", fullName: "Avery Martinez", country: "Japan", score: 1495, progress: 83, improvement: "+10" },
-  { rank: 10, username: "CameronGarcia91", fullName: "Cameron Garcia", country: "South Korea", score: 1485, progress: 81, improvement: "+5" }
+// SEO Component for Home Page
+const HomePageSEO = () => (
+  <Helmet>
+    <title>Free Digital SAT Prep 2026 | AI-Powered Mock Exams & Study Plans</title>
+    <meta name="description" content="Prepare for the Digital SAT 2026 with free AI-powered mock exams, personalized study roadmaps, Ivy League score guides, and interactive SAT practice tests. Boost your SAT score today." />
+    <meta name="keywords" content="Digital SAT prep 2026, SAT mock exams, free SAT practice tests, SAT study plan, SAT roadmap, SAT courses, SAT score improvement, Ivy League SAT scores" />
+    <meta name="author" content="Mock SAT Exam" />
+    <meta property="og:title" content="Free Digital SAT Prep 2026 | AI-Powered Mock Exams & Study Plans" />
+    <meta property="og:description" content="Master the Digital SAT 2026 with AI-powered mock tests, personalized roadmaps, and expert SAT strategies. Start your free SAT prep today." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mocksatexam.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Free Digital SAT Prep 2026" />
+    <meta name="twitter:description" content="AI-powered SAT prep with mock exams, study roadmaps, and score improvement strategies." />
+    <link rel="canonical" href="https://mocksatexam.com/" />
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Mock SAT Exam",
+        "description": "Free Digital SAT preparation platform with AI-powered mock tests and study plans",
+        "url": "https://mocksatexam.com/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      })}
+    </script>
+  </Helmet>
+);
 
-];
+// SEO Component for Blog Pages
+const BlogSEO = ({ title, description, slug }) => (
+  <Helmet>
+    <title>{title} | Mock SAT Exam</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content="SAT blog, SAT tips, SAT strategies, Digital SAT 2026, SAT preparation" />
+    <link rel="canonical" href={`https://mocksatexam.com/blog/${slug}`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="article" />
+  </Helmet>
+);
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -104,8 +139,12 @@ function HomePage() {
   
   // Leaderboard state
   const [showLeaderboard, setShowLeaderboard] = useState(false)
-  const [leaderboardData, setLeaderboardData] = useState(FIXED_LEADERBOARD_DATA)
+  const [leaderboardState, setLeaderboardState] = useState(leaderboardData)
   const [userRank, setUserRank] = useState(25) // Fixed user rank
+
+  // Notification states
+  const [showCompetitionNotification, setShowCompetitionNotification] = useState(false)
+  const [showReminderNotification, setShowReminderNotification] = useState(false)
 
   // Use navigate for routing
   const navigate = useNavigate()
@@ -151,8 +190,8 @@ function HomePage() {
     setBlogPosts(mockBlogPosts)
     setIsLoading(false)
 
-    // Always use fixed leaderboard data
-    setLeaderboardData(FIXED_LEADERBOARD_DATA)
+    // Always use imported leaderboard data from JSON
+    setLeaderboardState(leaderboardData)
     setUserRank(25)
 
     // Countdown timer setup
@@ -197,7 +236,7 @@ function HomePage() {
 
   // Load fixed leaderboard data (no generation needed)
   const loadFixedLeaderboardData = () => {
-    setLeaderboardData(FIXED_LEADERBOARD_DATA)
+    setLeaderboardState(leaderboardData)
     setUserRank(25)
   }
 
@@ -214,7 +253,10 @@ function HomePage() {
 
   // Function to navigate to StudyPlan
   const handleStartMockTest = () => {
-    navigate('/study-plan')
+    navigate('/digital-sat-practice-questions')
+  }
+   const handleRoadmap = () => {
+    navigate('/roadmap')
   }
 
   // Handle Account button click
@@ -242,6 +284,24 @@ function HomePage() {
     loadFixedLeaderboardData();
   }
 
+  // Handle Join Competition button click
+  const handleJoinCompetition = () => {
+    setShowCompetitionNotification(true);
+    // Hide notification after 5 seconds
+    setTimeout(() => {
+      setShowCompetitionNotification(false);
+    }, 5000);
+  }
+
+  // Handle Set Reminder button click
+  const handleSetReminder = () => {
+    setShowReminderNotification(true);
+    // Hide notification after 5 seconds
+    setTimeout(() => {
+      setShowReminderNotification(false);
+    }, 5000);
+  }
+
   // Get medal icon based on rank
   const getRankIcon = (rank) => {
     switch(rank) {
@@ -264,31 +324,27 @@ function HomePage() {
 
   return (
     <div className="app sat-app">
-      {/* Navigation */}
+      <HomePageSEO />
       <nav className="navbar sat-navbar">
         <div className="nav-container">
-          {/* Logo on leftmost side */}
           <div className="logo sat-logo">
-            <img src="/logo.png" alt="Logo" className="logo-img" />
+            <img src="/logo.png" alt="Mock SAT Exam Logo - Free Digital SAT Prep Platform" className="logo-img" />
             <span className="logo-text">Mock SAT Exam</span>
           </div>
           
           {/* Navigation links and Account button on rightmost side */}
           <div className="nav-links sat-nav-links">
             
-            <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
+            <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link" aria-label="SAT Study Roadmap">
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link" aria-label="SAT Mock Practice Tests">
               Mocks
             </Link>
-            <Link to="/courses" className="nav-link sat-nav-link courses-link">
+            <Link to="/courses" className="nav-link sat-nav-link courses-link" aria-label="Free SAT Courses">
               Courses
             </Link>
-            <Link to="/game" className="nav-link sat-nav-link game-link">
-              Game
-            </Link>
-            <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
+            <Link to="/blogs" className="nav-link sat-nav-link blogs-link" aria-label="SAT Blog Articles">
               Blogs
             </Link>
             
@@ -296,37 +352,48 @@ function HomePage() {
             <button 
               onClick={handleAccountClick}
               className="nav-link sat-nav-link community-link account-button"
+              aria-label={isLoggedIn ? "View SAT Profile" : "SAT Account Login"}
             >
               {isLoggedIn ? 'Profile' : 'Account'}
             </button>
           </div>
           
           {/* Mobile menu toggle */}
-          <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button 
+            className="menu-toggle" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Open SAT navigation menu"
+          >
             ☰
           </button>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero-section sat-hero">
+      {/* Hero Section - MAIN H1 TAG */}
+      <section className="hero-section sat-hero" role="banner">
         <div className="hero-overlay sat-hero-overlay"></div>
         <div className="hero-content">
           <h1 className="hero-title sat-hero-title">
-            AI - Powered SAT Prep Made Simple.
+            Boost 2026 Digital SAT Score : AI-Roadmaps
           </h1>
+          
+          {/* OPTIMIZED Subtitle to catch "Mock Tests" and "Free" traffic */}
           <p className="hero-subtitle sat-hero-subtitle">
-            From instant AI Tutor support to your personalized AI Roadmap, prep smarter and score higher.
+            Start with a Free Full-Length Mock Test, get an instant score prediction, and let our AI tutor build your custom path to 1500+
           </p>
           <div className="hero-buttons">
             <button 
               className="hero-btn primary sat-hero-btn"
               onClick={handleStartMockTest}
+              aria-label="Start Free SAT Mock Test"
             >
               Start a Mock Test
             </button>
-            <button className="hero-btn secondary sat-hero-btn-secondary" onClick={handleStartMockTest}>
-              
+            <button 
+              className="hero-btn secondary sat-hero-btn-secondary" 
+              onClick={handleRoadmap}
+              aria-label="View SAT Study Plans"
+            >
               View Study Plans
             </button>
           </div>
@@ -334,112 +401,130 @@ function HomePage() {
       </section>
 
       {/* Key Features Section */}
-      <section className="features-section sat-features">
-        <h2 className="features-title sat-features-title">Why Choose Mock SAT Exam?</h2>
+      <section className="features-section sat-features" aria-labelledby="features-title">
+        <h2 id="features-title" className="features-title sat-features-title">Why Choose Mock SAT Exam?</h2>
         <p className="features-subtitle sat-features-subtitle">
-          Our proven approach helps students achieve their target scores
+          Our proven approach helps students achieve their target SAT scores
         </p>
         
         <div className="features-grid sat-features-grid">
-          <div className="feature-card sat-feature-card">
+          <div className="feature-card sat-feature-card" itemScope itemType="https://schema.org/Service">
             <div className="sat-feature-icon-circle">
-              <AssignmentIcon />
+              <AssignmentIcon aria-hidden="true" />
             </div>
-            <h3>Full-Length Mock Tests</h3>
-            <p>Simulate real SAT exam conditions with timed, realistic tests that mirror the actual testing experience</p>
+            <h3 itemProp="name">Full-Length Mock Tests</h3>
+            <p itemProp="description">Simulate real SAT exam conditions with timed, realistic tests that mirror the actual Digital SAT testing experience</p>
           </div>
           
-          <div className="feature-card sat-feature-card">
+          <div className="feature-card sat-feature-card" itemScope itemType="https://schema.org/Service">
             <div className="sat-feature-icon-circle">
-              <TimelineIcon />
+              <TimelineIcon aria-hidden="true" />
             </div>
-            <h3>Personalized Roadmaps</h3>
-            <p>Free Courses and custom learning paths based on your strengths and weaknesses to maximize your study efficiency</p>
+            <h3 itemProp="name">Personalized Roadmaps</h3>
+            <p itemProp="description">Free Courses and custom learning paths based on your strengths and weaknesses to maximize your SAT study efficiency</p>
           </div>
           
-          <div className="feature-card sat-feature-card">
+          <div className="feature-card sat-feature-card" itemScope itemType="https://schema.org/Service">
             <div className="sat-feature-icon-circle">
-              <PsychologyIcon />
+              <PsychologyIcon aria-hidden="true" />
             </div>
-            <h3>AI Tutor Guidance</h3>
-            <p>Targeted practice for Math, Reading, and Writing sections with AI Tutor for guidance</p>
+            <h3 itemProp="name">AI Tutor Guidance</h3>
+            <p itemProp="description">Targeted practice for Math, Reading, and Writing sections with AI Tutor for personalized SAT guidance</p>
           </div>
           
-          <div className="feature-card sat-feature-card">
+          <div className="feature-card sat-feature-card" itemScope itemType="https://schema.org/Service">
             <div className="sat-feature-icon-circle">
-              <AnalyticsIcon />
+              <AnalyticsIcon aria-hidden="true" />
             </div>
-            <h3>Performance Analytics</h3>
-            <p>Track progress, accuracy, speed, and improvement trends with comprehensive dashboards</p>
+            <h3 itemProp="name">Performance Analytics</h3>
+            <p itemProp="description">Track SAT progress, accuracy, speed, and improvement trends with comprehensive dashboards</p>
           </div>
         </div>
       </section>
 
       {/* UPDATED: Blog Section - Static Grid for Desktop, Stacked for Mobile */}
-      <section className="blog-section">
+      <section className="blog-section" aria-labelledby="blog-title">
         <div className="blog-container">
           <div className="blog-header">
-            <h2>Latest Blog Posts</h2>
-            <p>Stay updated with the latest SAT prep tips and strategies</p>
+            <h2 id="blog-title">Latest SAT Blog Posts</h2>
+            <p>Stay updated with the latest Digital SAT prep tips and strategies for 2026</p>
           </div>
           
           {isLoading ? (
-            <div className="loading-spinner">Loading...</div>
+            <div className="loading-spinner" role="status" aria-label="Loading blog posts">Loading...</div>
           ) : (
             <>
               {/* DESKTOP: Static Grid (3 posts side by side) */}
-              <div className="blog-grid-desktop">
+              <div className="blog-grid-desktop" role="list">
                 {blogPosts.map((post) => (
-                  <div className="blog-card" key={post.id}>
+                  <article 
+                    className="blog-card" 
+                    key={post.id} 
+                    role="listitem"
+                    itemScope 
+                    itemType="https://schema.org/Article"
+                  >
                     <div 
                       className="blog-card-image"
                       style={{ backgroundImage: `url(${post.image})` }}
+                      role="img"
+                      aria-label={`Featured image for ${post.title}`}
                     ></div>
                     <div className="blog-card-content">
-                      <h3 className="blog-card-title">{post.title}</h3>
-                      <p className="blog-card-desc">{post.description}</p>
+                      <h3 className="blog-card-title" itemProp="headline">{post.title}</h3>
+                      <p className="blog-card-desc" itemProp="description">{post.description}</p>
                       <div className="blog-card-meta">
-                        <span className="blog-card-date">
-                          <CalendarTodayIcon style={{ fontSize: '16px' }} />
+                        <time className="blog-card-date" itemProp="datePublished" dateTime={post.date}>
+                          <CalendarTodayIcon style={{ fontSize: '16px' }} aria-hidden="true" />
                           {formatDate(post.date)}
-                        </span>
+                        </time>
                         <button 
                           onClick={() => handleReadMore(post.slug)}
                           className="blog-card-read-more"
+                          aria-label={`Read more about ${post.title}`}
                         >
-                          Read More <ArrowForwardIcon style={{ fontSize: '16px' }} />
+                          Read More <ArrowForwardIcon style={{ fontSize: '16px' }} aria-hidden="true" />
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
               
               {/* MOBILE: Stacked Layout (2 posts one above the other) */}
-              <div className="blog-mobile-stack">
+              <div className="blog-mobile-stack" role="list">
                 {blogPosts.slice(0, 2).map((post) => (
-                  <div className="blog-card" key={post.id}>
+                  <article 
+                    className="blog-card" 
+                    key={post.id} 
+                    role="listitem"
+                    itemScope 
+                    itemType="https://schema.org/Article"
+                  >
                     <div 
                       className="blog-card-image"
                       style={{ backgroundImage: `url(${post.image})` }}
+                      role="img"
+                      aria-label={`Featured image for ${post.title}`}
                     ></div>
                     <div className="blog-card-content">
-                      <h3 className="blog-card-title">{post.title}</h3>
-                      <p className="blog-card-desc">{post.description}</p>
+                      <h3 className="blog-card-title" itemProp="headline">{post.title}</h3>
+                      <p className="blog-card-desc" itemProp="description">{post.description}</p>
                       <div className="blog-card-meta">
-                        <span className="blog-card-date">
-                          <CalendarTodayIcon style={{ fontSize: '16px' }} />
+                        <time className="blog-card-date" itemProp="datePublished" dateTime={post.date}>
+                          <CalendarTodayIcon style={{ fontSize: '16px' }} aria-hidden="true" />
                           {formatDate(post.date)}
-                        </span>
+                        </time>
                         <button 
                           onClick={() => handleReadMore(post.slug)}
                           className="blog-card-read-more"
+                          aria-label={`Read more about ${post.title}`}
                         >
-                          Read More <ArrowForwardIcon style={{ fontSize: '16px' }} />
+                          Read More <ArrowForwardIcon style={{ fontSize: '16px' }} aria-hidden="true" />
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
               
@@ -447,8 +532,9 @@ function HomePage() {
                 <button 
                   className="blog-view-all-btn"
                   onClick={handleViewAllBlogs}
+                  aria-label="View all SAT blog posts"
                 >
-                  View All Blog Posts <ArrowForwardIcon style={{ fontSize: '20px' }} />
+                  View All Blog Posts <ArrowForwardIcon style={{ fontSize: '20px' }} aria-hidden="true" />
                 </button>
               </div>
             </>
@@ -456,32 +542,31 @@ function HomePage() {
         </div>
       </section>
 
-      {/* UPDATED RANKING SECTION WITH LEADERBOARD */}
-      <section className="ranking-section sat-ranking">
-        
+      {/* UPDATED RANKING SECTION WITH LEADERBOARD AND NOTIFICATIONS */}
+      <section className="ranking-section sat-ranking" aria-labelledby="ranking-title">
         <div className="ranking-content">
           {/* Left Column: Competition Info */}
           <div className="ranking-left">
             <div className="ranking-header-compact">
-              <h2>Global Ranking Test</h2>
-              <p className="ranking-subtitle">Compete with students worldwide and climb the leaderboard</p>
+              <h2 id="ranking-title">Global SAT Ranking Test</h2>
+              <p className="ranking-subtitle">Compete with students worldwide and climb the SAT leaderboard</p>
             </div>
             
             <div className="ranking-details-grid">
               <div className="detail-item-compact">
-                <span className="detail-icon-compact">⏱️</span>
+                <span className="detail-icon-compact" aria-hidden="true">⏱️</span>
                 <span className="detail-text-compact">60 Min Duration</span>
               </div>
               <div className="detail-item-compact">
-                <span className="detail-icon-compact">📋</span>
+                <span className="detail-icon-compact" aria-hidden="true">📋</span>
                 <span className="detail-text-compact">30 MCQs</span>
               </div>
               <div className="detail-item-compact">
-                <span className="detail-icon-compact">🎯</span>
+                <span className="detail-icon-compact" aria-hidden="true">🎯</span>
                 <span className="detail-text-compact">Intermediate+ Level</span>
               </div>
               <div className="detail-item-compact">
-                <span className="detail-icon-compact">📅</span>
+                <span className="detail-icon-compact" aria-hidden="true">📅</span>
                 <span className="detail-text-compact">Weekly Saturday</span>
               </div>
             </div>
@@ -489,7 +574,7 @@ function HomePage() {
             <div className="ranking-stats-compact">
               <div className="stat-item-compact">
                 <div className="stat-value-compact">2.8K+</div>
-                <div className="stat-label-compact">Participants</div>
+                <div className="stat-label-compact">SAT Participants</div>
               </div>
               <div className="stat-item-compact">
                 <div className="stat-value-compact">Top 50</div>
@@ -502,12 +587,17 @@ function HomePage() {
             </div>
             
             <div className="ranking-actions">
-              <button className="ranking-cta-compact ranking-cta-primary">
+              <button 
+                className="ranking-cta-compact ranking-cta-primary"
+                onClick={handleJoinCompetition}
+                aria-label="Join SAT Global Competition"
+              >
                 Join Competition →
               </button>
               <button 
                 className="ranking-cta-compact ranking-cta-secondary"
                 onClick={handleViewLeaderboard}
+                aria-label="View SAT Leaderboard"
               >
                 {showLeaderboard ? 'Hide Leaderboard' : 'View Leaderboard'}
               </button>
@@ -519,24 +609,24 @@ function HomePage() {
             {rankingCountdown.eventLive ? (
               <div className="countdown-live-compact">
                 <div className="live-badge-compact">
-                  <span>🔥</span>
+                  <span aria-hidden="true">🔥</span>
                   <span>LIVE NOW • JOIN BEFORE IT ENDS</span>
                 </div>
-                <h3 className="live-title">Ranking Test is Live!</h3>
-                <p className="live-subtitle">Compete in real-time with students worldwide</p>
+                <h3 className="live-title">SAT Ranking Test is Live!</h3>
+                <p className="live-subtitle">Compete in real-time with students worldwide on the Digital SAT</p>
                 <div className="live-timer-compact">
-                  <span>⏰</span>
+                  <span aria-hidden="true">⏰</span>
                   <span>Ends in {rankingCountdown.hours}h {rankingCountdown.minutes}m</span>
                 </div>
                 <button className="ranking-cta-compact ranking-cta-primary" style={{ marginTop: '1.5rem' }}>
-                  Join Live Test Now →
+                  Join Live SAT Test Now →
                 </button>
               </div>
             ) : (
               <div className="countdown-compact">
                 <div className="countdown-header">
-                  <div className="countdown-label-compact">NEXT TEST STARTS IN</div>
-                  <h3 className="countdown-title">Global Ranking #42</h3>
+                  <div className="countdown-label-compact">NEXT SAT TEST STARTS IN</div>
+                  <h3 className="countdown-title">Global SAT Ranking #42</h3>
                   <p className="countdown-schedule">Every Saturday • 8:00 AM (EST)</p>
                 </div>
                 
@@ -568,17 +658,21 @@ function HomePage() {
                 </div>
                 
                 <div className="timer-separators">
-                  <div className="timer-dot"></div>
-                  <div className="timer-dot"></div>
-                  <div className="timer-dot"></div>
+                  <div className="timer-dot" aria-hidden="true"></div>
+                  <div className="timer-dot" aria-hidden="true"></div>
+                  <div className="timer-dot" aria-hidden="true"></div>
                 </div>
                 
                 <div style={{ textAlign: 'center', marginTop: 'auto' }}>
                   <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-                    Next test in 2 weeks
+                    Next SAT test in 2 weeks
                   </p>
-                  <button className="ranking-cta-compact ranking-cta-secondary" style={{ width: '100%' }}>
-                    ⏰ Set Reminder
+                  <button 
+                    className="ranking-cta-compact ranking-cta-secondary" 
+                    style={{ width: '100%' }}
+                    onClick={handleSetReminder}
+                  >
+                    ⏰ Set SAT Reminder
                   </button>
                 </div>
               </div>
@@ -586,12 +680,46 @@ function HomePage() {
           </div>
         </div>
         
+        {/* COMPETITION NOTIFICATION */}
+        {showCompetitionNotification && (
+          <div className="notification competition-notification">
+            <div className="notification-content">
+              <span className="notification-icon">📢</span>
+              <span className="notification-text">Competition hasn't started yet. Please check back on Saturday at 8:00 AM EST.</span>
+              <button 
+                className="notification-close" 
+                onClick={() => setShowCompetitionNotification(false)}
+                aria-label="Close notification"
+              >
+                <FaTimes />
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* REMINDER NOTIFICATION */}
+        {showReminderNotification && (
+          <div className="notification reminder-notification">
+            <div className="notification-content">
+              <span className="notification-icon">✅</span>
+              <span className="notification-text">Reminder set! You'll be notified when the SAT competition starts.</span>
+              <button 
+                className="notification-close" 
+                onClick={() => setShowReminderNotification(false)}
+                aria-label="Close notification"
+              >
+                <FaTimes />
+              </button>
+            </div>
+          </div>
+        )}
+        
         {/* LEADERBOARD SECTION */}
         {showLeaderboard && (
           <div className="leaderboard-container">
             <div className="leaderboard-header">
-              <h3><FaTrophy /> Global SAT Leaderboard</h3>
-              <p className="leaderboard-subtitle">Top 20 performers from Global Ranking Test #41</p>
+              <h3><FaTrophy aria-hidden="true" /> Global SAT Leaderboard</h3>
+              <p className="leaderboard-subtitle">Top 20 performers from Global SAT Ranking Test #41</p>
             </div>
             
             <div className="leaderboard-table-container">
@@ -606,7 +734,7 @@ function HomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {leaderboardData.map((student) => (
+                  {leaderboardState.map((student) => (
                     <tr key={student.rank} className={student.rank <= 3 ? 'top-three' : ''}>
                       <td className="rank-cell">
                         <div className="rank-display">
@@ -616,13 +744,13 @@ function HomePage() {
                       <td className="user-cell">
                         <div className="user-info">
                           <div className="user-avatar">
-                            <FaUserCircle />
+                            <FaUserCircle aria-hidden="true" />
                           </div>
                           <div className="user-details">
                             <div className="user-name">{student.fullName}</div>
                             <div className="user-username">@{student.username}</div>
                             <div className="user-country">
-                              <span className="country-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> {student.country}
+                              <span className="country-flag" aria-hidden="true">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> {student.country}
                             </div>
                           </div>
                         </div>
@@ -658,17 +786,15 @@ function HomePage() {
               </table>
             </div>
             
-            
-            
             <div className="leaderboard-footer">
               <div className="leaderboard-stats">
                 <div className="stat">
                   <div className="stat-value">2,847</div>
-                  <div className="stat-label">Total Participants</div>
+                  <div className="stat-label">Total SAT Participants</div>
                 </div>
                 <div className="stat">
                   <div className="stat-value">1,420</div>
-                  <div className="stat-label">Average Score</div>
+                  <div className="stat-label">Average SAT Score</div>
                 </div>
                 <div className="stat">
                   <div className="stat-value">72</div>
@@ -681,50 +807,72 @@ function HomePage() {
       </section>
 
       {/* Quick Navigation */}
-      <section className="quick-nav-section sat-quick-nav">
-        <h2>Quick Navigation</h2>
-        <p>Access key features in one click</p>
+      <section className="quick-nav-section sat-quick-nav" aria-labelledby="quick-nav-title">
+        <h2 id="quick-nav-title">Quick SAT Navigation</h2>
+        <p>Access key SAT prep features in one click</p>
         
         <div className="quick-nav-grid">
-          <div className="nav-tile sat-nav-tile">
+          {/* SAT Practice Questions - Links to Practice Questions */}
+          <div 
+            className="nav-tile sat-nav-tile" 
+            role="button" 
+            tabIndex="0"
+            onClick={() => navigate('/digital-sat-practice-questions')}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="nav-tile-icon">
-              <FaPenAlt className="icon" />
+              <FaPenAlt className="icon" aria-hidden="true" />
             </div>
-            <div className="nav-tile-label">Practice Questions</div>
+            <div className="nav-tile-label">SAT Practice Questions</div>
           </div>
           
-          <div className="nav-tile sat-nav-tile">
+          {/* SAT RoadMap - Links to Roadmap */}
+          <div 
+            className="nav-tile sat-nav-tile" 
+            role="button" 
+            tabIndex="0"
+            onClick={() => navigate('/roadmap')}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="nav-tile-icon">
-              <FaChartBar className="icon" />
+              <FaChartBar className="icon" aria-hidden="true" />
             </div>
-            <div className="nav-tile-label">Mock Exams</div>
+            <div className="nav-tile-label">SAT RoadMap</div>
           </div>
           
-          
-          <div className="nav-tile sat-nav-tile">
+          {/* SAT Courses - Links to Courses */}
+          <div 
+            className="nav-tile sat-nav-tile" 
+            role="button" 
+            tabIndex="0"
+            onClick={() => navigate('/courses')}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="nav-tile-icon">
-              <FaGamepad className="icon" />
+              <FaPlayCircle className="icon" aria-hidden="true" />
             </div>
-            <div className="nav-tile-label">SAT Game</div>
+            <div className="nav-tile-label">SAT Courses</div>
           </div>
         </div>
       </section>
 
       {/* Progress Tracker */}
-      <section className="progress-section sat-progress">
-        <h2>Track Your Progress</h2>
-        <p>Sign up to unlock personalized study plans, progress tracking, and score analytics</p>
+      <section className="progress-section sat-progress" aria-labelledby="progress-title">
+        <h2 id="progress-title">Track Your SAT Progress</h2>
+        <p>Sign up to unlock personalized SAT study plans, progress tracking, and score analytics</p>
         <div className="progress-buttons">
           <button 
             className="progress-btn sat-progress-btn"
             onClick={() => navigate(isLoggedIn ? '/profile' : '/signup')}
+            aria-label={isLoggedIn ? "Go to SAT Profile" : "Create SAT Prep Account"}
           >
-            {isLoggedIn ? 'Go to Profile' : 'Create Account'}
+            {isLoggedIn ? 'Go to Profile' : 'Create SAT Account'}
           </button>
           {!isLoggedIn && (
             <button 
               className="progress-btn-secondary"
               onClick={() => navigate('/login')}
+              aria-label="Login to SAT Account"
             >
               Already have an account? Log in
             </button>
@@ -733,26 +881,26 @@ function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="testimonials-section sat-testimonials">
-        <h2>Success Stories</h2>
-        <p>Hear from students who achieved their dream scores</p>
+      <section className="testimonials-section sat-testimonials" aria-labelledby="testimonials-title">
+        <h2 id="testimonials-title">SAT Success Stories</h2>
+        <p>Hear from students who achieved their dream SAT scores</p>
         
         <div className="testimonials-grid">
-          <div className="testimonial-card sat-testimonial-card">
-            <div className="testimonial-quote">"SAT Prep Pro helped me increase my score by 250 points! The mock tests were incredibly realistic."</div>
-            <div className="testimonial-author">Emily R.</div>
+          <div className="testimonial-card sat-testimonial-card" itemScope itemType="https://schema.org/Review">
+            <div className="testimonial-quote" itemProp="reviewBody">"SAT Prep Pro helped me increase my score by 250 points! The mock tests were incredibly realistic for the Digital SAT."</div>
+            <div className="testimonial-author" itemProp="author">Emily R.</div>
             <div className="testimonial-score">Scored: 1550</div>
           </div>
           
-          <div className="testimonial-card sat-testimonial-card">
-            <div className="testimonial-quote">"The personalized study plan identified my weak areas and helped me focus my efforts efficiently."</div>
-            <div className="testimonial-author">Michael T.</div>
+          <div className="testimonial-card sat-testimonial-card" itemScope itemType="https://schema.org/Review">
+            <div className="testimonial-quote" itemProp="reviewBody">"The personalized SAT study plan identified my weak areas and helped me focus my efforts efficiently for the 2026 Digital SAT."</div>
+            <div className="testimonial-author" itemProp="author">Michael T.</div>
             <div className="testimonial-score">Scored: 1480</div>
           </div>
           
-          <div className="testimonial-card sat-testimonial-card">
-            <div className="testimonial-quote">"The expert strategies for time management completely changed how I approached the exam."</div>
-            <div className="testimonial-author">Sophia K.</div>
+          <div className="testimonial-card sat-testimonial-card" itemScope itemType="https://schema.org/Review">
+            <div className="testimonial-quote" itemProp="reviewBody">"The expert SAT strategies for time management completely changed how I approached the Digital SAT exam."</div>
+            <div className="testimonial-author" itemProp="author">Sophia K.</div>
             <div className="testimonial-score">Scored: 1520</div>
           </div>
         </div>
@@ -766,55 +914,61 @@ function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="footer sat-footer">
+      <footer className="footer sat-footer" role="contentinfo">
         <div className="footer-content">
           <div className="footer-columns">
             <div className="footer-column">
-              <h3>Company</h3>
-              <Link to="/info#company">About Us</Link>
-              <Link to="/info#company">Careers</Link>
-              <Link to="/info#company">Press</Link>
+              <h3>SAT Company</h3>
+              <Link to="/info#company">About SAT Prep</Link>
+              <Link to="/info#company">SAT Careers</Link>
+              <Link to="/info#company">SAT Press</Link>
             </div>
             
             <div className="footer-column">
-              <h3>Resources</h3>
-              <Link to="/info#resources">Pricing/Plans</Link>
-              <Link to="/info#resources">Study Materials</Link>
-              <Link to="/info#resources">FAQs</Link>
+              <h3>SAT Resources</h3>
+              <Link to="/info#resources">SAT Pricing/Plans</Link>
+              <Link to="/info#resources">SAT Study Materials</Link>
+              <Link to="/info#resources">SAT FAQs</Link>
             </div>
             
             <div className="footer-column">
-              <h3>Support</h3>
-              <Link to="/info#support">Contact Us</Link>
-              <Link to="/info#support">Help Center</Link>
-              <Link to="/info#support">System Status</Link>
+              <h3>SAT Support</h3>
+              <Link to="/info#support">Contact SAT Help</Link>
+              <Link to="/info#support">SAT Help Center</Link>
+              <Link to="/info#support">SAT System Status</Link>
             </div>
             
             <div className="footer-column">
-              <h3>Legal</h3>
-              <Link to="/info#legal">Privacy Policy</Link>
-              <Link to="/info#legal">Terms of Service</Link>
-              <Link to="/info#legal">Cookie Policy</Link>
+              <h3>SAT Legal</h3>
+              <Link to="/info#legal">SAT Privacy Policy</Link>
+              <Link to="/info#legal">SAT Terms of Service</Link>
+              <Link to="/info#legal">SAT Cookie Policy</Link>
             </div>
           </div>
 
           <div className="footer-divider"></div>
 
           <div className="footer-bottom">
-            <p>© 2025 SAT Prep Pro. All rights reserved.</p>
+            <p>© 2025 Mock SAT Exam. All rights reserved. Free Digital SAT Preparation Platform.</p>
           </div>
         </div>
       </footer>
 
-      
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="mobile-menu sat-mobile-menu">
+        <div className="mobile-menu sat-mobile-menu" role="dialog" aria-label="SAT Navigation Menu">
           {/* ADD THIS HEADER SECTION WITH LOGO */}
           <div className="mobile-menu-header">
             <div className="mobile-menu-logo">
-              <img src="/logo.png" alt="Logo" className="mobile-logo-img" />
+              <img src="/logo.png" alt="Mock SAT Exam" className="mobile-logo-img" />
             </div>
-            <button className="close-menu" onClick={() => setIsMenuOpen(false)}>×</button>
+            <button 
+              className="close-menu" 
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Close SAT menu"
+            >
+              ×
+            </button>
           </div>
           
           <div className="mobile-menu-content">
@@ -827,13 +981,10 @@ function HomePage() {
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
-            
-            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Mocks
             </Link>
-            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Game
-            </Link>
+
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs
             </Link>
@@ -843,8 +994,9 @@ function HomePage() {
                 setIsMenuOpen(false);
               }}
               className="mobile-menu-link"
+              aria-label={isLoggedIn ? "SAT Profile" : "SAT Account Login"}
             >
-              {isLoggedIn ? 'Profile' : 'Account'}
+              {isLoggedIn ? 'SAT Profile' : 'SAT Account'}
             </button>
           </div>
         </div>
@@ -860,13 +1012,21 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/study-plan" element={<StudyPlan />} />
+          <Route path="/digital-sat-practice-questions" element={<StudyPlan />} /> 
           <Route path="/practice" element={<PracticePage />} />
+          {/* Practice routes - handle both /practice and direct topic URLs */}
+          <Route path="/practice" element={<PracticePage />} />
+          
+          {/* Catch-all route for topic-based practice URLs */}
+          <Route path="/math" element={<PracticePage />} />
+          <Route path="/reading-and-writing" element={<PracticePage />} />
+          <Route path="/:topicSlug" element={<PracticePage />} />
+          <Route path="/:subdomainSlug/:topicSlug" element={<PracticePage />} />
           <Route path="/courses" element={<CoursesScreen/>} />
           <Route path="/courses/:id" element={<CoursesPlaylistScreen />} />
           <Route path="/roadmap" element={ <Roadmap/>  }/>
           <Route path="/roadmap-level" element={ <RoadmapLevel/>  }/>
-          <Route path="/mock-practice" element={<StudyPlan/>} />
+          <Route path="/digital-sat-practice-questions" element={<StudyPlan/>} />
           <Route path="/mock-test/:mockTestId" element={<MockTestScreen />} />
           <Route path="/game" element={<Game/>} />
           <Route path="/info" element={<Info />} />

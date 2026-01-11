@@ -165,12 +165,12 @@ const SingleBlog = () => {
 
   // Handle navigation to StudyPlan
   const handleStartMockTest = () => {
-    navigate('/study-plan');
+    navigate('/digital-sat-practice-questions');
   };
 
   // Handle navigation to StudyPlan (changed from /practice)
   const handleSolveQuestions = () => {
-    navigate('/study-plan');
+    navigate('/digital-sat-practice-questions');
   };
 
   // Handle navigation to Roadmap
@@ -185,30 +185,31 @@ const SingleBlog = () => {
         {/* Navigation */}
         <nav className="navbar sat-navbar">
           <div className="nav-container">
-            <div className="logo sat-logo">
+            <div className="logo sat-logo"  onClick={(e) => {
+              e.stopPropagation();   // important!
+              navigate('/');
+            } }>
               <img src="/logo.png" alt="Logo" className="logo-img" />
               <span className="logo-text">Mock SAT Exam</span>
             </div>
             
             <div className="nav-links sat-nav-links">
+              <Link to="/" className="nav-link sat-nav-link community-link">
+                Home
+              </Link>
               <Link to="/courses" className="nav-link sat-nav-link courses-link">
                 Courses
               </Link>
               <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
                 RoadMap
               </Link>
-              <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+              <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
                 Mocks
-              </Link>
-              <Link to="/game" className="nav-link sat-nav-link game-link">
-                Game
               </Link>
               <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
                 Blogs
               </Link>
-              <Link to="/community" className="nav-link sat-nav-link community-link">
-                Community
-              </Link>
+              
               <button className="signin-btn sat-signin-btn">
                 Account
               </button>
@@ -259,24 +260,22 @@ const SingleBlog = () => {
             </div>
             
             <div className="nav-links sat-nav-links">
+              <Link to="/" className="nav-link sat-nav-link community-link">
+                Home
+              </Link>
               <Link to="/courses" className="nav-link sat-nav-link courses-link">
                 Courses
               </Link>
               <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
                 RoadMap
               </Link>
-              <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+              <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
                 Mocks
-              </Link>
-              <Link to="/game" className="nav-link sat-nav-link game-link">
-                Game
               </Link>
               <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
                 Blogs
               </Link>
-              <Link to="/community" className="nav-link sat-nav-link community-link">
-                Community
-              </Link>
+
               <button className="signin-btn sat-signin-btn">
                 Account
               </button>
@@ -385,24 +384,23 @@ const SingleBlog = () => {
           </div>
           
           <div className="nav-links sat-nav-links">
+            <Link to="/" className="nav-link sat-nav-link community-link">
+                Home
+              </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link">
               Courses
             </Link>
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
               Mocks
             </Link>
-            <Link to="/game" className="nav-link sat-nav-link game-link">
-              Game
-            </Link>
+
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
             </Link>
-            <Link to="/community" className="nav-link sat-nav-link community-link">
-              Community
-            </Link>
+
             <button className="signin-btn sat-signin-btn">
               Account
             </button>
@@ -618,12 +616,10 @@ const SingleBlog = () => {
             <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Community
             </Link>
-            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Mock Practice
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Mocks
             </Link>
-            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Game
-            </Link>
+
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs
             </Link>

@@ -242,11 +242,8 @@ const ProfileScreen = () => {
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
               Mocks
-            </Link>
-            <Link to="/game" className="nav-link sat-nav-link game-link">
-              Game
             </Link>
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
@@ -287,11 +284,8 @@ const ProfileScreen = () => {
             <Link to="/community" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Community
             </Link>
-            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Mock Practice
-            </Link>
-            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Game
             </Link>
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs
@@ -542,7 +536,7 @@ const ProfileScreen = () => {
               <div className="action-buttons">
                 <button 
                   className="quick-action-button"
-                  onClick={() => navigate('/mock-practice')}
+                  onClick={() => navigate('/digital-sat-practice-questions')}
                 >
                   <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

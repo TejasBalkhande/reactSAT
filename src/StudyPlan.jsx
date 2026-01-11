@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import './StudyPlan.css';
 import {
   FaChevronDown,
@@ -531,6 +531,16 @@ const StudyPlan = () => {
     }));
   };
 
+  // Helper function to convert text to URL-friendly slug
+  const toSlug = (text) => {
+    return text.toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
+      .trim();
+  };
+
+  // Updated startPractice function with URL routing logic
   const startPractice = () => {
     let anyTopicSelected = false;
 
@@ -552,10 +562,88 @@ const StudyPlan = () => {
 
     setShowSelectTopicWarning(false);
     
-    // Navigate to practice page with selected topics
-    navigate('/practice', { 
+    // Count selected topics and analyze selection pattern
+    let selectedTopicsList = [];
+    let selectedDomains = new Set();
+    let selectedSubdomains = new Set();
+    let selectedTopicsNames = new Set();
+
+    Object.keys(selectedTopics).forEach(domain => {
+      Object.keys(selectedTopics[domain] || {}).forEach(subdomain => {
+        Object.keys(selectedTopics[domain][subdomain] || {}).forEach(topic => {
+          if (selectedTopics[domain][subdomain][topic]) {
+            selectedTopicsList.push({ domain, subdomain, topic });
+            selectedDomains.add(domain);
+            selectedSubdomains.add(subdomain);
+            selectedTopicsNames.add(topic);
+          }
+        });
+      });
+    });
+
+    console.log('Selected items analysis:', {
+      count: selectedTopicsList.length,
+      domains: Array.from(selectedDomains),
+      subdomains: Array.from(selectedSubdomains),
+      topics: Array.from(selectedTopicsNames)
+    });
+
+    // Determine routing based on selection pattern
+    let routePath = '/practice'; // Default route for multiple selections
+    
+    if (selectedTopicsList.length === 1) {
+      // Single topic selected - FIXED: Include subdomain in URL
+      const { domain, subdomain, topic } = selectedTopicsList[0];
+      // Use subdomain/topic format instead of just topic
+      routePath = `/${toSlug(subdomain)}/${toSlug(topic)}`;
+      console.log('Single topic selected, routing to:', routePath);
+    } else if (selectedTopicsList.length > 1) {
+      // Check if all selected topics belong to the same subdomain
+      const firstSubdomain = selectedTopicsList[0].subdomain;
+      const allSameSubdomain = selectedTopicsList.every(item => item.subdomain === firstSubdomain);
+      
+      if (allSameSubdomain) {
+        // All topics from same subdomain
+        routePath = `/${toSlug(firstSubdomain)}`;
+        console.log('Single subdomain selected, routing to:', routePath);
+      } else {
+        // Check if all selected topics belong to the same domain
+        const firstDomain = selectedTopicsList[0].domain;
+        const allSameDomain = selectedTopicsList.every(item => item.domain === firstDomain);
+        
+        if (allSameDomain) {
+          // All topics from same domain
+          if (firstDomain === 'Math' || firstDomain === 'Reading and Writing') {
+            // Check if entire domain is selected
+            const totalTopicsInDomain = Object.keys(domainStructure[firstDomain] || {}).reduce((total, subdomain) => {
+              return total + Object.keys(domainStructure[firstDomain][subdomain] || {}).length;
+            }, 0);
+            
+            if (selectedTopicsList.length === totalTopicsInDomain) {
+              // Entire domain selected
+              routePath = `/${toSlug(firstDomain)}`;
+              console.log('Entire domain selected, routing to:', routePath);
+            } else {
+              // Multiple subdomains/topics from same domain but not entire domain
+              routePath = '/practice';
+              console.log('Multiple selections within same domain, using default route');
+            }
+          } else {
+            routePath = '/practice';
+          }
+        } else {
+          // Multiple different domains selected
+          routePath = '/practice';
+          console.log('Multiple domains selected, using default route');
+        }
+      }
+    }
+    
+    // Navigate to appropriate route with selected topics
+    navigate(routePath, { 
       state: { 
         selectedTopics,
+        fromStudyPlan: true
       } 
     });
   };
@@ -566,8 +654,12 @@ const StudyPlan = () => {
       return;
     }
     
+    // Convert the mock name to kebab-case for URL
+    // Example: "SAT Mock 1" -> "sat-mock-1"
+    const formattedMockName = mockName.toLowerCase().replace(/\s+/g, '-');
+    
     // Navigate to the mock test screen
-    navigate(`/mock-test/${mockName.toLowerCase()}`);
+    navigate(`/mock-test/${formattedMockName}`);
   };
 
   // Component rendering functions
@@ -580,19 +672,19 @@ const StudyPlan = () => {
     const IconComponent = icon === 'FaCalculator' ? FaCalculator : FaBookReader;
 
     return (
-      <div className="domain-card">
+      <div className="domain-card" itemScope itemType="https://schema.org/LearningResource">
         <div className="domain-card-header" style={{ backgroundColor: headerColor }}>
-          <div className="domain-card-icon" style={{ backgroundColor: iconBgColor }}>
+          <div className="domain-card-icon" style={{ backgroundColor: iconBgColor }} aria-hidden="true">
             <IconComponent style={{ color: primaryColor }} />
           </div>
-          <div className="domain-card-title">{domain}</div>
+          <div className="domain-card-title" itemProp="name">{domain} SAT Preparation</div>
           <div className="domain-checkbox">
             <input
               type="checkbox"
               checked={domainSelectionState[domain] || false}
               onChange={(e) => toggleDomainSelection(domain, e.target.checked)}
               className="tristate-checkbox"
-              aria-label={`Select all ${domain} topics`}
+              aria-label={`Select all ${domain} SAT topics`}
             />
           </div>
         </div>
@@ -614,7 +706,7 @@ const StudyPlan = () => {
     const isExpanded = subdomainExpanded[domain]?.[subdomain] || false;
 
     return (
-      <div className="subdomain-section">
+      <div className="subdomain-section" itemScope itemType="https://schema.org/EducationEvent">
         <div 
           className="subdomain-header"
           onClick={() => toggleSubdomainExpansion(domain, subdomain)}
@@ -635,11 +727,11 @@ const StudyPlan = () => {
               checked={subdomainSelectionState[domain]?.[subdomain] || false}
               onChange={(e) => toggleSubdomainSelection(domain, subdomain, e.target.checked)}
               className="tristate-checkbox"
-              aria-label={`Select all ${subdomain} topics`}
+              aria-label={`Select all ${subdomain} SAT topics`}
             />
           </div>
-          <div className="subdomain-title">{subdomain}</div>
-          <div className="subdomain-expand">
+          <div className="subdomain-title" itemProp="name">{subdomain}</div>
+          <div className="subdomain-expand" aria-hidden="true">
             {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
           </div>
         </div>
@@ -672,6 +764,7 @@ const StudyPlan = () => {
           backgroundColor: isSelected ? `${domainColor}10` : 'transparent',
           borderColor: isSelected ? `${domainColor}50` : 'transparent'
         }}
+        itemScope itemType="https://schema.org/CreativeWork"
       >
         <div className="topic-header">
           <div className="topic-checkbox">
@@ -679,12 +772,13 @@ const StudyPlan = () => {
               type="checkbox"
               checked={isSelected}
               onChange={() => toggleTopicSelection(domain, subdomain, topic)}
-              aria-label={`Select ${topic}`}
+              aria-label={`Select ${topic} for SAT practice`}
             />
           </div>
           <div 
             className="topic-title"
             style={{ color: isSelected ? domainColor : '#333' }}
+            itemProp="name"
           >
             {topic}
           </div>
@@ -693,17 +787,17 @@ const StudyPlan = () => {
             onClick={() => toggleTopicExpansion(domain, subdomain, topic)}
             style={{ backgroundColor: `${domainColor}20` }}
             aria-expanded={isExpanded}
-            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${topic} details`}
+            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${topic} SAT subtopics`}
           >
             {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
           </button>
         </div>
         {isExpanded && (
-          <div className="topic-content">
-            <div className="subtopics-label">Subtopics:</div>
+          <div className="topic-content" itemProp="description">
+            <div className="subtopics-label">SAT Subtopics:</div>
             {subtopics.map((subtopic, index) => (
               <div key={index} className="subtopic-item">
-                <div className="subtopic-bullet" style={{ backgroundColor: domainColor }} />
+                <div className="subtopic-bullet" style={{ backgroundColor: domainColor }} aria-hidden="true" />
                 <div className="subtopic-text">{subtopic}</div>
               </div>
             ))}
@@ -719,9 +813,10 @@ const StudyPlan = () => {
         <button 
           className="premium-mock-test-btn"
           onClick={() => handleMockTestSelected(label, true)}
-          aria-label={`Take ${label} premium mock test`}
+          aria-label={`Take ${label} premium SAT mock test`}
+          itemScope itemType="https://schema.org/Action"
         >
-          {label} <FaLock />
+          {label} <FaLock aria-hidden="true" />
         </button>
       );
     }
@@ -730,7 +825,8 @@ const StudyPlan = () => {
       <button 
         className="free-mock-test-btn"
         onClick={() => handleMockTestSelected(label, false)}
-        aria-label={`Take ${label} free mock test`}
+        aria-label={`Take ${label} free SAT mock test`}
+        itemScope itemType="https://schema.org/Action"
       >
         {label}
       </button>
@@ -739,7 +835,7 @@ const StudyPlan = () => {
 
   const TimeUnit = ({ value, label }) => (
     <div className="time-unit">
-      <div className="time-value">{value.toString().padStart(2, '0')}</div>
+      <div className="time-value" aria-label={`${value} ${label}`}>{value.toString().padStart(2, '0')}</div>
       <div className="time-label">{label}</div>
     </div>
   );
@@ -758,22 +854,24 @@ const StudyPlan = () => {
     };
 
     return (
-      <div className="countdown-section">
-        <h2>Upcoming Mock Test</h2>
-        <p>Practice with a full-length test under timed conditions</p>
-        <div className="countdown-label">TEST STARTS IN</div>
-        <div className="countdown-timer">
+      <div className="countdown-section" itemScope itemType="https://schema.org/Event">
+        <h2>Upcoming SAT Mock Test</h2>
+        <p>Practice with a full-length Digital SAT test under timed conditions</p>
+        <div className="countdown-label">SAT TEST STARTS IN</div>
+        <div className="countdown-timer" aria-live="polite" aria-atomic="true">
           <TimeUnit value={countdown.days} label="Days" />
-          <div className="time-separator">:</div>
+          <div className="time-separator" aria-hidden="true">:</div>
           <TimeUnit value={countdown.hours} label="Hours" />
-          <div className="time-separator">:</div>
+          <div className="time-separator" aria-hidden="true">:</div>
           <TimeUnit value={countdown.minutes} label="Mins" />
-          <div className="time-separator">:</div>
+          <div className="time-separator" aria-hidden="true">:</div>
           <TimeUnit value={countdown.seconds} label="Secs" />
         </div>
         <div className="countdown-date">
-          <FaCalendarAlt />
-          <span>{formatDate(countdown.nextEvent)}</span>
+          <FaCalendarAlt aria-hidden="true" />
+          <span itemProp="startDate" content={countdown.nextEvent?.toISOString()}>
+            {formatDate(countdown.nextEvent)}
+          </span>
         </div>
       </div>
     );
@@ -781,93 +879,252 @@ const StudyPlan = () => {
 
   // Generate JSON-LD structured data for SEO
   const generateStructuredData = () => {
+    const baseUrl = window.location.origin;
+    
     const structuredData = {
       "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": "SAT Study Plan | Targeted Practice with AI Tutor",
-      "description": "Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests and track your progress with our AI-powered tutoring system.",
-      "url": window.location.href,
-      "mainEntity": {
-        "@type": "WebApplication",
-        "name": "Mock SAT Exam Study Planner",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Web",
-        "description": "Interactive SAT study plan tool with topic selection and mock tests",
-        "offers": {
-          "@type": "Offer",
-          "category": "Free",
-          "availability": "https://schema.org/InStock"
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": `${baseUrl}/digital-sat-practice-questions`,
+          "name": "SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam",
+          "description": "Select specific SAT domains and topics to focus on your weak areas. Practice with full-length Digital SAT mock tests and track your progress with our AI-powered tutoring system.",
+          "url": `${baseUrl}/digital-sat-practice-questions`,
+          "mainEntityOfPage": {
+            "@type": "WebApplication",
+            "name": "Mock SAT Exam Study Planner",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web",
+            "description": "Interactive Digital SAT study plan tool with topic selection and mock tests for SAT 2026 preparation",
+            "offers": {
+              "@type": "Offer",
+              "category": "Free",
+              "availability": "https://schema.org/InStock"
+            }
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": `${baseUrl}/`
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "SAT Study Plan",
+              "item": `${baseUrl}/digital-sat-practice-questions`
+            }
+          ]
+        },
+        {
+          "@type": "EducationEvent",
+          "name": "Weekly SAT Mock Test",
+          "description": "Full-length Digital SAT practice test with timer and scoring",
+          "startDate": countdown.nextEvent?.toISOString(),
+          "endDate": countdown.nextEvent ? new Date(countdown.nextEvent.getTime() + 180 * 60000).toISOString() : null,
+          "eventStatus": "https://schema.org/EventScheduled",
+          "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+          "location": {
+            "@type": "VirtualLocation",
+            "url": `${baseUrl}/mock-test`
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          }
         }
-      }
+      ]
     };
 
     return JSON.stringify(structuredData);
+  };
+
+  // Generate FAQ structured data
+  const generateFAQStructuredData = () => {
+    const faqData = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does the SAT study plan work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our SAT study plan allows you to select specific domains (Math, Reading & Writing) and topics within each domain. You can choose individual topics, subdomains, or entire domains to focus your practice. The system then generates targeted practice questions based on your selections."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are the mock tests free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, we offer 3 free full-length SAT mock tests. Additional premium tests are available with enhanced features and detailed analytics. All tests simulate the actual Digital SAT exam format and timing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many SAT topics are available?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our platform covers all major SAT domains including Advanced Math, Algebra, Problem-Solving and Data Analysis, Geometry, Trigonometry, Reading, and Writing. Each domain is broken down into subdomains and specific topics for targeted practice."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a timer for practice sessions?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, both practice sessions and mock tests include a timer to simulate real SAT testing conditions. This helps you improve your time management skills for the actual Digital SAT exam."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to create an account?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "While you can access basic features without an account, creating a free account allows you to save your progress, track your improvement over time, and access personalized recommendations based on your performance."
+          }
+        }
+      ]
+    };
+
+    return JSON.stringify(faqData);
+  };
+
+  // Generate How-To structured data
+  const generateHowToStructuredData = () => {
+    const howToData = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Create a Personalized SAT Study Plan",
+      "description": "Step-by-step guide to creating an effective SAT study plan using our platform",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": "1",
+          "name": "Select SAT Domains",
+          "text": "Choose between Math and Reading & Writing domains based on your areas of focus",
+          "url": `${window.location.href}#domain-selection`
+        },
+        {
+          "@type": "HowToStep",
+          "position": "2",
+          "name": "Choose Specific Topics",
+          "text": "Expand each domain to select specific topics within subdomains like Algebra, Geometry, or Reading Comprehension",
+          "url": `${window.location.href}#topic-selection`
+        },
+        {
+          "@type": "HowToStep",
+          "position": "3",
+          "name": "Start Practice Session",
+          "text": "Click 'Start Practice Session' to begin targeted practice with questions from your selected topics",
+          "url": `${window.location.href}#start-practice`
+        },
+        {
+          "@type": "HowToStep",
+          "position": "4",
+          "name": "Take Mock Tests",
+          "text": "Use full-length mock tests to simulate the actual Digital SAT exam experience",
+          "url": `${window.location.href}#mock-tests`
+        },
+        {
+          "@type": "HowToStep",
+          "position": "5",
+          "name": "Track Progress",
+          "text": "Review your performance and adjust your study plan based on results",
+          "url": `${window.location.href}#progress`
+        }
+      ]
+    };
+
+    return JSON.stringify(howToData);
   };
 
   return (
     <div className="app sat-app">
       {/* SEO Meta Tags */}
       <Helmet>
-        <title>SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam</title>
-        <meta name="description" content="Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests and track your progress with our AI-powered tutoring system." />
-        <meta name="keywords" content="SAT preparation, SAT study plan, SAT practice, SAT mock tests, SAT Math, SAT Reading, SAT Writing, AI tutor, targeted practice, SAT exam prep" />
+        <title>SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam 2026</title>
+        <meta name="description" content="Create your personalized Digital SAT study plan. Select specific SAT domains and topics to focus on weak areas. Practice with full-length mock tests and AI-powered tutoring. Free SAT preparation for 2026." />
+        <meta name="keywords" content="SAT study plan, Digital SAT practice, SAT mock tests, SAT Math preparation, SAT Reading & Writing, SAT targeted practice, SAT topics, SAT domains, SAT test prep 2026, SAT AI tutor" />
         <meta name="author" content="Mock SAT Exam" />
-        <meta property="og:title" content="SAT Study Plan | Targeted Practice with AI Tutor" />
-        <meta property="og:description" content="Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests and track your progress." />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        
+        {/* Open Graph Meta Tags */}
+        <meta property="og:title" content="SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam" />
+        <meta property="og:description" content="Create your personalized Digital SAT study plan. Select specific SAT domains and topics to focus on weak areas. Practice with full-length mock tests." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
-        <meta property="og:image" content="/logo.png" />
+        <meta property="og:image" content={`${window.location.origin}/logo.png`} />
+        <meta property="og:image:alt" content="Mock SAT Exam - SAT Study Plan" />
         <meta property="og:site_name" content="Mock SAT Exam" />
+        
+        {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="SAT Study Plan | Targeted Practice with AI Tutor" />
-        <meta name="twitter:description" content="Select specific SAT domains and topics to focus on your weak areas. Practice with full-length SAT mock tests." />
-        <meta name="twitter:image" content="/logo.png" />
-        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="twitter:description" content="Create personalized Digital SAT study plans with targeted practice and full mock tests" />
+        <meta name="twitter:image" content={`${window.location.origin}/logo.png`} />
+        <meta name="twitter:creator" content="@mocksatexam" />
+        
+        {/* Canonical URL */}
         <link rel="canonical" href={window.location.href} />
+        
+        {/* Structured Data Scripts */}
         <script type="application/ld+json">
           {generateStructuredData()}
+        </script>
+        <script type="application/ld+json">
+          {generateFAQStructuredData()}
+        </script>
+        <script type="application/ld+json">
+          {generateHowToStructuredData()}
         </script>
       </Helmet>
 
       {/* Hidden structured data for accessibility */}
-      <div className="structured-data">
-        <h1 className="visually-hidden">SAT Study Plan - Targeted Practice with AI Tutor</h1>
-        <div className="schema-container">
-          {generateStructuredData()}
-        </div>
+      <div className="structured-data" aria-hidden="true">
+        <h1 className="visually-hidden">Digital SAT Study Plan - Targeted Practice with AI Tutor</h1>
+        <h2 className="visually-hidden">Personalized SAT Preparation for 2026</h2>
+        <h3 className="visually-hidden">Free SAT Mock Tests and Practice Questions</h3>
       </div>
 
       {/* Navigation - SAME AS APP PAGE */}
-      <nav className="navbar sat-navbar">
+      <nav className="navbar sat-navbar" role="navigation" aria-label="SAT Study Plan Navigation">
         <div className="nav-container">
           {/* Logo on leftmost side */}
-          <div className="logo sat-logo "  onClick={(e) => {
-            e.stopPropagation();   // important!
+          <div className="logo sat-logo" onClick={(e) => {
+            e.stopPropagation();
             navigate('/');
-          } }>
-            <img src="/logo.png" alt="Mock SAT Exam Logo" className="logo-img" />
+          }} role="button" tabIndex={0} onKeyPress={(e) => {
+            if (e.key === 'Enter') navigate('/');
+          }} aria-label="Go to SAT Home Page">
+            <img src="/logo.png" alt="Mock SAT Exam Logo - Free Digital SAT Preparation" className="logo-img" />
             <span className="logo-text">Mock SAT Exam</span>
           </div>
           
           {/* Navigation links and Account button on rightmost side */}
           <div className="nav-links sat-nav-links">
-            <Link to="/" className="nav-link sat-nav-link home-link">
+            <Link to="/" className="nav-link sat-nav-link home-link" aria-label="SAT Home Page">
               Home
             </Link>
-            <Link to="/" className="nav-link sat-nav-link mock-practice-link">
+            <Link to="/" className="nav-link sat-nav-link digital-sat-practice-questions-link" aria-label="SAT Mock Practice">
               Home
             </Link>
-            <Link to="/courses" className="nav-link sat-nav-link courses-link">
+            <Link to="/courses" className="nav-link sat-nav-link courses-link" aria-label="SAT Courses">
               Courses
             </Link>
-            <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
+            <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link" aria-label="SAT Roadmap">
               RoadMap
             </Link>
             
-            <Link to="/game" className="nav-link sat-nav-link game-link">
-              Game
-            </Link>
-            <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
+            <Link to="/blogs" className="nav-link sat-nav-link blogs-link" aria-label="SAT Blog Articles">
               Blogs
             </Link>
             
@@ -875,7 +1132,7 @@ const StudyPlan = () => {
             <button 
               onClick={handleAccountClick}
               className="nav-link sat-nav-link community-link account-button"
-              aria-label={isLoggedIn ? 'Go to profile' : 'Sign in to account'}
+              aria-label={isLoggedIn ? 'Go to SAT Profile' : 'Sign in to SAT Account'}
             >
               {isLoggedIn ? 'Profile' : 'Account'}
             </button>
@@ -885,7 +1142,7 @@ const StudyPlan = () => {
           <button 
             className="menu-toggle" 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle mobile menu"
+            aria-label="Toggle SAT mobile menu"
             aria-expanded={isMenuOpen}
           >
             ☰
@@ -894,20 +1151,22 @@ const StudyPlan = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="main-content">
+      <main className="main-content" role="main" itemScope itemType="https://schema.org/WebPage">
         <div className="content-container">
           {/* Breadcrumb navigation */}
-          <nav className="breadcrumb" aria-label="Breadcrumb">
-            <Link to="/">Home</Link>
-            <span className="breadcrumb-separator">›</span>
-            <span>Study Plan</span>
+          <nav className="breadcrumb" aria-label="SAT Breadcrumb Navigation">
+            <Link to="/" itemProp="url">
+              <span itemProp="title">SAT Home</span>
+            </Link>
+            <span className="breadcrumb-separator" aria-hidden="true">›</span>
+            <span itemProp="title">SAT Study Plan</span>
           </nav>
 
-          <h1>Targeted Practice with AI Tutor</h1>
-          <p className="subtitle">Select specific domains and topics to focus on your weak areas</p>
+          <h1 itemProp="headline">Digital SAT Targeted Practice with AI Tutor</h1>
+          <p className="subtitle" itemProp="description">Select specific SAT domains and topics to focus on your weak areas for 2026 Digital SAT preparation</p>
 
           {/* Domain Cards */}
-          <div className="domain-cards-container">
+          <div className="domain-cards-container" id="domain-selection" itemScope itemProp="mainEntity" itemType="https://schema.org/ItemList">
             {isMobile ? (
               <>
                 <DomainCard domain="Math" icon="FaCalculator" />
@@ -925,38 +1184,39 @@ const StudyPlan = () => {
           {/* Warning */}
           {showSelectTopicWarning && (
             <div className="warning-message" role="alert">
-              Please select at least one topic to practice
+              Please select at least one SAT topic to practice
             </div>
           )}
 
           {/* Start Practice Button */}
-          <div className="start-practice-container">
+          <div className="start-practice-container" id="start-practice">
             <button 
               className="start-practice-btn" 
               onClick={startPractice}
-              aria-label="Start practice session with selected topics"
+              aria-label="Start SAT practice session with selected topics"
+              itemScope itemType="https://schema.org/Action"
             >
-              Start Practice Session
+              Start SAT Practice Session
             </button>
           </div>
 
           {/* Mock Tests and Countdown Section */}
-          <div className="mock-tests-section-container">
+          <div className="mock-tests-section-container" id="mock-tests">
             {isMobile ? (
               <>
-                <div ref={mockTestsRef} className="mock-tests-section">
-                  <h2>Full SAT Mock Tests</h2>
-                  <p>Practice with full-length mock tests</p>
+                <div ref={mockTestsRef} className="mock-tests-section" itemScope itemType="https://schema.org/EducationEvent">
+                  <h2>Full Digital SAT Mock Tests</h2>
+                  <p>Practice with full-length Digital SAT mock tests for 2026</p>
                   
                   <div className="mock-tests-container">
                     <div className="free-tests">
                       <div className="section-label">
-                        <FaLockOpen /> FREE MOCK TESTS
+                        <FaLockOpen aria-hidden="true" /> FREE SAT MOCK TESTS
                       </div>
                       <div className="test-buttons">
-                        <MockTestButton label="Mock1" isPremium={false} />
-                        <MockTestButton label="Mock2" isPremium={false} />
-                        <MockTestButton label="Mock3" isPremium={false} />
+                        <MockTestButton label="SAT Mock 1" isPremium={false} />
+                        <MockTestButton label="SAT Mock 2" isPremium={false} />
+                        <MockTestButton label="SAT Mock 3" isPremium={false} />
                       </div>
                     </div>
 
@@ -966,21 +1226,21 @@ const StudyPlan = () => {
                       aria-expanded={isDropdownOpen}
                       aria-controls="premium-tests-dropdown"
                     >
-                      More Tests {isDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
+                      More SAT Tests {isDropdownOpen ? <FaChevronUp aria-hidden="true" /> : <FaChevronDown aria-hidden="true" />}
                     </button>
 
                     {isDropdownOpen && (
                       <div className="premium-tests" id="premium-tests-dropdown">
                         <div className="section-label">
-                          <FaLock /> PREMIUM MOCK TESTS
+                          <FaLock aria-hidden="true" /> PREMIUM SAT MOCK TESTS
                         </div>
                         <div className="test-buttons">
                           {[4, 5, 6, 7, 8].map(num => (
-                            <MockTestButton key={num} label={`Mock ${num}`} isPremium={true} />
+                            <MockTestButton key={num} label={`SAT Mock ${num}`} isPremium={true} />
                           ))}
                         </div>
                         <p className="premium-note">
-                          Unlock all premium mock tests with SAT Pro subscription
+                          Unlock all premium SAT mock tests with SAT Pro subscription
                         </p>
                       </div>
                     )}
@@ -992,19 +1252,19 @@ const StudyPlan = () => {
               </>
             ) : (
               <div className="mock-tests-row">
-                <div ref={mockTestsRef} className="mock-tests-section">
-                  <h2>Full SAT Mock Tests</h2>
-                  <p>Practice with full-length mock tests</p>
+                <div ref={mockTestsRef} className="mock-tests-section" itemScope itemType="https://schema.org/EducationEvent">
+                  <h2>Full Digital SAT Mock Tests</h2>
+                  <p>Practice with full-length Digital SAT mock tests for 2026</p>
                   
                   <div className="mock-tests-container">
                     <div className="free-tests">
                       <div className="section-label">
-                        <FaLockOpen /> FREE MOCK TESTS
+                        <FaLockOpen aria-hidden="true" /> FREE SAT MOCK TESTS
                       </div>
                       <div className="test-buttons">
-                        <MockTestButton label="Mock1" isPremium={false} />
-                        <MockTestButton label="Mock2" isPremium={false} />
-                        <MockTestButton label="Mock3" isPremium={false} />
+                        <MockTestButton label="SAT Mock 1" isPremium={false} />
+                        <MockTestButton label="SAT Mock 2" isPremium={false} />
+                        <MockTestButton label="SAT Mock 3" isPremium={false} />
                       </div>
                     </div>
 
@@ -1014,21 +1274,21 @@ const StudyPlan = () => {
                       aria-expanded={isDropdownOpen}
                       aria-controls="premium-tests-dropdown"
                     >
-                      More Tests {isDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
+                      More SAT Tests {isDropdownOpen ? <FaChevronUp aria-hidden="true" /> : <FaChevronDown aria-hidden="true" />}
                     </button>
 
                     {isDropdownOpen && (
                       <div className="premium-tests" id="premium-tests-dropdown">
                         <div className="section-label">
-                          <FaLock /> PREMIUM MOCK TESTS
+                          <FaLock aria-hidden="true" /> PREMIUM SAT MOCK TESTS
                         </div>
                         <div className="test-buttons">
                           {[4, 5, 6, 7, 8].map(num => (
-                            <MockTestButton key={num} label={`Mock ${num}`} isPremium={true} />
+                            <MockTestButton key={num} label={`SAT Mock ${num}`} isPremium={true} />
                           ))}
                         </div>
                         <p className="premium-note">
-                          Unlock all premium mock tests with SAT Pro subscription
+                          Unlock all premium SAT mock tests with SAT Pro subscription
                         </p>
                       </div>
                     )}
@@ -1038,41 +1298,68 @@ const StudyPlan = () => {
               </div>
             )}
           </div>
+
+          {/* SEO FAQ Section (Hidden from UI but accessible) */}
+          <div className="structured-data" aria-hidden="true">
+            <div itemScope itemType="https://schema.org/FAQPage">
+              <div itemScope itemType="https://schema.org/Question">
+                <h3 itemProp="name">What is a SAT study plan?</h3>
+                <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
+                  <div itemProp="text">
+                    A SAT study plan is a structured approach to preparing for the Digital SAT exam that focuses on your specific weak areas. Our platform allows you to select individual topics within Math, Reading, and Writing domains to create a personalized study schedule.
+                  </div>
+                </div>
+              </div>
+              <div itemScope itemType="https://schema.org/Question">
+                <h3 itemProp="name">How many SAT topics are available?</h3>
+                <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
+                  <div itemProp="text">
+                    Our platform covers all major SAT domains including Advanced Math, Algebra, Problem-Solving and Data Analysis, Geometry, Trigonometry, Reading Comprehension, and Writing. Each domain contains multiple subdomains and specific topics for targeted practice.
+                  </div>
+                </div>
+              </div>
+              <div itemScope itemType="https://schema.org/Question">
+                <h3 itemProp="name">Are the mock tests similar to the real Digital SAT?</h3>
+                <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
+                  <div itemProp="text">
+                    Yes, our mock tests are designed to simulate the actual Digital SAT exam format, timing, and question types. They include both Math and Evidence-Based Reading and Writing sections with accurate difficulty levels.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="mobile-menu sat-mobile-menu">
+        <div className="mobile-menu sat-mobile-menu" role="dialog" aria-modal="true" aria-label="SAT Mobile Menu">
           {/* Header Section with Logo */}
           <div className="mobile-menu-header">
             <div className="mobile-menu-logo">
-              <img src="/logo.png" alt="Mock SAT Exam Logo" className="mobile-logo-img" />
+              <img src="/logo.png" alt="Mock SAT Exam" className="mobile-logo-img" />
             </div>
             <button 
               className="close-menu" 
               onClick={() => setIsMenuOpen(false)}
-              aria-label="Close mobile menu"
+              aria-label="Close SAT mobile menu"
             >
               ×
             </button>
           </div>
           
           <div className="mobile-menu-content">
-            <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Home">
               Home
             </Link>
-            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Courses">
               Courses
             </Link>
-            <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Roadmap">
               RoadMap
             </Link>
 
-            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Game
-            </Link>
-            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Blogs">
               Blogs
             </Link>
             <button 
@@ -1081,8 +1368,9 @@ const StudyPlan = () => {
                 setIsMenuOpen(false);
               }}
               className="mobile-menu-link"
+              aria-label={isLoggedIn ? "SAT Profile" : "SAT Account"}
             >
-              {isLoggedIn ? 'Profile' : 'Account'}
+              {isLoggedIn ? 'SAT Profile' : 'SAT Account'}
             </button>
           </div>
         </div>

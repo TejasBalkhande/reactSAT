@@ -265,11 +265,8 @@ const CoursesScreen = () => {
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link mock-practice-link">
               Mocks
-            </Link>
-            <Link to="/game" className="nav-link sat-nav-link game-link">
-              Game
             </Link>
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
@@ -347,11 +344,8 @@ const CoursesScreen = () => {
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                RoadMap
             </Link>
-            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                Mocks
-            </Link>
-            <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-             Game
             </Link>
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                Blogs

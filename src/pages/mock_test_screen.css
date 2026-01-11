@@ -112,9 +112,8 @@
 /* Main Content - Matching PracticePage layout */
 .main-content-wrapper {
   display: flex;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 50px);
   position: relative;
-  margin-bottom: 100px;
 }
 
 /* Question Area - Matching PracticePage question-section */
@@ -126,6 +125,8 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  margin-bottom: 50px;
+
 }
 
 /* Progress Bar */

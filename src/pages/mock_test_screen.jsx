@@ -184,27 +184,56 @@ const MockTestScreen = () => {
   useEffect(() => {
     const loadQuestions = async () => {
       try {
+        // Check if mockTestId is provided
+        if (!mockTestId) {
+          throw new Error('No mock test ID provided');
+        }
+        
+        console.log(`Loading questions for mock test: ${mockTestId}`);
+        
+        // Try to load from public/mockquestions directory
         const response = await fetch(`/mockquestions/${mockTestId}.json`);
-        const data = await response.json();
         
-        const allQuestions = data.map(item => new Question(item));
-        
-        const readingWriting = allQuestions.filter(q => q.test === "Reading and Writing");
-        const math = allQuestions.filter(q => q.test === "Math");
-        
-        setReadingWritingQuestions(readingWriting);
-        setMathQuestions(math);
-        setReadingWritingAnswerStates(Array(readingWriting.length).fill().map(() => new AnswerState()));
-        setMathAnswerStates(Array(math.length).fill().map(() => new AnswerState()));
-        setRemainingSeconds(totalReadingWritingTime);
-        setIsLoading(false);
-        setShowWelcomeScreen(true);
+        if (!response.ok) {
+          // If not found in mockquestions, try root of public folder
+          const altResponse = await fetch(`/${mockTestId}.json`);
+          if (!altResponse.ok) {
+            throw new Error(`Failed to load questions: ${response.status} ${response.statusText}`);
+          }
+          const data = await altResponse.json();
+          processQuestions(data);
+        } else {
+          const data = await response.json();
+          processQuestions(data);
+        }
         
       } catch (error) {
         console.error('Error loading questions:', error);
         setIsLoading(false);
-        alert(`Error loading questions: ${error.message}`);
+        navigate('/digital-sat-practice-questions'); // Redirect back to study plan
       }
+    };
+    
+    // Helper function to process questions data
+    const processQuestions = (data) => {
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid questions data format');
+      }
+      
+      const allQuestions = data.map(item => new Question(item));
+      
+      const readingWriting = allQuestions.filter(q => q.test === "Reading and Writing");
+      const math = allQuestions.filter(q => q.test === "Math");
+      
+      console.log(`Loaded ${readingWriting.length} Reading & Writing questions and ${math.length} Math questions`);
+      
+      setReadingWritingQuestions(readingWriting);
+      setMathQuestions(math);
+      setReadingWritingAnswerStates(Array(readingWriting.length).fill().map(() => new AnswerState()));
+      setMathAnswerStates(Array(math.length).fill().map(() => new AnswerState()));
+      setRemainingSeconds(totalReadingWritingTime);
+      setIsLoading(false);
+      setShowWelcomeScreen(true);
     };
     
     loadQuestions();
@@ -214,7 +243,7 @@ const MockTestScreen = () => {
         clearInterval(timerRef.current);
       }
     };
-  }, [mockTestId]);
+  }, [mockTestId, navigate]);
   
   // Start test function
   const startTest = () => {
@@ -326,7 +355,7 @@ const MockTestScreen = () => {
   const LoadingScreen = () => (
     <div className="mock-test-container loading">
       <header className="app-header">
-        <div className="app-header-left" onClick={() => navigate('/study-plan')}>
+        <div className="app-header-left" onClick={() => navigate('/digital-sat-practice-questions')}>
           <div className="logo">
             <img src="/logo.png" alt="Logo" className="logo-img" />
           </div>
@@ -334,7 +363,7 @@ const MockTestScreen = () => {
         </div>
       </header>
       <div className="loading-spinner">
-        {/* <FaSpinner className="spinner" /> */}
+        <FaSpinner className="spinner" />
       </div>
     </div>
   );
@@ -344,7 +373,7 @@ const MockTestScreen = () => {
     return (
       <div className="mock-test-container welcome-screen">
         <header className="app-header">
-          <div className="app-header-left" onClick={() => navigate('/study-plan')}>
+          <div className="app-header-left" onClick={() => navigate('/digital-sat-practice-questions')}>
             <div className="logo">
               <img src="/logo.png" alt="Logo" className="logo-img" />
             </div>
@@ -412,7 +441,7 @@ const MockTestScreen = () => {
               </button>
               <button 
                 className="back-button"
-                onClick={() => navigate('/study-plan')}
+                onClick={() => navigate('/digital-sat-practice-questions')}
               >
                 <FaChevronLeft />
                 Back
@@ -498,7 +527,7 @@ const MockTestScreen = () => {
     return (
       <div className="mock-test-container">
         <header className="app-header">
-          <div className="app-header-left" onClick={() => navigate('/study-plan')}>
+          <div className="app-header-left" onClick={() => navigate('/digital-sat-practice-questions')}>
             <div className="logo">
               <img src="/logo.png" alt="Logo" className="logo-img" />
             </div>
@@ -511,7 +540,7 @@ const MockTestScreen = () => {
           <p>No questions were loaded for this test.</p>
           <button 
             className="back-button"
-            onClick={() => navigate('/study-plan')}
+            onClick={() => navigate('/digital-sat-practice-questions')}
           >
             Back to Tests
           </button>
@@ -541,7 +570,7 @@ const MockTestScreen = () => {
       
       {/* Header */}
       <header className="app-header">
-        <div className="app-header-left" onClick={() => navigate('/study-plan')}>
+        <div className="app-header-left" onClick={() => navigate('/digital-sat-practice-questions')}>
           <div className="logo">
             <img src="/logo.png" alt="Logo" className="logo-img" />
           </div>
@@ -617,8 +646,11 @@ const MockTestScreen = () => {
               </div>
             ))}
           </div>
+          
         </div>
+        
       </div>
+      
       
       {/* Navigation Buttons */}
       <div className="navigation-buttons">
@@ -873,7 +905,7 @@ const MockTestResultsScreen = ({
   return (
     <div className="results-container">
       <header className="app-header">
-        <div className="app-header-left" onClick={() => navigate('/study-plan')}>
+        <div className="app-header-left" onClick={() => navigate('/digital-sat-practice-questions')}>
           <div className="logo">
             <img src="/logo.png" alt="Logo" className="logo-img" />
           </div>
@@ -882,7 +914,7 @@ const MockTestResultsScreen = ({
 
         <button 
           className="app-header-back"
-          onClick={() => navigate('/study-plan')}
+          onClick={() => navigate('/digital-sat-practice-questions')}
         >
           ← Back to Tests
         </button>
@@ -969,7 +1001,7 @@ const MockTestResultsScreen = ({
             
             <button 
               className="back-to-tests-btn"
-              onClick={() => navigate('/study-plan')}
+              onClick={() => navigate('/digital-sat-practice-questions')}
             >
               Back to Tests
             </button>

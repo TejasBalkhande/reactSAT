@@ -293,12 +293,10 @@ const BlogsList = () => {
               <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
                 RoadMap
               </Link>
-              <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+              <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
                 Mocks
               </Link>
-              <Link to="/game" className="nav-link sat-nav-link game-link">
-                Game
-              </Link>
+
               
               <Link to="/profile" className="nav-link sat-nav-link community-link">
                 Account
@@ -376,66 +374,8 @@ const BlogsList = () => {
 
 
 
-                <div className="sidebar-section cta-box">
-                  <h3 className="sidebar-title">Free SAT Guide</h3>
-                  <p>Get our free comprehensive SAT preparation guide with expert strategies</p>
-                  <button className="cta-button">
-                    Download Now →
-                  </button>
-                </div>
 
-                {/* Environment selector for debugging */}
-                <div className="sidebar-section debug-section">
-                  <h3 className="sidebar-title">🔧 Debug Panel</h3>
-                  <div className="debug-info">
-                    <div className="debug-item">
-                      <strong>Your Domain:</strong>
-                      <span className="debug-value">{currentDomain}</span>
-                    </div>
-                    <div className="debug-item">
-                      <strong>API Target:</strong>
-                      <span className="debug-value">{API_BASE_URL}</span>
-                    </div>
-                    <div className="debug-item">
-                      <strong>Environment:</strong>
-                      <div className="environment-buttons">
-                        <button 
-                          onClick={() => handleEnvironmentChange('remote')}
-                          className={`env-btn ${environment === 'remote' ? 'active' : ''}`}
-                        >
-                          Cloudflare
-                        </button>
-                        <button 
-                          onClick={() => handleEnvironmentChange('local')}
-                          className={`env-btn ${environment === 'local' ? 'active' : ''}`}
-                        >
-                          Local
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="debug-actions">
-                    <button 
-                      onClick={testAPIConnection}
-                      className="debug-btn primary"
-                    >
-                      Test API Connection
-                    </button>
-                    <button 
-                      onClick={checkCORSStatus}
-                      className="debug-btn secondary"
-                    >
-                      Check CORS Status
-                    </button>
-                    <button 
-                      onClick={fetchBlogs}
-                      className="debug-btn tertiary"
-                    >
-                      Reload Data
-                    </button>
-                  </div>
-                </div>
+              
               </aside>
             )}
 
@@ -521,12 +461,8 @@ const BlogsList = () => {
               {loading ? (
                 <div className="loading-state">
                   <div className="loading-spinner"></div>
-                  <p>Loading SAT articles from {environment === 'remote' ? 'Cloudflare' : 'Local'}...</p>
-                  <p className="loading-hint">
-                    Connected to: <strong>{API_BASE_URL}</strong>
-                    <br />
-                    Your domain: <strong>{currentDomain}</strong>
-                  </p>
+                  <p>Loading SAT articles...</p>
+                  
                 </div>
               ) : (
                 <>
@@ -691,58 +627,15 @@ const BlogsList = () => {
                 RoadMap
               </Link>
               
-              <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Mocks
               </Link>
-              <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-                Game
-              </Link>
+
               <Link to="/profile" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Account
               </Link>
 
-              {/* Mobile debug panel */}
-              <div className="mobile-debug-section">
-                <h4>🔧 Debug Tools</h4>
-                <div className="mobile-env-buttons">
-                  <button 
-                    onClick={() => {
-                      handleEnvironmentChange('remote');
-                      setIsMenuOpen(false);
-                    }}
-                    className={`mobile-env-btn ${environment === 'remote' ? 'active' : ''}`}
-                  >
-                    Cloudflare API
-                  </button>
-                  <button 
-                    onClick={() => {
-                      handleEnvironmentChange('local');
-                      setIsMenuOpen(false);
-                    }}
-                    className={`mobile-env-btn ${environment === 'local' ? 'active' : ''}`}
-                  >
-                    Local API
-                  </button>
-                </div>
-                <button 
-                  onClick={() => {
-                    testAPIConnection();
-                    setIsMenuOpen(false);
-                  }}
-                  className="mobile-debug-btn"
-                >
-                  Test Connection
-                </button>
-                <button 
-                  onClick={() => {
-                    fetchBlogs();
-                    setIsMenuOpen(false);
-                  }}
-                  className="mobile-debug-btn"
-                >
-                  Reload Data
-                </button>
-              </div>
+
             </div>
           </div>
         )}

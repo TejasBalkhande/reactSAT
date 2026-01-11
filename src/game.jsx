@@ -67,7 +67,7 @@ function Game() {
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="nav-link sat-nav-link mock-practice-link">
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
                Mocks
             </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link">
@@ -154,7 +154,7 @@ function Game() {
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
-            <Link to="/mock-practice" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Mocks
             </Link>
             <Link to="/game" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
