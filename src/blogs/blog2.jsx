@@ -469,7 +469,7 @@ const Blog2 = () => {
         <meta name="twitter:image:alt" content="SAT vs ACT 2026 Comparison Guide" />
         
         {/* Additional SEO Tags */}
-        <link rel="canonical" href={`https://mocksatexam.com/blog/${blog.slug}`} />
+        <link rel="canonical" href={`https://mocksatexam.online/blog/${blog.slug}`} />
         <meta name="news_keywords" content="SAT, ACT, 2026, college admissions, standardized testing" />
         <meta name="topic" content="Standardized Test Preparation" />
         <meta name="subject" content="SAT vs ACT Comparison Guide 2026" />
@@ -512,14 +512,14 @@ const Blog2 = () => {
             "author": {
               "@type": "Person",
               "name": blog.author,
-              "url": "https://mocksatexam.com/authors/michael-rodriguez"
+              "url": "https://mocksatexam.online/authors/michael-rodriguez"
             },
             "publisher": {
               "@type": "Organization",
               "name": "Mock SAT Exam",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://mocksatexam.com/logo.png",
+                "url": "https://mocksatexam.online/logo.png",
                 "width": "300",
                 "height": "60"
               }
@@ -575,19 +575,19 @@ const Blog2 = () => {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://mocksatexam.com"
+                "item": "https://mocksatexam.online"
               },
               {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Blog",
-                "item": "https://mocksatexam.com/blog"
+                "item": "https://mocksatexam.online/blog"
               },
               {
                 "@type": "ListItem",
                 "position": 3,
                 "name": blog.category,
-                "item": `https://mocksatexam.com/blog/category/${encodeURIComponent(blog.category)}`
+                "item": `https://mocksatexam.online/blog/category/${encodeURIComponent(blog.category)}`
               },
               {
                 "@type": "ListItem",

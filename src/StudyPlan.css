@@ -814,3 +814,26 @@ body {
 .schema-container {
   display: none;
 }
+
+/* StudyPlan.css */
+
+/* Fix for mobile layout overflow */
+@media screen and (max-width: 768px) {
+  
+  /* Target the container holding the 3 difficulty buttons */
+  /* REPLACE '.difficulty-row-classname' with the actual class from your JSX */
+  .difficulty-row-classname { 
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    gap: 10px; /* Adds space between the stacked buttons */
+    width: 100%;
+  }
+
+  /* Target the individual buttons to make them full width */
+  .difficulty-row-classname > div, 
+  .difficulty-row-classname button {
+    width: 100% !important;
+    margin-bottom: 8px;
+  }
+}
+

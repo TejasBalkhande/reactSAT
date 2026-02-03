@@ -903,3 +903,52 @@ input:focus {
     break-inside: avoid;
   }
 }
+
+/* Add to existing RoadmapLevel.css */
+
+/* API Warning */
+.api-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  padding: 10px 20px;
+  margin: 10px 20px;
+  border-radius: 8px;
+  color: #856404;
+  text-align: center;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.api-warning .spinner-small {
+  font-size: 14px;
+  animation: spin 1s linear infinite;
+}
+
+/* No Questions API Error */
+.no-questions .api-error-message {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  color: #856404;
+  text-align: center;
+}
+
+/* Spinner small */
+.spinner-small {
+  animation: spin 1s linear infinite;
+  font-size: 14px;
+}
+
+/* Loading response in chat */
+.loading-response {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+

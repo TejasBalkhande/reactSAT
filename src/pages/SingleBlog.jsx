@@ -26,6 +26,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import HomeIcon from '@mui/icons-material/Home';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import BannerAd2 from '../banner_box';
 
 const SingleBlog = () => {
   const { slug } = useParams();
@@ -204,7 +205,7 @@ const SingleBlog = () => {
                 RoadMap
               </Link>
               <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
-                Mocks
+                Questions
               </Link>
               <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
                 Blogs
@@ -270,7 +271,7 @@ const SingleBlog = () => {
                 RoadMap
               </Link>
               <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
-                Mocks
+                Questions
               </Link>
               <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
                 Blogs
@@ -394,7 +395,7 @@ const SingleBlog = () => {
               RoadMap
             </Link>
             <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
-              Mocks
+              Questions
             </Link>
 
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
@@ -450,6 +451,9 @@ const SingleBlog = () => {
                 </button>
               </div>
             </div>
+
+            <BannerAd2/>
+            <BannerAd2/>
 
             <div className="sidebar-widget sat-sidebar-widget">
               <h3>Trending SAT Articles</h3>
@@ -617,7 +621,7 @@ const SingleBlog = () => {
               Community
             </Link>
             <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Mocks
+              Questions
             </Link>
 
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>

@@ -17,8 +17,7 @@ const LockIcon = () => (
 
 const EyeIcon = () => (
   <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14"></path>
   </svg>
 );
 
@@ -82,25 +81,56 @@ const SuccessIcon = () => (
   </svg>
 );
 
+const InfoIcon = () => (
+  <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+);
+
+const ArrowLeftIcon = () => (
+  <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+  </svg>
+);
+
 const LoginScreen = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [forgotPasswordData, setForgotPasswordData] = useState({
+    email: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [forgotPasswordErrors, setForgotPasswordErrors] = useState({});
   const [apiMessage, setApiMessage] = useState({ text: '', type: '' });
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 900);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
-  // NEW: Check if user is already logged in on component mount
+  // Try multiple API endpoints in order
+  const API_ENDPOINTS = [
+    'https://sat-blog-worker.tejasbalkhande221.workers.dev',
+    'http://localhost:8787' // Local development
+  ];
+
+  const getApiUrl = () => {
+    return API_ENDPOINTS[0]; // Use the Cloudflare Worker URL
+  };
+
+  // Check if user is already logged in on component mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
     if (token && user) {
-      // User is already logged in, redirect to profile
       navigate('/profile');
     }
   }, [navigate]);
@@ -115,16 +145,6 @@ const LoginScreen = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Try multiple API endpoints in order
-  const API_ENDPOINTS = [
-    'https://sat-blog-worker.tejasbalkhande221.workers.dev',
-    'http://localhost:8787' // Local development
-  ];
-
-  const getApiUrl = () => {
-    return API_ENDPOINTS[0]; // Use the Cloudflare Worker URL
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -136,6 +156,17 @@ const LoginScreen = () => {
     }
     if (apiMessage.text) {
       setApiMessage({ text: '', type: '' });
+    }
+  };
+
+  const handleForgotPasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setForgotPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (forgotPasswordErrors[name]) {
+      setForgotPasswordErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -153,6 +184,38 @@ const LoginScreen = () => {
     }
 
     setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateForgotPasswordEmail = () => {
+    const newErrors = {};
+
+    if (!forgotPasswordData.email.trim()) {
+      newErrors.email = 'Email cannot be empty';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotPasswordData.email)) {
+      newErrors.email = 'Enter a valid email address';
+    }
+
+    setForgotPasswordErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateResetPassword = () => {
+    const newErrors = {};
+
+    if (!forgotPasswordData.newPassword) {
+      newErrors.newPassword = 'New password cannot be empty';
+    } else if (forgotPasswordData.newPassword.length < 6) {
+      newErrors.newPassword = 'Password must be at least 6 characters';
+    }
+
+    if (!forgotPasswordData.confirmPassword) {
+      newErrors.confirmPassword = 'Confirm password cannot be empty';
+    } else if (forgotPasswordData.newPassword !== forgotPasswordData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setForgotPasswordErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -211,6 +274,139 @@ const LoginScreen = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCheckEmail = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForgotPasswordEmail()) return;
+    
+    setLoading(true);
+    setApiMessage({ text: '', type: '' });
+
+    try {
+      // Check if email exists in the database
+      const response = await fetch(`${getApiUrl()}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: forgotPasswordData.email,
+          password: 'dummy_password' // Send dummy password for checking email only
+        })
+      });
+
+      const data = await response.json();
+      
+      // Even if login fails due to password, if the email exists, we'll get a different error
+      // We need to check if the email exists by looking at the error message
+      if (response.status === 401 && data.error === 'Invalid email or password') {
+        // This means email exists but password is wrong, which is what we want
+        setEmailVerified(true);
+        setApiMessage({ 
+          text: '✅ Email verified. Please enter your new password.', 
+          type: 'success' 
+        });
+      } else if (data.success) {
+        // This shouldn't happen as we sent a dummy password, but handle it
+        setEmailVerified(true);
+        setApiMessage({ 
+          text: '✅ Email verified. Please enter your new password.', 
+          type: 'success' 
+        });
+      } else if (data.error && data.error.includes('not found')) {
+        // Email doesn't exist
+        setApiMessage({ 
+          text: '❌ Email not found. Please check and try again.', 
+          type: 'error' 
+        });
+      } else {
+        // Other errors
+        setApiMessage({ 
+          text: `❌ ${data.error || 'Failed to verify email'}`, 
+          type: 'error' 
+        });
+      }
+    } catch (error) {
+      console.error('Check email error:', error);
+      setApiMessage({ 
+        text: `❌ Network error: ${error.message}`, 
+        type: 'error' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    
+    if (!validateResetPassword()) return;
+    
+    setLoading(true);
+    
+    try {
+      console.log('📤 Sending reset password request for:', forgotPasswordData.email);
+      
+      const response = await fetch(`${getApiUrl()}/api/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: forgotPasswordData.email,
+          newPassword: forgotPasswordData.newPassword
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setApiMessage({ 
+          text: '✅ Password reset successful! Redirecting to login...', 
+          type: 'success' 
+        });
+        
+        // Reset form and go back to login
+        setTimeout(() => {
+          setIsForgotPassword(false);
+          setEmailVerified(false);
+          setForgotPasswordData({
+            email: '',
+            newPassword: '',
+            confirmPassword: ''
+          });
+          setLoading(false);
+          setApiMessage({ text: '', type: '' });
+        }, 2000);
+      } else {
+        setApiMessage({ 
+          text: `❌ ${data.error || 'Failed to reset password'}`, 
+          type: 'error' 
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      setApiMessage({ 
+        text: `❌ Network error: ${error.message}`, 
+        type: 'error' 
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    setIsForgotPassword(false);
+    setEmailVerified(false);
+    setForgotPasswordData({
+      email: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setForgotPasswordErrors({});
+    setApiMessage({ text: '', type: '' });
   };
 
   const RightPanelContent = () => (
@@ -337,7 +533,7 @@ const LoginScreen = () => {
 
   return (
     <div className="login-container">
-      {/* Left Panel - Login Form */}
+      {/* Left Panel - Login Form or Forgot Password */}
       <div className="login-left-panel">
         <div className="login-form-container">
           <div className="login-logo-container">
@@ -349,116 +545,266 @@ const LoginScreen = () => {
             <h1 className="login-title">Mock SAT Exam</h1>
           </div>
 
-          <div className="login-header">
-            <h1>Welcome Back</h1>
-            <p>Continue your journey to SAT success</p>
-            
-            {/* API Message Display - Updated to match signup page inline style */}
-            {apiMessage.text && (
-              <div style={{ 
-                padding: '10px', 
-                marginBottom: '15px', 
-                borderRadius: '8px',
-                backgroundColor: apiMessage.type === 'success' ? '#E6F4EA' : '#FFEBEE',
-                color: apiMessage.type === 'success' ? '#2E7D32' : '#D32F2F',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                {apiMessage.type === 'success' ? <SuccessIcon /> : <ErrorIcon />}
-                {apiMessage.text}
+          {!isForgotPassword ? (
+            /* Login Form */
+            <>
+              <div className="login-header">
+                <h1>Welcome Back</h1>
+                <p>Continue your journey to SAT success</p>
+                
+                {/* API Message Display */}
+                {apiMessage.text && (
+                  <div style={{ 
+                    padding: '10px', 
+                    marginBottom: '15px', 
+                    borderRadius: '8px',
+                    backgroundColor: apiMessage.type === 'success' ? '#E6F4EA' : '#FFEBEE',
+                    color: apiMessage.type === 'success' ? '#2E7D32' : '#D32F2F',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    {apiMessage.type === 'success' ? <SuccessIcon /> : <ErrorIcon />}
+                    {apiMessage.text}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <form onSubmit={handleSubmit} autoComplete="off">
-            {/* Email Field */}
-            <div className="login-input-group">
-              <label className="login-input-label">Email</label>
-              <div className="login-input-with-icon">
-                <EmailIcon />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="login-input"
-                  placeholder="Enter your email"
-                  disabled={loading}
-                  autoComplete="email"
-                />
-              </div>
-              {errors.email && (
-                <div className="login-error">
-                  <ErrorIcon /> {errors.email}
+              <form onSubmit={handleSubmit} autoComplete="off">
+                {/* Email Field */}
+                <div className="login-input-group">
+                  <label className="login-input-label">Email</label>
+                  <div className="login-input-with-icon">
+                    <EmailIcon />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="login-input"
+                      placeholder="Enter your email"
+                      disabled={loading}
+                      autoComplete="email"
+                    />
+                  </div>
+                  {errors.email && (
+                    <div className="login-error">
+                      <ErrorIcon /> {errors.email}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Password Field */}
-            <div className="login-input-group">
-              <label className="login-input-label">Password</label>
-              <div className="login-input-with-icon">
-                <LockIcon />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="login-input"
-                  placeholder="Enter your password"
-                  disabled={loading}
-                  autoComplete="current-password"
-                />
+                {/* Password Field */}
+                <div className="login-input-group">
+                  <label className="login-input-label">Password</label>
+                  <div className="login-input-with-icon">
+                    <LockIcon />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="login-input"
+                      placeholder="Enter your password"
+                      disabled={loading}
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      className="login-password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={loading}
+                    >
+                      {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <div className="login-error">
+                      <ErrorIcon /> {errors.password}
+                    </div>
+                  )}
+                </div>
+
+                <div className="login-forgot-password">
+                  <a href="#" onClick={(e) => { e.preventDefault(); setIsForgotPassword(true); }}>
+                    Forgot Password?
+                  </a>
+                </div>
+
                 <button
-                  type="button"
-                  className="login-password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
+                  type="submit"
+                  className="login-button"
                   disabled={loading}
                 >
-                  {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                  {loading ? (
+                    <span className="login-button-loading">
+                      <span className="login-loading-spinner"></span>
+                      Logging in...
+                    </span>
+                  ) : (
+                    'Login'
+                  )}
                 </button>
+              </form>
+
+              <div className="login-divider">
+                <div className="login-divider-line"></div>
+                <span className="login-divider-text">Or</span>
+                <div className="login-divider-line"></div>
               </div>
-              {errors.password && (
-                <div className="login-error">
-                  <ErrorIcon /> {errors.password}
+
+              <div className="login-login-link">
+                <p>
+                  Don't have an account?{' '}
+                  <Link to="/signup">Sign Up</Link>
+                </p>
+              </div>
+            </>
+          ) : (
+            /* Forgot Password Form */
+            <>
+              <div className="login-back-link">
+                <a href="#" onClick={handleBackToLogin}>
+                  <ArrowLeftIcon /> Back to Login
+                </a>
+              </div>
+
+              <div className="login-header">
+                <h1>Reset Password</h1>
+                <p>
+                  {!emailVerified 
+                    ? "Enter your email to verify your account" 
+                    : "Enter your new password below"}
+                </p>
+                
+                {/* API Message Display */}
+                {apiMessage.text && (
+                  <div style={{ 
+                    padding: '10px', 
+                    marginBottom: '15px', 
+                    borderRadius: '8px',
+                    backgroundColor: apiMessage.type === 'success' ? '#E6F4EA' : '#FFEBEE',
+                    color: apiMessage.type === 'success' ? '#2E7D32' : '#D32F2F',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    {apiMessage.type === 'success' ? <SuccessIcon /> : <ErrorIcon />}
+                    {apiMessage.text}
+                  </div>
+                )}
+              </div>
+
+              <form onSubmit={emailVerified ? handleResetPassword : handleCheckEmail} autoComplete="off">
+                {/* Email Field (always shown) */}
+                <div className="login-input-group">
+                  <label className="login-input-label">Email</label>
+                  <div className="login-input-with-icon">
+                    <EmailIcon />
+                    <input
+                      type="email"
+                      name="email"
+                      value={forgotPasswordData.email}
+                      onChange={handleForgotPasswordInputChange}
+                      className="login-input"
+                      placeholder="Enter your email"
+                      disabled={loading || emailVerified}
+                      autoComplete="email"
+                    />
+                  </div>
+                  {forgotPasswordErrors.email && (
+                    <div className="login-error">
+                      <ErrorIcon /> {forgotPasswordErrors.email}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="login-forgot-password">
-              <Link to="/forgot-password">Forgot Password?</Link>
-            </div>
+                {/* New Password Fields (shown after email verification) */}
+                {emailVerified && (
+                  <>
+                    {/* New Password Field */}
+                    <div className="login-input-group">
+                      <label className="login-input-label">New Password</label>
+                      <div className="login-input-with-icon">
+                        <LockIcon />
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          name="newPassword"
+                          value={forgotPasswordData.newPassword}
+                          onChange={handleForgotPasswordInputChange}
+                          className="login-input"
+                          placeholder="Enter new password"
+                          disabled={loading}
+                          autoComplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          className="login-password-toggle"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          disabled={loading}
+                        >
+                          {showNewPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                        </button>
+                      </div>
+                      {forgotPasswordErrors.newPassword && (
+                        <div className="login-error">
+                          <ErrorIcon /> {forgotPasswordErrors.newPassword}
+                        </div>
+                      )}
+                    </div>
 
-            <button
-              type="submit"
-              className="login-button"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="login-button-loading">
-                  <span className="login-loading-spinner"></span>
-                  Logging in...
-                </span>
-              ) : (
-                'Login'
-              )}
-            </button>
-          </form>
+                    {/* Confirm Password Field */}
+                    <div className="login-input-group">
+                      <label className="login-input-label">Confirm New Password</label>
+                      <div className="login-input-with-icon">
+                        <LockIcon />
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          name="confirmPassword"
+                          value={forgotPasswordData.confirmPassword}
+                          onChange={handleForgotPasswordInputChange}
+                          className="login-input"
+                          placeholder="Confirm new password"
+                          disabled={loading}
+                          autoComplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          className="login-password-toggle"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          disabled={loading}
+                        >
+                          {showConfirmPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                        </button>
+                      </div>
+                      {forgotPasswordErrors.confirmPassword && (
+                        <div className="login-error">
+                          <ErrorIcon /> {forgotPasswordErrors.confirmPassword}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
 
-          <div className="login-divider">
-            <div className="login-divider-line"></div>
-            <span className="login-divider-text">Or</span>
-            <div className="login-divider-line"></div>
-          </div>
-
-          <div className="login-login-link">
-            <p>
-              Don't have an account?{' '}
-              <Link to="/signup">Sign Up</Link>
-            </p>
-          </div>
+                <button
+                  type="submit"
+                  className="login-button"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="login-button-loading">
+                      <span className="login-loading-spinner"></span>
+                      {emailVerified ? 'Resetting Password...' : 'Checking Email...'}
+                    </span>
+                  ) : (
+                    emailVerified ? 'Reset Password' : 'Check Email'
+                  )}
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
 

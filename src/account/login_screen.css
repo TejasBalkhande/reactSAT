@@ -169,6 +169,14 @@
   cursor: not-allowed;
 }
 
+.login-button-secondary {
+  background-color: var(--primary-color);
+}
+
+.login-button-secondary:hover {
+  background-color: #1A352A;
+}
+
 .login-button-loading {
   display: flex;
   align-items: center;
@@ -229,6 +237,56 @@
   padding: 0 16px;
   font-size: 14px;
   color: var(--text-tertiary);
+}
+
+/* Remove OTP styles since we're removing OTP feature */
+.login-otp-container {
+  display: none;
+}
+
+.login-resend-otp {
+  display: none;
+}
+
+.login-back-link {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.login-back-link a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Message styles */
+.login-message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-message-success {
+  background-color: #E6F4EA;
+  color: #2E7D32;
+}
+
+.login-message-error {
+  background-color: #FFEBEE;
+  color: #D32F2F;
+}
+
+.login-message-info {
+  background-color: #E3F2FD;
+  color: #1565C0;
 }
 
 /* Right Panel */
@@ -388,7 +446,6 @@
   gap: 4px;
 }
 
-/* API Message styling - now inline like signup page */
 /* Responsive */
 @media (max-width: 900px) {
   .login-container {
@@ -430,5 +487,4 @@
 .icon-lg {
   width: 24px;
   height: 24px;
-  
 }

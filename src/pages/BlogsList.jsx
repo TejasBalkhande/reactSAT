@@ -256,14 +256,14 @@ const BlogsList = () => {
           name="keywords" 
           content="SAT blog, SAT preparation, SAT tips, SAT math, SAT reading, SAT writing, college admissions" 
         />
-        <link rel="canonical" href="https://satexam.com/blogs" />
+        <link rel="canonical" href="https://mocksatexam.online/blogs" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Blog",
             "name": "SAT Preparation Blog",
             "description": "Expert SAT preparation tips and strategies",
-            "url": "https://satexam.com/blogs",
+            "url": "https://mocksatexam.online/blogs",
             "publisher": {
               "@type": "Organization",
               "name": "Mock SAT Exam"
@@ -287,17 +287,18 @@ const BlogsList = () => {
               <Link to="/" className="nav-link sat-nav-link blogs-link">
                 Home
               </Link>
-              <Link to="/courses" className="nav-link sat-nav-link courses-link">
-                Courses
+              <Link to="/notes-question-bank" className="nav-link sat-nav-link courses-link">
+                Qn.Bank
               </Link>
               <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
                 RoadMap
               </Link>
               <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link">
-                Mocks
+                Questions
               </Link>
-
-              
+              <Link to="/courses" className="nav-link sat-nav-link courses-link">
+                Courses
+              </Link>
               <Link to="/profile" className="nav-link sat-nav-link community-link">
                 Account
               </Link>
@@ -620,17 +621,19 @@ const BlogsList = () => {
               <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Home
               </Link>
-              <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-                Courses
+              
+              <Link to="/notes-question-bank" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Qn.Bank
               </Link>
               <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 RoadMap
               </Link>
-              
               <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-                Mocks
+                Questions
               </Link>
-
+              <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+                Courses
+              </Link>
               <Link to="/profile" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                 Account
               </Link>

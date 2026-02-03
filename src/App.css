@@ -3,6 +3,25 @@
   padding: 0;
   box-sizing: border-box;
 }
+/* Ensure content is visible for SEO crawlers */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Improve text rendering for SEO */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure images are properly sized for SEO */
+img {
+  max-width: 100%;
+  height: auto;
+}
 
 .sat-app {
   font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -28,7 +47,7 @@
 /* SAT Navigation */
 .nav-container {
   width: 100%;
-  padding: 0.5rem 0rem; 
+  padding: 0.5rem 1.5rem; /* ADJUSTED PADDING */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -42,63 +61,51 @@
   gap: 0.5rem;
   flex-shrink: 0;
   cursor: pointer;
+  z-index: 1002; /* Ensure logo stays above mobile menu */
 }
 
 .logo-img {
   width: 35px;
   height: 35px;
   object-fit: cover;
-
-}
-.logo-text {
-  white-space: nowrap !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  flex-shrink: 1;
 }
 
-
 .logo-text {
-  font-size: 1.3rem; /* INCREASED FROM 1.4rem */
-  font-weight: 600; /* INCREASED WEIGHT */
+  font-size: 1.3rem; 
+  font-weight: 600;
   color: white;
   letter-spacing: -0.5px;
   white-space: nowrap;
   font-family: 'Poppins', sans-serif;
-  white-space: normal;     /* allow wrapping */
-  overflow: visible;      /* no hiding */
-  text-overflow: unset;   /* remove ... */
+  white-space: nowrap;    
+  overflow: hidden;     
+  text-overflow: ellipsis;  
 }
 
-/* REDUCED GAP BETWEEN NAV LINKS FROM 1.5rem TO 0.75rem */
+/* DEFAULT: SHOW NAV LINKS ON DESKTOP */
 .sat-nav-links {
   display: flex;
-  gap: 0.2rem; /* REDUCED GAP */
+  gap: 0.5rem; /* INCREASED GAP FOR BETTER SPACING */
   align-items: center;
   flex-shrink: 0;
   white-space: nowrap;
 }
 
-/* REDUCED GAP BETWEEN ICON AND TEXT FROM 0.5rem TO 0.2rem, INCREASED TEXT SIZE */
+/* UPDATED NAV LINK STYLES */
 .sat-nav-link {
   display: flex;
   align-items: center;
-  gap: 0.2rem; /* REDUCED FROM 0.5rem */
+  gap: 0.5rem; /* INCREASED FOR BETTER VISIBILITY */
   text-decoration: none;
   color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
   transition: color 0.2s;
   font-size: 1.1rem; /* INCREASED FROM 0.95rem */
-  padding: 0.5rem 0.85rem; /* ADJUSTED PADDING */
+  padding: 0.5rem 1rem; /* ADJUSTED PADDING */
   border-radius: 6px;
   white-space: nowrap;
   letter-spacing: 0.3px;
   font-family: 'Poppins', sans-serif; /* BETTER FONT */
-}
-
-/* Hide Home link on desktop */
-.sat-nav-links .home-link {
-  display: none;
 }
 
 .sat-nav-link:hover {
@@ -115,15 +122,15 @@
   opacity: 1;
 }
 
-/* UPDATED ACCOUNT BUTTON TO MATCH NAV LINKS - REDUCED GAP */
+/* UPDATED ACCOUNT BUTTON */
 .sat-signin-btn {
   display: flex;
   align-items: center;
-  gap: 0.2rem; /* REDUCED FROM 0.5rem */
+  gap: 0.5rem; /* INCREASED FOR BETTER VISIBILITY */
   background: transparent;
   color: rgba(255, 255, 255, 0.95);
   border: none;
-  padding: 0.5rem 0.85rem; /* ADJUSTED PADDING */
+  padding: 0.5rem 1rem; /* ADJUSTED PADDING */
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -144,7 +151,7 @@
   font-size: 1.3rem !important; /* INCREASED FROM 1.2rem */
 }
 
-/* Current menu-toggle styles around line 75 - UPDATE THESE */
+/* UPDATED: HAMBURGER MENU - HIDDEN BY DEFAULT, SHOWN ON TABLET/MOBILE */
 .menu-toggle {
   display: none;
   background: none;
@@ -158,6 +165,7 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  z-index: 1002; /* Ensure toggle stays above mobile menu */
 }
 
 .menu-toggle .hamburger-line {
@@ -183,8 +191,55 @@
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* MOBILE MENU HEADER WITH LOGO */
-/* MOBILE MENU HEADER WITH LOGO */
+/* TABLET AND MOBILE: SHOW MENU TOGGLE, HIDE NAV LINKS */
+@media (max-width: 1050px) {
+  /* HIDE REGULAR NAV LINKS ON TABLET/MOBILE */
+  .sat-nav-links {
+    display: none !important;
+  }
+  
+  /* SHOW MENU TOGGLE ON TABLET/MOBILE */
+  .menu-toggle {
+    display: flex !important;
+  }
+  
+  .nav-container {
+    padding: 0.5rem 1rem;
+  }
+  
+  .logo-text {
+    font-size: 1.3rem;
+    white-space: nowrap;
+
+  }
+  
+  /* REDUCE LOGO IMAGE SIZE ON MOBILE */
+  .logo-img {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .sat-logo {
+    gap: 0.3rem;
+  }
+}
+
+/* Mobile Menu Styles - FIXED POSITION */
+.sat-mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(43, 70, 60, 0.98);
+  backdrop-filter: blur(10px);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* MOBILE MENU HEADER */
 .mobile-menu-header {
   display: flex;
   justify-content: space-between;
@@ -195,6 +250,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  height: 57px; /* Match navbar height */
 }
 
 .mobile-menu-logo {
@@ -210,20 +266,13 @@
 }
 
 .mobile-logo-text {
-  font-size: 1.3rem; /* INCREASED FROM 1.4rem */
-  font-weight: 600; /* INCREASED WEIGHT */
-  color: white;
-  letter-spacing: -0.5px;
+
+  font-size: 1.3rem;
   white-space: nowrap;
-  font-family: 'Poppins', sans-serif;
-  white-space: normal;     /* allow wrapping */
-  overflow: visible;      /* no hiding */
-  text-overflow: unset;   /* remove ... */
 }
 
-/* Adjust close button position */
+/* Adjust close button */
 .sat-mobile-menu .close-menu {
-  position: static;
   background: none;
   border: none;
   font-size: 2rem;
@@ -231,114 +280,125 @@
   color: white;
   padding: 0;
   line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Adjust mobile menu content to account for header */
-.sat-mobile-menu .mobile-menu-content {
-  margin-top: 0;
-  padding-top: 1rem;
+/* Mobile menu content */
+.mobile-menu-content {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   flex: 1;
-  overflow-y: auto;
-  background-color: white;
+  background-color: #F8F9F5;
 }
 
-/* Medium screens (1024px and below) - Show scrollable nav */
-@media (max-width: 1024px) {
-  .sat-nav-links {
-    display: flex;
-    gap: 0.2rem; /* REDUCED */
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 4px;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-    
+/* Mobile menu links */
+.mobile-menu-link {
+  position: relative;
+  color: #2B463C;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem 1rem;
+  font-weight: 550;
+  background: white;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-menu-link:hover {
+  background: rgba(74, 124, 89, 0.1);
+}
+
+.mobile-menu-link .MuiSvgIcon-root {
+  font-size: 1.4rem !important;
+  color: #4A7C59;
+}
+
+/* Mobile account button */
+.mobile-signin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  background: #4A7C59;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.mobile-signin-btn .MuiSvgIcon-root {
+  font-size: 1.4rem !important;
+  color: white;
+}
+
+/* Extra small screens */
+@media (max-width: 600px) {
+  .nav-container {
+    padding: 0.4rem 1rem;
   }
   
-  .sat-nav-links::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+  .logo-text {
+    font-size: 1.3rem;
+    white-space: nowrap;
+    max-width: none;
   }
   
-  .sat-nav-link {
-    font-size: 1.1rem; /* INCREASED */
-    padding: 0.5rem 0.85rem;
-    gap: 0.2rem; /* REDUCED */
-  }
-  
-  .sat-signin-btn {
-    padding: 0.5rem 0.85rem;
-    font-size: 1.1rem; /* INCREASED */
-    gap: 0.2rem; /* REDUCED */
+  .logo-img {
+    width: 35px;
+    height: 35px;
   }
   
   .menu-toggle {
-    display: none;
+    font-size: 1.4rem; 
+    padding: 0.25rem;
+  }
+  
+  .sat-logo {
+    gap: 0.25rem; 
   }
 }
 
-/* PROGRESSIVE NAVIGATION HIDING - Links disappear one by one as screen gets smaller */
-
-/* First: Hide Courses at 1100px */
-@media (max-width: 1100px) {
-  .sat-nav-links .courses-link {
-    display: none;
+@media (max-width: 400px) {
+  .logo-text {
+    font-size: 1.3rem;
+    max-width: none;
+    white-space: nowrap;
   }
-}
-
-/* Second: Hide Blogs at 1050px */
-@media (max-width: 1050px) {
-  .sat-nav-links .blogs-link {
-    display: none;
-  }
-}
-
-/* Third: Hide Community at 1000px */
-@media (max-width: 1000px) {
-  .sat-nav-links .community-link {
-    display: none;
-  }
-}
-
-/* Fourth: Hide Game at 950px */
-@media (max-width: 950px) {
-  .sat-nav-links .game-link {
-    display: none;
-  }
-}
-
-/* Hide RoadMap at 850px */
-@media (max-width: 850px) {
-  .sat-nav-links .roadmap-link {
-    display: none;
-  }
-}
-
-/* Hide Mock Practice at 800px */
-@media (max-width: 800px) {
-  .sat-nav-links .mock-practice-link {
-    display: none;
+  
+  .nav-container {
+    padding: 0.4rem 0.75rem;
   }
 }
 
 /* Hide Account at 768px and show mobile menu toggle */
 @media (max-width: 768px) {
-  .sat-nav-links {
-    display: none;
-  }
-  
-  .menu-toggle {
-    display: block;
-  }
+
   
   .nav-container {
     padding: 0.5rem 1rem;
   }
   
   .logo-text {
-    font-size: 1.3rem; /* INCREASED FROM 1.1rem */
-    white-space: normal;     /* allow wrapping */
-    overflow: visible;      /* no hiding */
-    text-overflow: unset;   /* remove ... */
+    font-size: 1.3rem;
+    max-width: none;
+    white-space: nowrap;
   }
   
   /* REDUCE LOGO IMAGE SIZE ON MOBILE */
@@ -355,16 +415,21 @@
 
 /* Extra small screens */
 @media (max-width: 600px) {
+  .sat-nav-links {
+    display: none;
+  }
+  
+  .menu-toggle {
+    display: block;
+  }
   .nav-container {
     padding: 0.4rem 1rem;
   }
   
   .logo-text {
-    font-size: 1.3rem; /* INCREASED FROM 1rem */
-    white-space: normal;     /* allow wrapping */
-    overflow: visible;      /* no hiding */
-    text-overflow: unset;  
-    max-width: 140px; /* remove ... */
+    font-size: 1.3rem;
+    max-width: none;
+    white-space: nowrap;
   }
   
   /* FURTHER REDUCE LOGO IMAGE SIZE ON SMALLER MOBILE */
@@ -390,11 +455,9 @@
   }
   
   .logo-text {
-    font-size: 1.3rem; /* INCREASED FROM 1rem */
-    white-space: normal;     /* allow wrapping */
-    overflow: visible;      /* no hiding */
-    text-overflow: unset;  
-    max-width: 140px; /* remove ... */
+    font-size: 1.3rem;
+    max-width: none;
+    white-space: nowrap;
   }
   
   /* FURTHER REDUCE LOGO IMAGE SIZE ON SMALLER MOBILE */
@@ -508,222 +571,368 @@
   font-size: 1.4rem !important; /* INCREASED FROM 1.2rem */
 }
 
-/* FIXED: SAT Hero Section - UPDATED TO PREVENT OVERLAPPING ON MOBILE */
+/* UPDATED: SAT Hero Section - Two Column Layout */
 .sat-hero {
   position: relative;
-  height: 50vh;
-  min-height: 600px;
+  min-height: 75vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url('/hero.png');
+
   background-size: cover;
   background-position: center 30%;
-  padding-top: 60px;
-
+  padding: 100px 2rem 4rem;
+  overflow: hidden;
 }
 
+/* FULL overlay */
 .sat-hero-overlay {
+  position: absolute;
+  inset: 0;                
+  background: linear-gradient(
+    135deg,
+    rgba(13, 10, 74, 0.3),
+    rgba(10, 30, 74, 0.2)
+  );
+  z-index: 1;
+}
+
+/* Keep content above overlay */
+.sat-hero > *:not(.sat-hero-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+.sat-hero::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(13, 10, 74, 0.3), rgba(10, 30, 74, 0.2));
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(143, 203, 155, 0.05) 0%, transparent 50%);
+}
+
+.hero-container {
+  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  gap: 4rem;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-left {
+  flex: 2;
+  max-width: 1000px;
+}
+
+.hero-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-book-image {
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(43, 70, 60, 0.2));
+  animation: float 6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(1deg); }
 }
 
 .hero-content {
-  position: relative;
-  z-index: 2;
-  padding: 2rem;
-  text-align: center;
-  color: white;
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+  text-align: left;
 }
 
 .sat-hero-title {
-  font-size: 2rem; /* INCREASED */
-  font-weight: 600;
-  line-height: 1.2;
-  margin-bottom: 0.3rem;
-  letter-spacing: -1px;
-  font-family: 'Work Sans', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.2rem;
+  letter-spacing: -0.5px;
+  font-family: 'Poppins', sans-serif;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .sat-hero-subtitle {
-  font-size: 1.2rem; /* INCREASED */
-  line-height: 1.5;
+  font-size: 1.3rem;
+  line-height: 1.6;
   font-weight: 500;
-  max-width: 780px;
-  margin-bottom: 3rem;
-  opacity: 0.95;
-  margin-left: auto;
-  margin-right: auto;
-  font-family: 'Manrope', sans-serif; /* BETTER FONT */
+  max-width: 90%;
+  margin-bottom: 2.5rem;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
 }
 
 .hero-buttons {
   display: flex;
   gap: 1.5rem;
-  justify-content: center;
   flex-wrap: wrap;
 }
 
 .sat-hero-btn {
-  padding: 0.875rem 2.5rem; /* Reduced: vertical 14px, horizontal 40px */
-  border-radius: 14px;
-  font-size: 1.125rem;
-  font-weight: 600;
+  padding: 1rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
   min-width: 200px;
   font-family: 'Poppins', sans-serif;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-
 
 .sat-hero-btn.primary {
-  background: #4A7C59;
+  background: linear-gradient(135deg, #4A7C59 0%, #5A9C69 100%);
   color: white;
-  box-shadow: 0 4px 8px rgba(74, 124, 89, 0.4);
-}
-
-.account-button {
-  all: unset;              /* removes default button styles */
-  display: inline-block;  /* makes it behave like <a> */
-  cursor: pointer;
-}
-
-.sat-hero-btn.primary1 {
-  background: #4A7C59;
-  color: white;
-  box-shadow: 0 4px 8px rgba(74, 124, 89, 0.4);
+  box-shadow: 0 6px 20px rgba(74, 124, 89, 0.4);
 }
 
 .sat-hero-btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(74, 124, 89, 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(74, 124, 89, 0.5);
+  background: linear-gradient(135deg, #3a6c49 0%, #4A7C59 100%);
 }
 
 .sat-hero-btn-secondary {
-  padding: 0.875rem 2.5rem; /* Reduced: vertical 14px, horizontal 40px */
-  border-radius: 14px;
-  font-size: 1.125rem;
-  font-weight: 600;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: transparent;
-  color: white;
-  border: 2px solid white;
-  backdrop-filter: none;
+  background: white;
+  color: #2B463C;
+  border: 2px solid #2B463C;
   min-width: 200px;
   font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .sat-hero-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(43, 70, 60, 0.3);
 }
 
-/* FIXED: Responsive adjustments for hero section to prevent overlapping */
-@media (max-width: 768px) {
+/* New Download Notes Button */
+.download-notes-btn {
+  padding: 1rem 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid #2B463C;
+  background: linear-gradient(135deg, #fdc554 0%, #fdc554 100%);
+  color: #5D4037;
+  border: none;
+  min-width: 240px;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.download-notes-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, #ffc163 0%, #ffc163 100%);
+  color: #5D4037;
+}
+
+.download-icon {
+  font-size: 1.3rem;
+}
+
+/* FIXED: Responsive adjustments for hero section */
+@media (max-width: 1024px) {
   .sat-hero {
-    height: auto; /* Change from fixed 50vh to auto */
-    min-height: 500px; /* Reduce from 600px */
-    padding-top: 57px; /* Ensure navbar height is accounted for */
-    padding-bottom: 3rem; /* Add padding at bottom */
-    align-items: flex-start; /* Align content at top */
+    min-height: auto;
+    padding: 90px 1.5rem 3rem;
+  }
+  
+  .hero-container {
+    flex-direction: column;
+    gap: 3rem;
+    text-align: center;
+  }
+  
+  .hero-left {
+    max-width: 100%;
   }
   
   .hero-content {
-    margin-top: 2rem; /* Add space from top */
-    padding: 1.5rem;
-    width: 100%;
+    text-align: center;
   }
   
   .sat-hero-title {
-    font-size: 2.2rem; /* Slightly reduce font size */
-    line-height: 1.3; /* Add line height */
-    margin-bottom: 1rem;
-    height: auto; /* Remove fixed height */
-    min-height: auto;
+    font-size: 1.9rem;
   }
   
   .sat-hero-subtitle {
     font-size: 1.1rem;
-    line-height: 1.5;
-    margin-bottom: 2.5rem;
-    padding: 0 0.5rem;
-  }
-  
-  .sat-hero-btn {
-    padding: 0.75rem 1.875rem; /* Reduced: vertical 12px, horizontal 30px */
-    font-size: 1rem;
-    min-width: auto;
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .sat-hero-btn-secondary {
-    padding: 0.75rem 1.875rem; /* Reduced: vertical 12px, horizontal 30px */
-    font-size: 1rem;
-    min-width: auto;
-    width: 100%;
-    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .hero-buttons {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .hero-book-image {
+    
+    max-width: 270px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sat-hero {
+    padding: 80px 1rem 2.5rem;
+  }
+  
+  .hero-container {
+    gap: 0rem;
+  }
+  
+  /* REDUCE HEADING SIZE BY 60% (40% of original) */
+  .sat-hero-title {
+    font-size: 1.4rem; 
+    line-height: 1;
+    margin-bottom: 0.6rem;
+  }
+  
+  /* REDUCE SUBTITLE SIZE BY 60% */
+  .sat-hero-subtitle {
+    font-size: 0.8rem; 
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* UPDATED: Top two buttons in a row, download button below (centered for mobile) */
+  .hero-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* First two buttons side by side */
+  .sat-hero-btn,
+  .sat-hero-btn-secondary {
+    display: inline-flex; 
+    flex: 1;
+    width: auto;                   /* important */
+    max-width: none;
+    min-width: auto;
+    padding: 0.875rem 0.5rem;
+    font-size: 0.95rem;
+    white-space: nowrap;  
+  }
+  
+  /* Download button takes full width and centered */
+  .download-notes-btn {
+    display: inline-flex; 
+    width: auto;                   /* important */
+    max-width: none;
+    min-width: auto;
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap; 
+  }
+
+  .hero-book-image {
+    max-width: 240px;
   }
 }
 
 @media (max-width: 480px) {
   .sat-hero {
-    min-height: 450px; /* Further reduce min-height */
-    padding-top: 57px;
+    padding: 70px 0.75rem 2rem;
   }
   
-  .hero-content {
-    margin-top: 1.5rem;
-    padding: 1rem;
+  .hero-container {
+    gap: 1.5rem;
   }
   
+  /* FURTHER REDUCE HEADING SIZE FOR SMALL MOBILE */
   .sat-hero-title {
-    font-size: 1.8rem;
-    line-height: 1.3;
-    margin-bottom: 0.8rem;
+    font-size: 1rem; 
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
   }
   
+  /* FURTHER REDUCE SUBTITLE SIZE */
   .sat-hero-subtitle {
-    font-size: 1rem;
-    line-height: 1.4;
-    margin-bottom: 2rem;
-    padding: 0;
+    font-size: .8rem; 
+    line-height: 1.3;
+    margin-bottom: 1rem;
   }
   
   .hero-buttons {
-    gap: 0.8rem;
+    gap: 0.5rem;
   }
   
   .sat-hero-btn,
   .sat-hero-btn-secondary {
-    padding: 0.7rem 0rem;
-    font-size: 1rem;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+    min-width: 120px;
+  }
+  
+  .download-notes-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Further reduce image size */
+  .hero-book-image {
+    max-width: 200px;
   }
 }
 
-/* Optional: Add a min-height to ensure content is visible on very small screens */
-@media (max-height: 600px) {
-  .sat-hero {
-    min-height: 400px;
-  }
+/* Optional: Add animation for book image */
+@keyframes bookGlow {
+  0%, 100% { filter: drop-shadow(0 20px 40px rgba(43, 70, 60, 0.2)); }
+  50% { filter: drop-shadow(0 25px 50px rgba(43, 70, 60, 0.3)); }
+}
+
+.hero-book-image {
+  animation: float 6s ease-in-out infinite, bookGlow 3s ease-in-out infinite;
 }
 
 /* SAT Features Section - UPDATED WITH GRADIENT ICONS */
@@ -734,7 +943,7 @@
 
 .sat-features-title {
   text-align: center;
-  font-size: 1.5rem; /* INCREASED */
+  font-size: 1.7rem; /* INCREASED */
   font-weight: 800;
   color: #2B463C;
   margin-bottom: 1rem;
@@ -793,7 +1002,7 @@
 }
 
 .sat-feature-icon-circle .MuiSvgIcon-root {
-  font-size: 40px !important;
+  font-size: 30px !important;
   color: white;
 }
 
@@ -1281,7 +1490,7 @@
 }
 
 .sat-quick-nav h2 {
-  font-size: 2.3rem; /* INCREASED */
+  font-size: 1.7rem; /* INCREASED */
   font-weight: 800; /* INCREASED */
   color: #2B463C;
   margin-bottom: 0.5rem;
@@ -1379,7 +1588,7 @@
   border: none;
   padding: 1rem 3rem;
   border-radius: 14px;
-  font-size: 1.2rem; /* INCREASED */
+  font-size: 1rem; /* INCREASED */
   font-weight: 700; /* INCREASED */
   cursor: pointer;
   transition: background 0.3s ease;
@@ -1395,7 +1604,7 @@
   color: #2B463C;
   border: none;
   padding: 0.75rem 1.5rem;
-  font-size: 1.1rem; /* INCREASED */
+  font-size: 0.9rem; /* INCREASED */
   font-weight: 600;
   cursor: pointer;
   font-family: 'Poppins', sans-serif; /* BETTER FONT */
@@ -1410,6 +1619,8 @@
   padding: 3rem 2rem;
   background: #F8F9F5;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .blog-container {
@@ -1424,17 +1635,17 @@
 }
 
 .blog-header h2 {
-  font-size: 2.5rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: #2B463C;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-family: 'Poppins', sans-serif;
 }
 
 .blog-header p {
   color: #666666;
   font-size: 1.2rem;
-  max-width: 600px;
+  max-width: 1000px;
   margin: 0 auto;
   font-family: 'Inter', sans-serif;
 }
@@ -1469,7 +1680,7 @@
 }
 
 .blog-card-image {
-  height: 200px;
+  height: 130px;
   width: 100%;
   background-size: cover;
   background-position: center;
@@ -1489,17 +1700,16 @@
 }
 
 .blog-card-content {
-  padding: 1.75rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .blog-card-title {
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #2B463C;
-  margin-bottom: 1rem;
   line-height: 1.4;
   font-family: 'Poppins', sans-serif;
   display: -webkit-box;
@@ -1510,14 +1720,14 @@
 }
 
 .blog-card-desc {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #666666;
   margin-bottom: 1.5rem;
   line-height: 1.6;
   font-family: 'Inter', sans-serif;
   flex-grow: 1;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 4.8em;
@@ -1528,7 +1738,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding-top: 1rem;
+  padding-top: 0.7rem;
   border-top: 1px solid #eee;
 }
 
@@ -1543,7 +1753,7 @@
 
 .blog-card-read-more {
   color: #4A7C59;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   display: flex;
@@ -1563,7 +1773,7 @@
 /* CTA Button */
 .blog-cta {
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   width: 100%;
 }
 
@@ -1574,9 +1784,9 @@
   background: #4A7C59;
   color: white;
   border: none;
-  padding: 1rem 2.5rem;
+  padding: 1rem 2rem;
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1680,7 +1890,7 @@
   }
   
   .blog-header h2 {
-    font-size: 1.8rem;
+    font-size: 1.3rem;
   }
   
   .blog-header p {
@@ -1700,7 +1910,7 @@
   }
   
   .blog-card-title {
-    font-size: 1.15rem;
+    font-size: 1rem;
     min-height: 2.4em;
   }
   
@@ -1722,7 +1932,7 @@
 }
 
 .sat-testimonials h2 {
-  font-size: 2.3rem; /* INCREASED */
+  font-size: 1.7rem; /* INCREASED */
   font-weight: 800; /* INCREASED */
   color: #2B463C;
   margin-bottom: 0.5rem;
@@ -1735,7 +1945,7 @@
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  font-size: 1.2rem; /* INCREASED */
+  font-size: 1rem; /* INCREASED */
   font-family: 'Inter', sans-serif;
 }
 
@@ -1743,7 +1953,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto 3rem;
 }
 
@@ -1757,17 +1967,17 @@
 
 .testimonial-quote {
   font-style: italic;
-  font-size: 1.15rem; /* INCREASED */
+  font-size: 1rem; /* INCREASED */
   color: #444444;
   line-height: 1.6;
-  margin-bottom: 2rem;
+  margin-bottom: 0.7rem;
   position: relative;
   font-family: 'Inter', sans-serif;
 }
 
 .testimonial-quote::before {
   content: '"';
-  font-size: 3rem;
+  font-size: 2rem;
   color: #8FCB9B;
   position: absolute;
   top: -1.5rem;
@@ -1778,7 +1988,7 @@
 .testimonial-author {
   font-weight: 800; /* INCREASED */
   color: #2B463C;
-  font-size: 1.25rem; /* INCREASED */
+  font-size: 1rem; /* INCREASED */
   margin-bottom: 0.5rem;
   font-family: 'Poppins', sans-serif; /* BETTER FONT */
 }
@@ -1828,9 +2038,9 @@
 }
 
 .footer-column h3 {
-  font-size: 1.35rem; /* INCREASED */
+  font-size: 1.2rem; /* INCREASED */
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: white;
   font-family: 'Poppins', sans-serif; /* BETTER FONT */
 }
@@ -1911,23 +2121,39 @@
     display: block;
   }
   
-  .sat-hero-title {
-    font-size: 2.2rem; /* Adjusted for mobile */
-  }
-  
-  .sat-hero-subtitle {
-    font-size: 1.1rem; /* Adjusted for mobile */
-  }
+  /* Already reduced hero title and subtitle above */
   
   .hero-buttons {
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+    justify-content: center;
   }
   
   .sat-hero-btn,
   .sat-hero-btn-secondary {
+    display: inline-flex; 
+    flex: 1;
+    width: auto;               
+    max-width: none;
+    min-width: auto;
+    padding: 0.65rem 1rem !important;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  
+  .download-notes-btn {
+    display: inline-flex; 
     width: 100%;
-    max-width: 300px;
+    width: auto;               
+    max-width: none;
+    min-width: auto;
+    padding: 0.65rem 1rem !important;
+    font-size: 0.8rem;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
   }
   
   .sat-features-title,
@@ -1935,7 +2161,7 @@
   .sat-quick-nav h2,
   .sat-progress h2,
   .sat-testimonials h2 {
-    font-size: 1.5rem; /* INCREASED */
+    font-size: 1.2rem; /* INCREASED */
   }
   
   .sat-features-subtitle,
@@ -1943,7 +2169,7 @@
   .sat-quick-nav p,
   .sat-progress p,
   .sat-testimonials p {
-    font-size: 1.15rem; /* INCREASED */
+    font-size: 1rem; /* INCREASED */
   }
   
   .sat-features-grid,
@@ -2027,10 +2253,6 @@
 }
 
 @media (max-width: 480px) {
-  .sat-hero-title {
-    font-size: 1.8rem; /* Adjusted for mobile */
-  }
-  
   .nav-container {
     padding: 0.4rem 1rem;
   }
@@ -2061,7 +2283,7 @@
   
   .sat-feature-card h3,
   .section-card-header h3 {
-    font-size: 1.4rem; /* INCREASED */
+    font-size: 1.1rem; /* INCREASED */
   }
   
   .ranking-header-compact h2 {
@@ -2778,5 +3000,48 @@ body::-webkit-scrollbar,
   
   .notification-text {
     font-size: 0.85rem;
+  }
+}
+
+/* FOOTER DISCLAIMER */
+.footer-disclaimer {
+}
+
+.footer-disclaimer p {
+  color: rgba(190, 190, 190, 0.9);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+}
+
+.footer-disclaimer strong {
+  color: rgb(157, 157, 157);
+  font-weight: 700;
+}
+
+/* Responsive adjustments for disclaimer */
+@media (max-width: 768px) {
+  .footer-disclaimer {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .footer-disclaimer p {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-disclaimer {
+    padding: 0.875rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .footer-disclaimer p {
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 }

@@ -103,7 +103,7 @@ function Info() {
                 <p className="card-description">
                   Welcome to Mock SAT Exam, your premier destination for AI-powered SAT preparation. 
                   Founded in 2023, we are dedicated to revolutionizing SAT preparation through 
-                  cutting-edge technology and personalized learning experiences.
+                  cutting-edge technology and personalized learning experiences. MockSATExam.online is an independent educational platform and is not affiliated with, endorsed by, or connected to the College Board or SAT®. All questions are original and created for practice purposes only.
                 </p>
                 <div className="card-details">
                   <h4>Our Mission</h4>
@@ -439,53 +439,21 @@ function Info() {
                     <span className="status-indicator active">✓</span>
                   </div>
                   
-                  <div className="status-grid">
-                    <div className="status-item">
-                      <div className="status-name">Website</div>
-                      <div className="status-value operational">Operational</div>
-                      <div className="status-update">Updated 5 min ago</div>
-                    </div>
-                    <div className="status-item">
-                      <div className="status-name">Mock Test Platform</div>
-                      <div className="status-value operational">Operational</div>
-                      <div className="status-update">Updated 2 min ago</div>
-                    </div>
-                    <div className="status-item">
-                      <div className="status-name">AI Tutor Service</div>
-                      <div className="status-value operational">Operational</div>
-                      <div className="status-update">Updated 1 min ago</div>
-                    </div>
-                    <div className="status-item">
-                      <div className="status-name">Practice Questions</div>
-                      <div className="status-value operational">Operational</div>
-                      <div className="status-update">Updated 3 min ago</div>
-                    </div>
-                    <div className="status-item">
-                      <div className="status-name">Mobile Apps</div>
-                      <div className="status-value operational">Operational</div>
-                      <div className="status-update">Updated 10 min ago</div>
-                    </div>
-                    <div className="status-item">
-                      <div className="status-name">Payment System</div>
-                      <div className="status-value operational">Operational</div>
-                      <div className="status-update">Updated 15 min ago</div>
-                    </div>
-                  </div>
                   
                   <div className="incident-history">
                     <h4>Recent Incidents</h4>
                     <div className="incident">
-                      <div className="incident-date">March 15, 2024</div>
+                      <div className="incident-date">December 15, 2025</div>
                       <div className="incident-desc">Scheduled maintenance completed</div>
                       <div className="incident-status resolved">Resolved</div>
                     </div>
                     <div className="incident">
-                      <div className="incident-date">March 10, 2024</div>
+                      <div className="incident-date">December 10, 2025</div>
                       <div className="incident-desc">Minor API latency issue</div>
                       <div className="incident-status resolved">Resolved</div>
                     </div>
                     <div className="incident">
-                      <div className="incident-date">March 5, 2024</div>
+                      <div className="incident-date">December 5, 2025</div>
                       <div className="incident-desc">Database optimization</div>
                       <div className="incident-status resolved">Resolved</div>
                     </div>
@@ -544,12 +512,7 @@ function Info() {
                     support team to exercise these rights.
                   </p>
                   
-                  <div className="legal-download">
-                    <a href="#" className="download-full-btn">
-                      Download Full Privacy Policy (PDF)
-                    </a>
-                    <span className="last-updated">Last updated: March 1, 2024</span>
-                  </div>
+                  
                 </div>
               </div>
 
@@ -597,12 +560,7 @@ function Info() {
                     not responsible for any damages resulting from your use of our services.
                   </p>
                   
-                  <div className="legal-download">
-                    <a href="#" className="download-full-btn">
-                      Download Full Terms of Service (PDF)
-                    </a>
-                    <span className="last-updated">Last updated: March 1, 2024</span>
-                  </div>
+                  
                 </div>
               </div>
 

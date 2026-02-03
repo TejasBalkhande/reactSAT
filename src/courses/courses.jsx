@@ -262,11 +262,11 @@ const CoursesScreen = () => {
             <Link to="/" className="nav-link sat-nav-link courses-link">
               Home
             </Link>
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link mock-practice-link">
+              Questions
+            </Link>
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
-            </Link>
-            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link mock-practice-link">
-              Mocks
             </Link>
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
@@ -341,11 +341,11 @@ const CoursesScreen = () => {
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+               Questions
+            </Link>
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                RoadMap
-            </Link>
-            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-               Mocks
             </Link>
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
                Blogs

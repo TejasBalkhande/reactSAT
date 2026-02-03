@@ -1,4 +1,4 @@
-// App.jsx - UPDATED WITH NOTIFICATION MESSAGES
+// App.jsx - UPDATED WITH NEW HERO SECTION
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import { 
@@ -15,7 +15,8 @@ import {
   FaUserCircle,
   FaArrowUp,
   FaArrowDown,
-  FaTimes
+  FaTimes,
+  FaDownload
 } from 'react-icons/fa';
 import './App.css'
 
@@ -40,8 +41,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
-
-// Import StudyPlan component
+import Note from './pages/Note';
 import StudyPlan from './StudyPlan';
 import PracticePage from './PracticePage';
 import BlogsList from './pages/BlogsList';
@@ -59,10 +59,10 @@ import Info from './pages/Info';
 import Blog1 from './blogs/blog1';
 import Blog2 from './blogs/blog2';
 import Blog3 from './blogs/blog3';
-import Game from './game';
-
+import BannerAd from './banner';
 // Import leaderboard data from JSON file
 import leaderboardData from './assets/leaderboardData.json';
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -75,51 +75,6 @@ const ProtectedRoute = ({ children }) => {
   
   return children;
 };
-
-// SEO Component for Home Page
-const HomePageSEO = () => (
-  <Helmet>
-    <title>Free Digital SAT Prep 2026 | AI-Powered Mock Exams & Study Plans</title>
-    <meta name="description" content="Prepare for the Digital SAT 2026 with free AI-powered mock exams, personalized study roadmaps, Ivy League score guides, and interactive SAT practice tests. Boost your SAT score today." />
-    <meta name="keywords" content="Digital SAT prep 2026, SAT mock exams, free SAT practice tests, SAT study plan, SAT roadmap, SAT courses, SAT score improvement, Ivy League SAT scores" />
-    <meta name="author" content="Mock SAT Exam" />
-    <meta property="og:title" content="Free Digital SAT Prep 2026 | AI-Powered Mock Exams & Study Plans" />
-    <meta property="og:description" content="Master the Digital SAT 2026 with AI-powered mock tests, personalized roadmaps, and expert SAT strategies. Start your free SAT prep today." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://mocksatexam.com/" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Free Digital SAT Prep 2026" />
-    <meta name="twitter:description" content="AI-powered SAT prep with mock exams, study roadmaps, and score improvement strategies." />
-    <link rel="canonical" href="https://mocksatexam.com/" />
-    <script type="application/ld+json">
-      {JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "Mock SAT Exam",
-        "description": "Free Digital SAT preparation platform with AI-powered mock tests and study plans",
-        "url": "https://mocksatexam.com/",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        }
-      })}
-    </script>
-  </Helmet>
-);
-
-// SEO Component for Blog Pages
-const BlogSEO = ({ title, description, slug }) => (
-  <Helmet>
-    <title>{title} | Mock SAT Exam</title>
-    <meta name="description" content={description} />
-    <meta name="keywords" content="SAT blog, SAT tips, SAT strategies, Digital SAT 2026, SAT preparation" />
-    <link rel="canonical" href={`https://mocksatexam.com/blog/${slug}`} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="article" />
-  </Helmet>
-);
 
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -165,24 +120,27 @@ function HomePage() {
         id: 1,
         title: 'Digital SAT Score Range: What is a \'Good\' Score for the Ivy League in 2026?',
         description: 'Aiming for the Ivy League in 2026? Get the essential Digital SAT score ranges, understand the new testing requirements, and learn how to build a winning application strategy.',
-        date: '2026-01-20',
+        date: '2026-01-25T08:00:00+00:00',
         image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80',
+        author: 'Mock SAT Expert',
         slug: 'digital-sat-score-ivy-league-2026-good-score-range'
       },
       {
         id: 2,
         title: 'SAT vs. ACT in 2026: The Ultimate Guide to Choosing the Right Test for You',
         description: 'Struggling to choose between the SAT and ACT in 2026? Our comprehensive guide compares the digital SAT vs. ACT\'s format, content, scoring, and helps you pick the best test for your strengths.',
-        date: '2026-01-18',
+        date: '2026-01-25T08:00:00+00:00',
         image: 'https://images.unsplash.com/photo-1598981457915-aea220950616?q=80&w=1193&auto=format&fit=crop&w=800&q=80',
+        author: 'Mock SAT Expert',
         slug: 'sat-vs-act-2026-which-test-easier-choice-guide'
       },
       {
         id: 3,
         title: 'The Ultimate Guide to Mastering Desmos for the Digital SAT: Boost Your Score by 100+ Points',
         description: 'Stop using Desmos like a basic calculator! Our ultimate guide reveals the 7 essential skills and step-by-step strategies to solve SAT math problems faster and boost your score. Click to learn the secrets.',
-        date: '2026-01-15',
+        date: '2026-01-25T08:00:00+00:00',
         image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=800&q=80',
+        author: 'Mock SAT Expert',
         slug: 'ultimate-guide-master-desmos-digital-sat'
       }
     ]
@@ -302,6 +260,11 @@ function HomePage() {
     }, 5000);
   }
 
+  // Handle Download Notes button click
+  const handleDownloadNotes = () => {
+    navigate('/notes-question-bank');
+  }
+
   // Get medal icon based on rank
   const getRankIcon = (rank) => {
     switch(rank) {
@@ -324,7 +287,6 @@ function HomePage() {
 
   return (
     <div className="app sat-app">
-      <HomePageSEO />
       <nav className="navbar sat-navbar">
         <div className="nav-container">
           <div className="logo sat-logo">
@@ -332,14 +294,17 @@ function HomePage() {
             <span className="logo-text">Mock SAT Exam</span>
           </div>
           
-          {/* Navigation links and Account button on rightmost side */}
+          {/* Navigation links and Account button on rightmost side - ALWAYS VISIBLE ON DESKTOP */}
           <div className="nav-links sat-nav-links">
             
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link" aria-label="SAT Study Roadmap">
               RoadMap
             </Link>
             <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link digital-sat-practice-questions-link" aria-label="SAT Mock Practice Tests">
-              Mocks
+              Questions
+            </Link>
+            <Link to="/notes-question-bank" className="nav-link sat-nav-link roadmap-link" aria-label="SAT Study Roadmap">
+              Qn.Bank
             </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link" aria-label="Free SAT Courses">
               Courses
@@ -351,51 +316,80 @@ function HomePage() {
             {/* UPDATED ACCOUNT BUTTON - Shows Profile when logged in */}
             <button 
               onClick={handleAccountClick}
-              className="nav-link sat-nav-link community-link account-button"
+              className="nav-link sat-nav-link account-button"
               aria-label={isLoggedIn ? "View SAT Profile" : "SAT Account Login"}
             >
               {isLoggedIn ? 'Profile' : 'Account'}
             </button>
           </div>
           
-          {/* Mobile menu toggle */}
+          {/* Mobile menu toggle - VISIBLE ONLY ON TABLET/MOBILE (via CSS) */}
           <button 
-            className="menu-toggle" 
+            className={`menu-toggle ${isMenuOpen ? 'active' : ''}`} 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Open SAT navigation menu"
+            aria-label={isMenuOpen ? "Close SAT navigation menu" : "Open SAT navigation menu"}
+            aria-expanded={isMenuOpen}
           >
             ☰
           </button>
         </div>
       </nav>
 
-      {/* Hero Section - MAIN H1 TAG */}
-      <section className="hero-section sat-hero" role="banner">
-        <div className="hero-overlay sat-hero-overlay"></div>
-        <div className="hero-content">
-          <h1 className="hero-title sat-hero-title">
-            Boost 2026 Digital SAT Score : AI-Roadmaps
-          </h1>
+      {/* UPDATED: Hero Section - Two Column Layout */}
+      <section className="hero-section sat-hero " role="banner">
+        <div className="sat-hero-overlay"></div>
+        <div className="hero-container">
+          {/* Left Column: Text and Buttons */}
+          <div className="hero-left">
+            <div className="hero-content">
+              <h1 className="hero-title sat-hero-title">
+                Boost Your 2026 Digital SAT Score with AI
+              </h1>
+              
+              <p className="hero-subtitle sat-hero-subtitle">
+                Start with a Free Full-Length Mock Test, get an instant score prediction, and let our AI tutor build your custom path to 1500+
+              </p>
+              
+              {/* UPDATED: Two buttons in a row, download button below (centered for mobile) */}
+              <div className="hero-buttons">
+                <button 
+                  className="hero-btn primary sat-hero-btn"
+                  onClick={handleStartMockTest}
+                  aria-label="Start Free SAT Mock Test"
+                >
+                  <FaPlayCircle aria-hidden="true" />
+                  Mock Test
+                </button>
+                <button 
+                  className="hero-btn secondary sat-hero-btn-secondary" 
+                  onClick={handleRoadmap}
+                  aria-label="View SAT Study Plans"
+                >
+                  <FaChartBar aria-hidden="true" />
+                  Study Plans
+                </button>
+                
+                {/* Download Notes Button - Takes full width below the two buttons */}
+                <button 
+                  className="download-notes-btn"
+                  onClick={handleDownloadNotes}
+                  aria-label="Download Free SAT Notes PDF"
+                >
+                  <FaDownload className="download-icon" aria-hidden="true" />
+                  Notes/Question Bank
+                </button>
+              </div>
+            </div>
+          </div>
           
-          {/* OPTIMIZED Subtitle to catch "Mock Tests" and "Free" traffic */}
-          <p className="hero-subtitle sat-hero-subtitle">
-            Start with a Free Full-Length Mock Test, get an instant score prediction, and let our AI tutor build your custom path to 1500+
-          </p>
-          <div className="hero-buttons">
-            <button 
-              className="hero-btn primary sat-hero-btn"
-              onClick={handleStartMockTest}
-              aria-label="Start Free SAT Mock Test"
-            >
-              Start a Mock Test
-            </button>
-            <button 
-              className="hero-btn secondary sat-hero-btn-secondary" 
-              onClick={handleRoadmap}
-              aria-label="View SAT Study Plans"
-            >
-              View Study Plans
-            </button>
+          {/* Right Column: Book Image */}
+          <div className="hero-right">
+            <img 
+              src="/book.png" 
+              alt="Digital SAT Study Book with transparent background - Free SAT Preparation Materials" 
+              className="hero-book-image"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
@@ -442,9 +436,12 @@ function HomePage() {
         </div>
       </section>
 
+      <BannerAd />
+
       {/* UPDATED: Blog Section - Static Grid for Desktop, Stacked for Mobile */}
       <section className="blog-section" aria-labelledby="blog-title">
         <div className="blog-container">
+          
           <div className="blog-header">
             <h2 id="blog-title">Latest SAT Blog Posts</h2>
             <p>Stay updated with the latest Digital SAT prep tips and strategies for 2026</p>
@@ -464,6 +461,8 @@ function HomePage() {
                     itemScope 
                     itemType="https://schema.org/Article"
                   >
+                    <link itemProp="image" href={post.image} />
+                    
                     <div 
                       className="blog-card-image"
                       style={{ backgroundImage: `url(${post.image})` }}
@@ -806,6 +805,8 @@ function HomePage() {
         )}
       </section>
 
+      <BannerAd />
+
       {/* Quick Navigation */}
       <section className="quick-nav-section sat-quick-nav" aria-labelledby="quick-nav-title">
         <h2 id="quick-nav-title">Quick SAT Navigation</h2>
@@ -884,27 +885,58 @@ function HomePage() {
       <section className="testimonials-section sat-testimonials" aria-labelledby="testimonials-title">
         <h2 id="testimonials-title">SAT Success Stories</h2>
         <p>Hear from students who achieved their dream SAT scores</p>
-        
+
         <div className="testimonials-grid">
+          {/* Testimonial 1 */}
           <div className="testimonial-card sat-testimonial-card" itemScope itemType="https://schema.org/Review">
-            <div className="testimonial-quote" itemProp="reviewBody">"SAT Prep Pro helped me increase my score by 250 points! The mock tests were incredibly realistic for the Digital SAT."</div>
-            <div className="testimonial-author" itemProp="author">Emily R.</div>
+            <div itemProp="itemReviewed" itemScope itemType="https://schema.org/Course">
+              <meta itemProp="name" content="SAT Prep Service" />
+              {/* FIXED: These must be INSIDE the Course div */}
+              <meta itemProp="description" content="A comprehensive free digital SAT preparation platform featuring AI-driven mock tests, personalized study plans, and performance analytics." />
+              <div itemProp="provider" itemScope itemType="https://schema.org/Organization">
+                <meta itemProp="name" content="Mock SAT Exam" />
+              </div>
+            </div>
+            <div className="testimonial-quote" itemProp="reviewBody">"Mock SAT helped me increase my score by 250 points! The mock tests were incredibly realistic for the Digital SAT."</div>
+            <div className="testimonial-author" itemProp="author" itemScope itemType="https://schema.org/Person">
+              <span itemProp="name">Emily R.</span>
+            </div>
             <div className="testimonial-score">Scored: 1550</div>
           </div>
-          
+
+          {/* Testimonial 2 */}
           <div className="testimonial-card sat-testimonial-card" itemScope itemType="https://schema.org/Review">
+            <div itemProp="itemReviewed" itemScope itemType="https://schema.org/Course">
+              <meta itemProp="name" content="SAT Prep Service" />
+              <meta itemProp="description" content="A comprehensive free digital SAT preparation platform featuring AI-driven mock tests, personalized study plans, and performance analytics." />
+              <div itemProp="provider" itemScope itemType="https://schema.org/Organization">
+                <meta itemProp="name" content="Mock SAT Exam" />
+              </div>
+            </div>
             <div className="testimonial-quote" itemProp="reviewBody">"The personalized SAT study plan identified my weak areas and helped me focus my efforts efficiently for the 2026 Digital SAT."</div>
-            <div className="testimonial-author" itemProp="author">Michael T.</div>
+            <div className="testimonial-author" itemProp="author" itemScope itemType="https://schema.org/Person">
+              <span itemProp="name">Michael T.</span>
+            </div>
             <div className="testimonial-score">Scored: 1480</div>
           </div>
-          
+
+          {/* Testimonial 3 */}
           <div className="testimonial-card sat-testimonial-card" itemScope itemType="https://schema.org/Review">
+            <div itemProp="itemReviewed" itemScope itemType="https://schema.org/Course">
+              <meta itemProp="name" content="SAT Prep Service" />
+              <meta itemProp="description" content="A comprehensive free digital SAT preparation platform featuring AI-driven mock tests, personalized study plans, and performance analytics." />
+              <div itemProp="provider" itemScope itemType="https://schema.org/Organization">
+                <meta itemProp="name" content="Mock SAT Exam" />
+              </div>
+            </div>
             <div className="testimonial-quote" itemProp="reviewBody">"The expert SAT strategies for time management completely changed how I approached the Digital SAT exam."</div>
-            <div className="testimonial-author" itemProp="author">Sophia K.</div>
+            <div className="testimonial-author" itemProp="author" itemScope itemType="https://schema.org/Person">
+              <span itemProp="name">Sophia K.</span>
+            </div>
             <div className="testimonial-score">Scored: 1520</div>
           </div>
         </div>
-        
+
         <div className="trust-badges">
           <div className="trust-badge">College Board®</div>
           <div className="trust-badge">Princeton Review®</div>
@@ -918,31 +950,31 @@ function HomePage() {
         <div className="footer-content">
           <div className="footer-columns">
             <div className="footer-column">
-              <h3>SAT Company</h3>
+              <h3>Company</h3>
               <Link to="/info#company">About SAT Prep</Link>
-              <Link to="/info#company">SAT Careers</Link>
-              <Link to="/info#company">SAT Press</Link>
+              <Link to="/info#company">Careers</Link>
+              <Link to="/info#company">Press</Link>
             </div>
             
             <div className="footer-column">
               <h3>SAT Resources</h3>
-              <Link to="/info#resources">SAT Pricing/Plans</Link>
-              <Link to="/info#resources">SAT Study Materials</Link>
-              <Link to="/info#resources">SAT FAQs</Link>
+              <Link to="/info#resources">Pricing/Plans</Link>
+              <Link to="/info#resources">Study Materials</Link>
+              <Link to="/info#resources">FAQs</Link>
             </div>
             
             <div className="footer-column">
-              <h3>SAT Support</h3>
-              <Link to="/info#support">Contact SAT Help</Link>
-              <Link to="/info#support">SAT Help Center</Link>
-              <Link to="/info#support">SAT System Status</Link>
+              <h3>Support</h3>
+              <Link to="/info#support">ContactHelp</Link>
+              <Link to="/info#support">Help Center</Link>
+              <Link to="/info#support">System Status</Link>
             </div>
             
             <div className="footer-column">
-              <h3>SAT Legal</h3>
-              <Link to="/info#legal">SAT Privacy Policy</Link>
-              <Link to="/info#legal">SAT Terms of Service</Link>
-              <Link to="/info#legal">SAT Cookie Policy</Link>
+              <h3>Legal</h3>
+              <Link to="/info#legal">Privacy Policy</Link>
+              <Link to="/info#legal">Terms of Service</Link>
+              <Link to="/info#legal">Cookie Policy</Link>
             </div>
           </div>
 
@@ -956,11 +988,12 @@ function HomePage() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="mobile-menu sat-mobile-menu" role="dialog" aria-label="SAT Navigation Menu">
-          {/* ADD THIS HEADER SECTION WITH LOGO */}
+        <div className="mobile-menu sat-mobile-menu" role="dialog" aria-label="SAT Navigation Menu" aria-modal="true">
+          {/* Header with logo and close button */}
           <div className="mobile-menu-header">
             <div className="mobile-menu-logo">
               <img src="/logo.png" alt="Mock SAT Exam" className="mobile-logo-img" />
+              <span className="mobile-logo-text">Mock SAT Exam</span>
             </div>
             <button 
               className="close-menu" 
@@ -975,16 +1008,18 @@ function HomePage() {
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
-            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Courses
+            <Link to="/notes-question-bank" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Qn.Bank
             </Link>
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
             <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Mocks
+              Questions
             </Link>
-
+            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Courses
+            </Link>
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs
             </Link>
@@ -996,8 +1031,11 @@ function HomePage() {
               className="mobile-menu-link"
               aria-label={isLoggedIn ? "SAT Profile" : "SAT Account Login"}
             >
-              {isLoggedIn ? 'SAT Profile' : 'SAT Account'}
+              <PersonIcon style={{ fontSize: '1.4rem' }} aria-hidden="true" />
+              {isLoggedIn ? 'Profile' : 'Account'}
             </button>
+            
+          
           </div>
         </div>
       )}
@@ -1014,28 +1052,16 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/digital-sat-practice-questions" element={<StudyPlan />} /> 
           <Route path="/practice" element={<PracticePage />} />
-          {/* Practice routes - handle both /practice and direct topic URLs */}
-          <Route path="/practice" element={<PracticePage />} />
+
           
           {/* Catch-all route for topic-based practice URLs */}
           <Route path="/math" element={<PracticePage />} />
           <Route path="/reading-and-writing" element={<PracticePage />} />
-          <Route path="/:topicSlug" element={<PracticePage />} />
-          <Route path="/:subdomainSlug/:topicSlug" element={<PracticePage />} />
-          <Route path="/courses" element={<CoursesScreen/>} />
-          <Route path="/courses/:id" element={<CoursesPlaylistScreen />} />
           <Route path="/roadmap" element={ <Roadmap/>  }/>
           <Route path="/roadmap-level" element={ <RoadmapLevel/>  }/>
           <Route path="/digital-sat-practice-questions" element={<StudyPlan/>} />
-          <Route path="/mock-test/:mockTestId" element={<MockTestScreen />} />
-          <Route path="/game" element={<Game/>} />
-          <Route path="/info" element={<Info />} />
-          <Route path="/blogs" element={<BlogsList />} />
-          <Route path="/blog/digital-sat-score-ivy-league-2026-good-score-range" element={<Blog1 />} />
-          <Route path="/blog/sat-vs-act-2026-which-test-easier-choice-guide" element={<Blog2 />} />
-          <Route path="/blog/ultimate-guide-master-desmos-digital-sat" element={<Blog3 />} />          
-          <Route path="/blog/:slug" element={<SingleBlog />} />
-          <Route path="/admin/create-blog" element={<CreateBlog />} />
+          <Route path="/courses" element={<CoursesScreen/>} />
+
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/signup" element={<SignupScreen />} />
           <Route path="/profile" element={
@@ -1043,6 +1069,26 @@ function App() {
               <ProfileScreen />
             </ProtectedRoute>
           } />
+
+          <Route path="/admin/create-blog" element={<CreateBlog />} />
+
+
+          <Route path="/blogs" element={<BlogsList />} />
+          <Route path="/blog/digital-sat-score-ivy-league-2026-good-score-range" element={<Blog1 />} />
+          <Route path="/blog/sat-vs-act-2026-which-test-easier-choice-guide" element={<Blog2 />} />
+          <Route path="/blog/ultimate-guide-master-desmos-digital-sat" element={<Blog3 />} />    
+          <Route path="/info" element={<Info />} />
+
+
+          <Route path="/:topicSlug" element={<PracticePage />} />
+          <Route path="/:subdomainSlug/:topicSlug" element={<PracticePage />} />
+          <Route path="/notes-question-bank" element={<Note />} />
+          <Route path="/courses/:id" element={<CoursesPlaylistScreen />} />
+          
+          <Route path="/mock-test/:mockTestId" element={<MockTestScreen />} />
+    
+          <Route path="/blog/:slug" element={<SingleBlog />} />
+          
         </Routes>
       </Router>
     </HelmetProvider>

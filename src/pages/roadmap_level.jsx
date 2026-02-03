@@ -26,6 +26,7 @@ import {
   FaClock,
   FaImage
 } from 'react-icons/fa';
+import BannerAd from '../banner';
 
 const RoadmapLevel = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -744,6 +745,9 @@ const RoadmapLevel = ({ user, onLogout }) => {
                 </div>
               </div>
             )}
+
+            <BannerAd key={currentQuestionIndex} />
+            <div style={{ marginBottom: "80px" }}></div>
 
             {/* Navigation Buttons */}
             <div className="navigation-buttons">

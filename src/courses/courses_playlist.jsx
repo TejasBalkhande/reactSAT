@@ -275,14 +275,14 @@ const CoursesPlaylistScreen = () => {
             <Link to="/" className="nav-link sat-nav-link community-link">
               Home
             </Link>
+            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link mock-practice-link">
+              Questions
+            </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link">
               Courses
             </Link>
             <Link to="/roadmap" className="nav-link sat-nav-link roadmap-link">
               RoadMap
-            </Link>
-            <Link to="/digital-sat-practice-questions" className="nav-link sat-nav-link mock-practice-link">
-              Mocks
             </Link>
             <Link to="/blogs" className="nav-link sat-nav-link blogs-link">
               Blogs
@@ -314,15 +314,16 @@ const CoursesPlaylistScreen = () => {
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Home
             </Link>
+            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
+              Questions
+            </Link>
             <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Courses
             </Link>
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               RoadMap
             </Link>
-            <Link to="/digital-sat-practice-questions" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
-              Mocks
-            </Link>
+            
 
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)}>
               Blogs

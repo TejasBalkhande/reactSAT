@@ -26,6 +26,8 @@ import {
   FaLock
 } from 'react-icons/fa';
 
+import BannerAd from './banner';
+
 const PracticePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -965,6 +967,7 @@ const PracticePage = () => {
 
       {/* Main Content */}
       <div className="practice-container">
+        
         <div className={`content-wrapper ${isChatOpen ? 'chat-open' : ''}`}>
           {/* Question Section */}
           <div className="question-section">
@@ -1034,6 +1037,10 @@ const PracticePage = () => {
                 {renderQuestionText(currentQuestion.explanation, 16, { color: '#7f8c8d' })}
               </div>
             )}
+            <BannerAd key={currentQuestionIndex} />
+            <div style={{ marginBottom: "80px" }}></div>
+
+          
 
             {/* Navigation Buttons */}
             <div className="navigation-buttons">

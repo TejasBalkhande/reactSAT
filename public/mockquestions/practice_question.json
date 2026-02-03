@@ -1,75 +1,75 @@
 [
   {
-    "question_id": "a7f2e1b9",
+    "question_id": "e7f3a2b1",
     "image": "",
     "assessment": "SAT",
     "test": "Math",
     "domain": "Geometry and Trigonometry",
     "skill": "Area and volume",
-    "difficulty": "Easy",
-    "question_text": "A rectangular garden measures 12 feet by 18 feet. What is its area in square feet?",
+    "difficulty": "Medium",
+    "question_text": "A rectangular garden has a length that is 4 feet longer than its width. If the perimeter of the garden is 60 feet, what is its area in square feet?",
     "options": [
-      "A. 30",
-      "B. 60",
-      "C. 180",
-      "D. 216"
-    ],
-    "correct_option": "D",
-    "explanation": "Area of rectangle = length × width = 12 × 18 = 216 ft²."
-  },
-  {
-    "question_id": "b4c8d3e2",
-    "image": "",
-    "assessment": "SAT",
-    "test": "Math",
-    "domain": "Geometry and Trigonometry",
-    "skill": "Area and volume",
-    "difficulty": "Easy",
-    "question_text": "A circle has diameter 10 cm. What is its area?",
-    "options": [
-      "A. \\( 10\\pi \\)",
-      "B. \\( 20\\pi \\)",
-      "C. \\( 25\\pi \\)",
-      "D. \\( 100\\pi \\)"
-    ],
-    "correct_option": "C",
-    "explanation": "Radius = 5 cm. Area = \\( \\pi r^2 = \\pi \\times 5^2 = 25\\pi \\) cm²."
-  },
-  {
-    "question_id": "c5d9e4f3",
-    "image": "",
-    "assessment": "SAT",
-    "test": "Math",
-    "domain": "Geometry and Trigonometry",
-    "skill": "Area and volume",
-    "difficulty": "Easy",
-    "question_text": "The base of a triangle is 8 m and its height is 5 m. What is its area?",
-    "options": [
-      "A. 13 m²",
-      "B. 20 m²",
-      "C. 30 m²",
-      "D. 40 m²"
+      "A. 209",
+      "B. 221",
+      "C. 225",
+      "D. 240"
     ],
     "correct_option": "B",
-    "explanation": "Area = \\( \\frac{1}{2} \\times \\text{base} \\times \\text{height} = \\frac{1}{2} \\times 8 \\times 5 = 20 \\) m²."
+    "explanation": "Let width = w. Length = w + 4. Perimeter = 2(w + w + 4) = 60. 4w + 8 = 60 → 4w = 52 → w = 13. Length = 17. Area = 13 × 17 = 221 ft²."
   },
   {
-    "question_id": "d6e0f5a4",
+    "question_id": "f8g4h5i6",
     "image": "",
     "assessment": "SAT",
     "test": "Math",
     "domain": "Geometry and Trigonometry",
     "skill": "Area and volume",
-    "difficulty": "Easy",
-    "question_text": "A cube has edge length 3 cm. What is its volume?",
+    "difficulty": "Medium",
+    "question_text": "The circumference of a circle is \\( 12\\pi \\). What is the area of the circle?",
     "options": [
-      "A. 9 cm³",
-      "B. 18 cm³",
-      "C. 27 cm³",
-      "D. 54 cm³"
+      "A. \\( 24\\pi \\)",
+      "B. \\( 36\\pi \\)",
+      "C. \\( 72\\pi \\)",
+      "D. \\( 144\\pi \\)"
+    ],
+    "correct_option": "B",
+    "explanation": "Circumference \\( C = 2\\pi r = 12\\pi \\). Dividing by \\( 2\\pi \\), we get \\( r = 6 \\). Area = \\( \\pi r^2 = \\pi (6)^2 = 36\\pi \\)."
+  },
+  {
+    "question_id": "g9h5i6j7",
+    "image": "",
+    "assessment": "SAT",
+    "test": "Math",
+    "domain": "Geometry and Trigonometry",
+    "skill": "Area and volume",
+    "difficulty": "Medium",
+    "question_text": "An isosceles triangle has a base of 10 cm and the length of each of the two equal sides is 13 cm. What is the area of the triangle?",
+    "options": [
+      "A. 30 cm²",
+      "B. 60 cm²",
+      "C. 65 cm²",
+      "D. 120 cm²"
+    ],
+    "correct_option": "B",
+    "explanation": "Draw the height to the base, splitting it into two 5 cm segments. By the Pythagorean theorem, \\( h^2 + 5^2 = 13^2 \\) → \\( h^2 + 25 = 169 \\) → \\( h^2 = 144 \\) → \\( h = 12 \\). Area = \\( \\frac{1}{2} \\times 10 \\times 12 = 60 \\) cm²."
+  },
+  {
+    "question_id": "h0i6j7k8",
+    "image": "",
+    "assessment": "SAT",
+    "test": "Math",
+    "domain": "Geometry and Trigonometry",
+    "skill": "Area and volume",
+    "difficulty": "Medium",
+    "question_text": "The total surface area of a cube is 96 square inches. What is the volume of the cube?",
+    "options": [
+      "A. 16 in³",
+      "B. 48 in³",
+      "C. 64 in³",
+      "D. 256 in³"
     ],
     "correct_option": "C",
-    "explanation": "Volume = side³ = 3³ = 27 cm³."
+    "explanation": "A cube has 6 congruent square faces. Area of one face = \\( 96 / 6 = 16 \\). Side length \\( s = \\sqrt{16} = 4 \\). Volume = \\( s^3 = 4^3 = 64 \\) in³."
   },
   {
     "question_id": "e7f1a6b5",
@@ -12319,7 +12319,7 @@
     },
     {
       "question_id": "a9040290",
-      "image": "assets/img/a9040290.jpg",
+      "image": "public/img/a9040290.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12337,7 +12337,7 @@
     },
     {
       "question_id": "f452410b",
-      "image": "assets/img/f452410b.jpg",
+      "image": "public/img/f452410b.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12355,7 +12355,7 @@
     },
     {
       "question_id": "9debe79a",
-      "image": "assets/img/9debe79a.jpg",
+      "image": "public/img/9debe79a.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12391,7 +12391,7 @@
     },
     {
       "question_id": "30c3aa98",
-      "image": "assets/img/30c3aa98.jpg",
+      "image": "public/img/30c3aa98.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12409,7 +12409,7 @@
     },
     {
       "question_id": "4042ff0b",
-      "image": "assets/img/4042ff0b.jpg",
+      "image": "public/img/4042ff0b.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12445,7 +12445,7 @@
     },
     {
       "question_id": "a9ac31e4",
-      "image": "assets/img/a9ac31e4.jpg",
+      "image": "public/img/a9ac31e4.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12463,7 +12463,7 @@
     },
     {
       "question_id": "df34b586",
-      "image": "assets/img/df34b586.jpg",
+      "image": "public/img/df34b586.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12499,7 +12499,7 @@
     },
     {
       "question_id": "c4bee178",
-      "image": "assets/img/c4bee178.jpg",
+      "image": "public/img/c4bee178.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12535,7 +12535,7 @@
     },
     {
       "question_id": "e441da80",
-      "image": "assets/img/e441da80.jpg",
+      "image": "public/img/e441da80.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12607,7 +12607,7 @@
     },
     {
       "question_id": "37a49687",
-      "image": "assets/img/37a49687.jpg",
+      "image": "public/img/37a49687.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12661,7 +12661,7 @@
     },
     {
       "question_id": "89f71526",
-      "image": "assets/img/89f71526.jpg",
+      "image": "public/img/89f71526.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12679,7 +12679,7 @@
     },
     {
       "question_id": "145da981",
-      "image": "assets/img/145da981.jpg",
+      "image": "public/img/145da981.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12697,7 +12697,7 @@
     },
     {
       "question_id": "46e45728",
-      "image": "assets/img/46e45728.jpg",
+      "image": "public/img/46e45728.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12715,7 +12715,7 @@
     },
     {
       "question_id": "faaf484f",
-      "image": "assets/img/faaf484f.jpg",
+      "image": "public/img/faaf484f.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12769,7 +12769,7 @@
     },
     {
       "question_id": "5ff1ba73",
-      "image": "assets/img/5ff1ba73.jpg",
+      "image": "public/img/5ff1ba73.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12787,7 +12787,7 @@
     },
     {
       "question_id": "ab94d40a",
-      "image": "assets/img/ab94d40a.jpg",
+      "image": "public/img/ab94d40a.jpg",
       "assessment": "SAT",
       "test": "Reading and Writing",
       "domain": "Information and Ideas",
@@ -12840,7 +12840,7 @@
 },
   {
     "question_id": "d83c3d54",
-    "image": "assets/img/d83c3d54.jpg",
+    "image": "public/img/d83c3d54.jpg",
     "assessment": "SAT",
     "test": "Reading and Writing",
     "domain": "Information and Ideas",
@@ -12858,7 +12858,7 @@
   },
   {
     "question_id": "d5b9ed0d",
-    "image": "assets/img/d5b9ed0d.jpg",
+    "image": "public/img/d5b9ed0d.jpg",
     "assessment": "SAT",
     "test": "Reading and Writing",
     "domain": "Information and Ideas",
@@ -13005,7 +13005,7 @@
   },
   {
     "question_id": "e1546fd6",
-    "image": "assets/img/e1546fd6.jpg",
+    "image": "public/img/e1546fd6.jpg",
     "assessment": "SAT",
     "test": "Reading and Writing",
     "domain": "Information and Ideas",

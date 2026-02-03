@@ -13,8 +13,11 @@ import {
   FaCalculator,
   FaBookReader,
   FaCheck,
-  FaClock
+  FaClock,
+  FaBars,  
+  FaTimes
 } from 'react-icons/fa';
+import BannerAd from './banner';
 
 // Import Material-UI icons for navbar
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -706,7 +709,7 @@ const StudyPlan = () => {
     const isExpanded = subdomainExpanded[domain]?.[subdomain] || false;
 
     return (
-      <div className="subdomain-section" itemScope itemType="https://schema.org/EducationEvent">
+      <div className="subdomain-section" itemScope itemType="https://schema.org/LearningResource">
         <div 
           className="subdomain-header"
           onClick={() => toggleSubdomainExpansion(domain, subdomain)}
@@ -854,7 +857,7 @@ const StudyPlan = () => {
     };
 
     return (
-      <div className="countdown-section" itemScope itemType="https://schema.org/Event">
+      <div className="countdown-section">
         <h2>Upcoming SAT Mock Test</h2>
         <p>Practice with a full-length Digital SAT test under timed conditions</p>
         <div className="countdown-label">SAT TEST STARTS IN</div>
@@ -869,7 +872,7 @@ const StudyPlan = () => {
         </div>
         <div className="countdown-date">
           <FaCalendarAlt aria-hidden="true" />
-          <span itemProp="startDate" content={countdown.nextEvent?.toISOString()}>
+          <span>
             {formatDate(countdown.nextEvent)}
           </span>
         </div>
@@ -878,72 +881,101 @@ const StudyPlan = () => {
   };
 
   // Generate JSON-LD structured data for SEO
-  const generateStructuredData = () => {
-    const baseUrl = window.location.origin;
-    
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebPage",
-          "@id": `${baseUrl}/digital-sat-practice-questions`,
-          "name": "SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam",
-          "description": "Select specific SAT domains and topics to focus on your weak areas. Practice with full-length Digital SAT mock tests and track your progress with our AI-powered tutoring system.",
-          "url": `${baseUrl}/digital-sat-practice-questions`,
-          "mainEntityOfPage": {
-            "@type": "WebApplication",
-            "name": "Mock SAT Exam Study Planner",
-            "applicationCategory": "EducationalApplication",
-            "operatingSystem": "Web",
-            "description": "Interactive Digital SAT study plan tool with topic selection and mock tests for SAT 2026 preparation",
-            "offers": {
-              "@type": "Offer",
-              "category": "Free",
-              "availability": "https://schema.org/InStock"
-            }
-          }
-        },
-        {
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Home",
-              "item": `${baseUrl}/`
+    const generateStructuredData = () => {
+      const baseUrl = window.location.origin;
+      
+      const structuredData = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": `${baseUrl}/digital-sat-practice-questions`,
+            "name": "SAT Study Plan | Targeted Practice with AI Tutor | Mock SAT Exam",
+            "description": "Select specific SAT domains and topics to focus on your weak areas. Practice with full-length Digital SAT mock tests and track your progress with our AI-powered tutoring system.",
+            "url": `${baseUrl}/digital-sat-practice-questions`,
+            // ADDED: mainEntity property pointing to the LearningResource
+            "mainEntity": {
+              "@type": "LearningResource",
+              "@id": `${baseUrl}/digital-sat-practice-questions#studyplan`,
+              "name": "Digital SAT Study Plan",
+              "description": "A personalized study plan for the Digital SAT, covering Math and Reading & Writing domains with targeted practice and mock tests.",
+              "learningResourceType": "Study Plan",
+              "educationalLevel": "High School",
+              "url": `${baseUrl}/digital-sat-practice-questions`
             },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "SAT Study Plan",
-              "item": `${baseUrl}/digital-sat-practice-questions`
+            "mainEntityOfPage": {
+              "@type": "WebApplication",
+              "name": "Mock SAT Exam Study Planner",
+              "applicationCategory": "EducationalApplication",
+              "operatingSystem": "Web",
+              "description": "Interactive Digital SAT study plan tool with topic selection and mock tests for SAT 2026 preparation",
+              "offers": {
+                "@type": "Offer",
+                "category": "Free",
+                "availability": "https://schema.org/InStock"
+              }
             }
-          ]
-        },
-        {
-          "@type": "EducationEvent",
-          "name": "Weekly SAT Mock Test",
-          "description": "Full-length Digital SAT practice test with timer and scoring",
-          "startDate": countdown.nextEvent?.toISOString(),
-          "endDate": countdown.nextEvent ? new Date(countdown.nextEvent.getTime() + 180 * 60000).toISOString() : null,
-          "eventStatus": "https://schema.org/EventScheduled",
-          "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-          "location": {
-            "@type": "VirtualLocation",
-            "url": `${baseUrl}/mock-test`
           },
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD",
-            "availability": "https://schema.org/InStock"
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": `${baseUrl}/`
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "SAT Study Plan",
+                "item": `${baseUrl}/digital-sat-practice-questions`
+              }
+            ]
+          },
+          
+          // ADDED: Explicit LearningResource for the study plan
+          {
+            "@type": "LearningResource",
+            "@id": `${baseUrl}/digital-sat-practice-questions#studyplan`,
+            "name": "Digital SAT Study Plan",
+            "description": "Interactive SAT study plan with topic selection and mock tests for Digital SAT 2026 preparation",
+            "learningResourceType": "Study Plan",
+            "educationalLevel": "High School",
+            "url": `${baseUrl}/digital-sat-practice-questions`,
+            "educationalAlignment": [
+              {
+                "@type": "AlignmentObject",
+                "alignmentType": "educationalSubject",
+                "educationalFramework": "Digital SAT",
+                "targetName": "Mathematics"
+              },
+              {
+                "@type": "AlignmentObject",
+                "alignmentType": "educationalSubject",
+                "educationalFramework": "Digital SAT",
+                "targetName": "Reading and Writing"
+              }
+            ],
+            "timeRequired": "PT1H",
+            "hasPart": [
+              {
+                "@type": "LearningResource",
+                "name": "SAT Math Practice",
+                "description": "Digital SAT Math domain practice with subtopics"
+              },
+              {
+                "@type": "LearningResource",
+                "name": "SAT Reading and Writing Practice",
+                "description": "Digital SAT Reading and Writing domain practice"
+              }
+            ]
           }
-        }
-      ]
-    };
+        ]
+      };
 
-    return JSON.stringify(structuredData);
-  };
+      return JSON.stringify(structuredData);
+    };
 
   // Generate FAQ structured data
   const generateFAQStructuredData = () => {
@@ -1117,6 +1149,9 @@ const StudyPlan = () => {
             <Link to="/" className="nav-link sat-nav-link digital-sat-practice-questions-link" aria-label="SAT Mock Practice">
               Home
             </Link>
+            <Link to="/notes-question-bank" className="nav-link sat-nav-link courses-link" aria-label="SAT Courses">
+              Qn.Bank
+            </Link>
             <Link to="/courses" className="nav-link sat-nav-link courses-link" aria-label="SAT Courses">
               Courses
             </Link>
@@ -1204,8 +1239,8 @@ const StudyPlan = () => {
           <div className="mock-tests-section-container" id="mock-tests">
             {isMobile ? (
               <>
-                <div ref={mockTestsRef} className="mock-tests-section" itemScope itemType="https://schema.org/EducationEvent">
-                  <h2>Full Digital SAT Mock Tests</h2>
+                <div ref={mockTestsRef} className="mock-tests-section" itemScope itemType="https://schema.org/LearningResource">
+                  <h2 itemProp="name">Full Digital SAT Mock Tests</h2>
                   <p>Practice with full-length Digital SAT mock tests for 2026</p>
                   
                   <div className="mock-tests-container">
@@ -1252,7 +1287,7 @@ const StudyPlan = () => {
               </>
             ) : (
               <div className="mock-tests-row">
-                <div ref={mockTestsRef} className="mock-tests-section" itemScope itemType="https://schema.org/EducationEvent">
+                <div ref={mockTestsRef} className="mock-tests-section" itemScope itemType="https://schema.org/LearningResource">
                   <h2>Full Digital SAT Mock Tests</h2>
                   <p>Practice with full-length Digital SAT mock tests for 2026</p>
                   
@@ -1296,38 +1331,14 @@ const StudyPlan = () => {
                 </div>
                 <MockTestCountdownSection />
               </div>
+              //here
+              
+
             )}
+            <BannerAd/>
           </div>
 
-          {/* SEO FAQ Section (Hidden from UI but accessible) */}
-          <div className="structured-data" aria-hidden="true">
-            <div itemScope itemType="https://schema.org/FAQPage">
-              <div itemScope itemType="https://schema.org/Question">
-                <h3 itemProp="name">What is a SAT study plan?</h3>
-                <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
-                  <div itemProp="text">
-                    A SAT study plan is a structured approach to preparing for the Digital SAT exam that focuses on your specific weak areas. Our platform allows you to select individual topics within Math, Reading, and Writing domains to create a personalized study schedule.
-                  </div>
-                </div>
-              </div>
-              <div itemScope itemType="https://schema.org/Question">
-                <h3 itemProp="name">How many SAT topics are available?</h3>
-                <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
-                  <div itemProp="text">
-                    Our platform covers all major SAT domains including Advanced Math, Algebra, Problem-Solving and Data Analysis, Geometry, Trigonometry, Reading Comprehension, and Writing. Each domain contains multiple subdomains and specific topics for targeted practice.
-                  </div>
-                </div>
-              </div>
-              <div itemScope itemType="https://schema.org/Question">
-                <h3 itemProp="name">Are the mock tests similar to the real Digital SAT?</h3>
-                <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
-                  <div itemProp="text">
-                    Yes, our mock tests are designed to simulate the actual Digital SAT exam format, timing, and question types. They include both Math and Evidence-Based Reading and Writing sections with accurate difficulty levels.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </main>
 
@@ -1352,13 +1363,16 @@ const StudyPlan = () => {
             <Link to="/" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Home">
               Home
             </Link>
-            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Courses">
-              Courses
+            
+            <Link to="/notes-question-bank" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Courses">
+              Qn.Bank
             </Link>
             <Link to="/roadmap" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Roadmap">
               RoadMap
             </Link>
-
+            <Link to="/courses" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Courses">
+              Courses
+            </Link>
             <Link to="/blogs" className="mobile-menu-link" onClick={() => setIsMenuOpen(false)} aria-label="SAT Blogs">
               Blogs
             </Link>

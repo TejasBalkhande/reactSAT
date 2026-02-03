@@ -5,35 +5,32 @@ const app = new Hono();
 
 // IMPROVED: Dynamic CORS for all environments
 app.use('/api/*', cors({
-  origin: (origin) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return true;
-    
-    // List of allowed origins
+  origin: (origin, c) => {
+    if (!origin) return origin; // Allow non-browser requests (curl, mobile)
+
     const allowedOrigins = [
       'http://localhost:3000',
-      'http://localhost:5173', // Vite dev server
+      'http://localhost:5173',
       'https://e5661c37.sat-mock-react.pages.dev',
+      'https://c77be3d1.sat-mock-react.pages.dev', // Added your new deploy URL
       'https://mocksatexam.online',
-      'https://*.mocksatexam.online',
-      'https://*.pages.dev'
+      'https://www.mocksatexam.online'
     ];
-    
-    // Check if origin matches any allowed pattern
-    const isAllowed = allowedOrigins.some(allowed => {
-      if (allowed.includes('*')) {
-        const pattern = allowed.replace('*', '.*');
-        return new RegExp(pattern).test(origin);
-      }
-      return origin === allowed;
-    });
-    
-    return isAllowed;
+
+    // 1. Check direct matches
+    if (allowedOrigins.includes(origin)) return origin;
+
+    // 2. Check wildcard matches for subdomains
+    if (origin.endsWith('.mocksatexam.online') || origin.endsWith('.pages.dev')) {
+      return origin;
+    }
+
+    return null; // Refuse others
   },
-  allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   allowMethods: ['POST', 'GET', 'PUT', 'DELETE', 'OPTIONS'],
-  exposeHeaders: ['Content-Length', 'X-Requested-With'],
-  maxAge: 600,
+  exposeHeaders: ['Content-Length'],
+  maxAge: 86400, // Pre-flight cache (24 hours)
   credentials: true,
 }));
 
@@ -103,6 +100,7 @@ app.get('/api/health', (c) => {
     allowedOrigins: [
       'http://localhost:3000',
       'https://e5661c37.sat-mock-react.pages.dev',
+      'https://e5661c37.sat-mock-react.pages.dev/',
       'https://mocksatexam.online'
     ]
   });

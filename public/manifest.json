@@ -1,0 +1,21 @@
+{
+  "name": "Mock SAT Exam - Free Digital SAT Prep",
+  "short_name": "Mock SAT Exam",
+  "description": "Free Digital SAT preparation platform with AI-powered mock tests and study plans",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F9F5",
+  "theme_color": "#2B463C",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
