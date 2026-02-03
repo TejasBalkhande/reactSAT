@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet-async'; // SEO: Import Helmet
 import { FaPlayCircle, FaChartBar, FaUserCircle, FaTimes, FaDownload } from 'react-icons/fa';
 import PersonIcon from '@mui/icons-material/Person';
 import './Note.css';
-import BannerAd from '../banner';
 import PopUnder from '../popunder'; 
 
 const Note = () => {
@@ -228,7 +227,6 @@ const Note = () => {
             <p>Curated worksheets, PDF practice questions, and answer keys for 2026/2027 prep.</p>
           </header>
 
-          <BannerAd/>
 
           <span className="category-label">Mathematics</span>
           <div className="list-grid">
@@ -243,7 +241,6 @@ const Note = () => {
             ))}
           </div>
 
-          <BannerAd/>
 
           <span className="category-label">Reading & Writing</span>
           <div className="list-grid">

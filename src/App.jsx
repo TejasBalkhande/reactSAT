@@ -59,7 +59,6 @@ import Info from './pages/Info';
 import Blog1 from './blogs/blog1';
 import Blog2 from './blogs/blog2';
 import Blog3 from './blogs/blog3';
-import BannerAd from './banner';
 // Import leaderboard data from JSON file
 import leaderboardData from './assets/leaderboardData.json';
 
@@ -436,7 +435,6 @@ function HomePage() {
         </div>
       </section>
 
-      <BannerAd />
 
       {/* UPDATED: Blog Section - Static Grid for Desktop, Stacked for Mobile */}
       <section className="blog-section" aria-labelledby="blog-title">
@@ -805,7 +803,6 @@ function HomePage() {
         )}
       </section>
 
-      <BannerAd />
 
       {/* Quick Navigation */}
       <section className="quick-nav-section sat-quick-nav" aria-labelledby="quick-nav-title">

@@ -359,12 +359,10 @@ const MockTestScreen = () => {
           <div className="logo">
             <img src="/logo.png" alt="Logo" className="logo-img" />
           </div>
-          <h1>Mock SAT Exam</h1>
+          <h1>Loading...</h1>
         </div>
       </header>
-      <div className="loading-spinner">
-        <FaSpinner className="spinner" />
-      </div>
+      
     </div>
   );
   
@@ -384,16 +382,29 @@ const MockTestScreen = () => {
         <div className="welcome-content">
           <div className="welcome-card">
             <div className="welcome-header">
-              <FaGraduationCap className="welcome-icon" />
-              <h1>SAT Practice Test</h1>
+              <h1>SAT Mock Test</h1>
               <p className="welcome-subtitle">Get ready to demonstrate your skills</p>
+            </div>
+
+            <div className="start-test-section">
+              <button 
+                className="start-test-button"
+                onClick={startTest}
+              >
+                <FaCheckCircle className="start-icon" />
+                I'm Ready
+              </button>
+              <button 
+                className="back-button"
+                onClick={() => navigate('/digital-sat-practice-questions')}
+              >
+                <FaChevronLeft />
+                Back
+              </button>
             </div>
             
             <div className="test-info-section">
               <div className="info-card">
-                <div className="info-icon reading">
-                  <FaBookOpen />
-                </div>
                 <div className="info-content">
                   <h3>Reading & Writing</h3>
                   <p className="info-stats">
@@ -411,9 +422,6 @@ const MockTestScreen = () => {
               </div>
               
               <div className="info-card">
-                <div className="info-icon math">
-                  <FaCalculator />
-                </div>
                 <div className="info-content">
                   <h3>Math</h3>
                   <p className="info-stats">
@@ -431,22 +439,7 @@ const MockTestScreen = () => {
               </div>
             </div>
             
-            <div className="start-test-section">
-              <button 
-                className="start-test-button"
-                onClick={startTest}
-              >
-                <FaCheckCircle className="start-icon" />
-                I'm Ready
-              </button>
-              <button 
-                className="back-button"
-                onClick={() => navigate('/digital-sat-practice-questions')}
-              >
-                <FaChevronLeft />
-                Back
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -612,7 +605,7 @@ const MockTestScreen = () => {
           
           {/* Question Text - USING NEW RENDER FUNCTION */}
           <div className="question-text">
-            {renderQuestionText(question.questionText, 18, { color: '#2c3e50' })}
+            {renderQuestionText(question.questionText, 15, { color: '#2c3e50' })}
           </div>
           
           {/* Image - ONLY SHOW IF IMAGE EXISTS IN JSON */}
@@ -641,7 +634,7 @@ const MockTestScreen = () => {
                   <div className={`option-circle ${answerState.selectedOption === option ? 'filled' : ''}`} />
                 </div>
                 <div className="option-text">
-                  {renderTextWithLatex(option, 16, { color: '#34495e' })}
+                  {renderTextWithLatex(option, 15, { color: '#34495e' })}
                 </div>
               </div>
             ))}
@@ -666,7 +659,7 @@ const MockTestScreen = () => {
           className={`nav-button mark ${answerState.marked ? 'marked' : ''}`}
           onClick={toggleMarkForReview}
         >
-          <FaFlag /> {answerState.marked ? 'Marked' : 'Mark for Review'}
+          <FaFlag /> {answerState.marked ? 'Marked' : 'Mark'}
         </button>
         
         <button
@@ -679,7 +672,7 @@ const MockTestScreen = () => {
             }
           }}
         >
-          {isLastQuestion ? (currentSectionIndex === 0 ? 'Next Section' : 'Submit Test') : 'Next Question'}
+          {isLastQuestion ? (currentSectionIndex === 0 ? 'Next Section' : 'Submit') : 'Next'}
           {!isLastQuestion && <FaChevronRight />}
         </button>
       </div>

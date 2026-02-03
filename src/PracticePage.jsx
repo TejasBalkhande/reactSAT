@@ -26,7 +26,6 @@ import {
   FaLock
 } from 'react-icons/fa';
 
-import BannerAd from './banner';
 
 const PracticePage = () => {
   const navigate = useNavigate();
@@ -47,7 +46,6 @@ const PracticePage = () => {
 
   // Initialize Groq client with API key
   const groq = new Groq({
-    //here
     dangerouslyAllowBrowser: true
   });
 
@@ -1037,9 +1035,6 @@ const PracticePage = () => {
                 {renderQuestionText(currentQuestion.explanation, 16, { color: '#7f8c8d' })}
               </div>
             )}
-            <BannerAd key={currentQuestionIndex} />
-            <div style={{ marginBottom: "80px" }}></div>
-
           
 
             {/* Navigation Buttons */}

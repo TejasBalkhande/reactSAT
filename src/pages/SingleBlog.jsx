@@ -452,8 +452,6 @@ const SingleBlog = () => {
               </div>
             </div>
 
-            <BannerAd2/>
-            <BannerAd2/>
 
             <div className="sidebar-widget sat-sidebar-widget">
               <h3>Trending SAT Articles</h3>

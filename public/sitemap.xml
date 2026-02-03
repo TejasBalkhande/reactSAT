@@ -590,4 +590,22 @@
       <changefreq>weekly</changefreq>
       <priority>0.90</priority>
     </url>
+    <url>
+      <loc>https://mocksatexam.online/mock-test/sat-mock-1</loc>
+      <lastmod>2026-01-29</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.90</priority>
+    </url>
+    <url>
+      <loc>https://mocksatexam.online/mock-test/sat-mock-2</loc>
+      <lastmod>2026-01-29</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.90</priority>
+    </url>
+    <url>
+      <loc>https://mocksatexam.online/mock-test/sat-mock-3</loc>
+      <lastmod>2026-01-29</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.90</priority>
+    </url>
 </urlset>

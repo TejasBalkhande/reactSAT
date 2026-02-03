@@ -112,7 +112,7 @@
 /* Main Content - Matching PracticePage layout */
 .main-content-wrapper {
   display: flex;
-  min-height: calc(100vh - 50px);
+  min-height: calc(100vh - 64px);
   position: relative;
 }
 
@@ -125,8 +125,7 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  margin-bottom: 50px;
-
+  margin-bottom: 80px; /* Increased for better spacing with fixed nav */
 }
 
 /* Progress Bar */
@@ -195,7 +194,7 @@
 
 /* Question Text - Matching PracticePage */
 .question-text {
-  font-size: 18px;
+  font-size: 15px;
   line-height: 1.6;
   margin-bottom: 32px;
   color: #333;
@@ -230,7 +229,7 @@
 
 /* Options Container - Matching PracticePage */
 .options-container {
-  margin-bottom: 32px;
+  margin-bottom: 50px;
 }
 
 .option-card {
@@ -282,7 +281,7 @@
 
 .option-text {
   flex: 1;
-  font-size: 18px;
+  font-size: 15px;
   line-height: 1.5;
   color: #34495e;
 }
@@ -291,37 +290,39 @@
   font-size: 18px !important;
 }
 
-/* Navigation Buttons - Matching PracticePage */
+/* Navigation Buttons - Fixed and optimized for mobile */
 .navigation-buttons {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   position: fixed;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
-  padding: 12px 0;
-  background: transparent;
-  border-top: none;
-  box-shadow: none;
-  backdrop-filter: none;
-  z-index: 90;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: transparent !important;
+  z-index: 100;
+  height: auto;
+  min-height: 72px;
 }
 
-
 .nav-button {
-  padding: 14px 32px;
-  border-radius: 12px;
-  font-size: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.2s;
   border: none;
-  min-width: 160px;
+  min-width: 0;
+  height: 48px;
+  flex: 0 1 auto;
+  width: auto;
+  white-space: nowrap;
 }
 
 .nav-button.previous {
@@ -481,8 +482,8 @@
 }
 
 .finish-section-btn {
-  width: 100%;
-  padding: 14px;
+  width: fit-content;   /* key line */
+  padding: 14px 28px;
   background-color: #2B463C;
   color: white;
   border: none;
@@ -984,6 +985,7 @@
 @media (max-width: 768px) {
   .main-content-wrapper {
     flex-direction: column;
+    min-height: calc(100vh - 64px - 72px); /* Account for header and nav buttons */
   }
   
   .question-grid-sidebar {
@@ -1007,8 +1009,11 @@
   
   .question-area {
     padding: 20px;
-    max-height: calc(100vh - 200px);
+    padding-bottom: 24px;
+    margin-bottom: 0;
+    max-height: none;
     overflow-y: auto;
+    flex: 1;
   }
   
   .app-header {
@@ -1029,14 +1034,26 @@
   
   .navigation-buttons {
     flex-direction: row;
-    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+    height: 68px;
+    min-height: 68px;
+    align-items: center;
+    justify-content: space-between;
   }
   
   .nav-button {
-    flex: 1;
-    min-width: 120px;
-    padding: 12px 16px;
-    font-size: 14px;
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 90px;
+    max-width: 110px;
+    padding: 10px 12px !important;
+    font-size: 13px;
+    height: 48px;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .grid-container {
@@ -1053,21 +1070,39 @@
   .difficulty-badge {
     align-self: flex-start;
   }
+  
+  /* Adjust question text for better mobile readability */
+  .question-text {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  
+  .option-card {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .option-text {
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 480px) {
   .question-text {
-    font-size: 16px;
+    font-size: 14px;
   }
   
   .option-text {
-    font-size: 16px;
+    font-size: 13px;
   }
   
   .nav-button {
-    padding: 12px;
-    font-size: 14px;
-    min-width: 100px;
+    padding: 8px 10px !important;
+    font-size: 12px;
+    height: 44px;
+    min-width: 80px;
+    max-width: 95px;
   }
   
   .app-header h1 {
@@ -1085,6 +1120,39 @@
   
   .grid-container {
     grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  
+  .grid-item {
+    font-size: 14px;
+  }
+  
+  .navigation-buttons {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 360px) {
+  .nav-button {
+    padding: 6px 8px !important;
+    font-size: 11px;
+    min-width: 70px;
+    max-width: 85px;
+  }
+  
+  .navigation-buttons {
+    gap: 4px;
+    padding: 8px;
+  }
+  
+  .question-text {
+    font-size: 14px;
+  }
+  
+  .option-text {
+    font-size: 13px;
   }
 }
 
@@ -1100,13 +1168,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 0px;
 }
 
 .welcome-card {
   background: white;
   border-radius: 24px;
-  padding: 40px;
+  padding: 20px;
   max-width: 800px;
   width: 100%;
   box-shadow: 0 10px 30px rgba(43, 70, 60, 0.1);
@@ -1115,7 +1183,7 @@
 
 .welcome-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .welcome-icon {
@@ -1139,20 +1207,22 @@
 
 .test-info-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr); /* Always 2 columns */
   gap: 24px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .info-card {
   background: #f8f9fa;
   border-radius: 16px;
-  padding: 24px;
+  padding: 10px;
   border: 2px solid transparent;
   transition: all 0.3s ease;
   display: flex;
-  align-items: flex-start;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 200px;
 }
 
 .info-card:hover {
@@ -1177,6 +1247,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-bottom: 5px !important;
 }
 
 .info-icon.reading {
@@ -1191,30 +1262,36 @@
 
 .info-content {
   flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .info-content h3 {
   font-size: 20px;
   color: #2B463C;
-  margin: 0 0 12px 0;
   font-weight: 600;
 }
 
 .info-stats {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 8px;
   margin-bottom: 12px;
+  flex: 1;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   color: #495057;
+  font-size: 14px;
 }
 
 .stat-item strong {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #4A7C59;
 }
@@ -1224,6 +1301,7 @@
   font-size: 14px;
   line-height: 1.5;
   margin: 0;
+  margin-top: auto;
 }
 
 .test-instructions {
@@ -1269,7 +1347,12 @@
 }
 
 .start-test-section {
-  text-align: center;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .start-test-button {
@@ -1277,17 +1360,18 @@
   color: white;
   border: none;
   border-radius: 16px;
-  padding: 18px 40px;
-  font-size: 18px;
+  padding: 10px 15px !important;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   transition: all 0.3s ease;
-  margin-bottom: 16px;
-  min-width: 240px;
+  min-height: 56px;
+  flex: 1;
+  max-width: 240px;
 }
 
 .start-test-button:hover {
@@ -1308,16 +1392,17 @@
   color: #6c757d;
   border: 2px solid #e0e0e0;
   border-radius: 16px;
-  padding: 14px 24px;
+  padding: 18px 32px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   transition: all 0.2s ease;
-  width: 100%;
+  min-height: 56px;
+  flex: 1;
   max-width: 240px;
 }
 
@@ -1331,6 +1416,11 @@
 .navigation-buttons {
   backdrop-filter: none;
   background: transparent;
+}
+
+/* Ensure button content is properly aligned */
+.start-icon {
+  font-size: 18px;
 }
 
 /* Responsive Design for Welcome Screen */
@@ -1349,120 +1439,113 @@
   }
   
   .test-info-section {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 columns on mobile */
+    gap: 16px;
   }
   
   .info-card {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
+    padding: 10px;
   }
   
   .info-icon {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     font-size: 24px;
   }
   
-  .info-stats {
-    justify-content: center;
+  .info-content h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  
+  .stat-item {
+    font-size: 12px;
+  }
+  
+  .stat-item strong {
+    font-size: 18px;
+  }
+  
+  .info-description {
+    font-size: 12px;
   }
   
   .test-instructions {
     padding: 20px;
   }
   
-  /* Mobile button layout - vertical stack */
+  .instructions-list li {
+    font-size: 14px;
+  }
+  
+  .start-test-button, .back-button {
+    min-height: 52px;
+    padding: 10px 15px;
+    font-size: 14px !important;
+    max-width: 100%;
+  }
+  
   .start-test-section {
-    display: flex;
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
+/* For very small screens - adjust grid to 1fr if needed */
+@media (max-width: 480px) {
+  .test-info-section {
+    grid-template-columns: 1fr; /* Stack on very small screens */
+    gap: 12px;
+  }
+  
+  .info-card {
+    min-height: 200px;
+    padding: 16px;
+  }
+  
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .info-content h3 {
+    font-size: 15px;
+  }
+  
+  .stat-item strong {
+    font-size: 16px;
+  }
+  
+  .start-test-section {
     flex-direction: column;
     gap: 12px;
-    width: 100%;
   }
   
   .start-test-button, .back-button {
     width: 100%;
-    min-height: 56px;
-    padding: 16px 24px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    font-weight: 600;
+    max-width: 100%;
   }
 }
 
-/* Desktop button layout - horizontal row */
-@media (min-width: 769px) {
-  .start-test-section {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+/* For extremely small screens */
+@media (max-width: 320px) {
+  .welcome-card {
+    padding: 16px;
+    margin: 8px;
+  }
+  
+  .test-info-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-card {
+    min-height: 180px;
+    padding: 12px;
   }
   
   .start-test-button, .back-button {
-    min-width: 180px;
-    min-height: 56px;
-    padding: 16px 32px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    font-weight: 600;
-    flex: 1;
-    max-width: 240px;
+    padding: 12px 16px;
+    font-size: 14px;
   }
-  
-  .start-test-button {
-    flex: 1;
-  }
-  
-  .back-button {
-    flex: 1;
-  }
-}
-
-/* Additional base styles for buttons */
-.start-test-button {
-  background: linear-gradient(135deg, #4A7C59 0%, #3a6c49 100%);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.start-test-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(74, 124, 89, 0.3);
-}
-
-.start-test-button:active {
-  transform: translateY(0);
-}
-
-.back-button {
-  background: transparent;
-  color: #6c757d;
-  border: 2px solid #e0e0e0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  gap: 8px;
-}
-
-.back-button:hover {
-  background: #f8f9fa;
-  border-color: #4A7C59;
-  color: #4A7C59;
-}
-
-/* Ensure button content is properly aligned */
-.start-icon {
-  font-size: 18px;
 }

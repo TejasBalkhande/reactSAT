@@ -26,7 +26,6 @@ import {
   FaClock,
   FaImage
 } from 'react-icons/fa';
-import BannerAd from '../banner';
 
 const RoadmapLevel = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -55,7 +54,6 @@ const RoadmapLevel = ({ user, onLogout }) => {
 
   // Initialize Groq client with API key (same as PracticePage.jsx)
   const groq = new Groq({
-    //here
     dangerouslyAllowBrowser: true
   });
 
@@ -746,8 +744,7 @@ const RoadmapLevel = ({ user, onLogout }) => {
               </div>
             )}
 
-            <BannerAd key={currentQuestionIndex} />
-            <div style={{ marginBottom: "80px" }}></div>
+
 
             {/* Navigation Buttons */}
             <div className="navigation-buttons">
